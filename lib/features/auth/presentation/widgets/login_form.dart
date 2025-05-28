@@ -6,7 +6,7 @@ import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_checkbox.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_input_field.dart';
-import 'package:opicare/features/auth/presentation/bloc/login_bloc.dart';
+import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});

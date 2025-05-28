@@ -39,7 +39,12 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
               label: 'Type d\'abonnements',
               selectedValue: selectedAbonnement,
               hint: 'Choisir un abonnement',
-              options: const ['Premium', 'Standard', 'Business', 'Serenity'],
+              options: [
+                {'libelle': 'Premium', 'valeur': 'Premium'},
+                {'libelle': 'Standard', 'valeur': 'Standard'},
+                {'libelle': 'Business', 'valeur': 'Business'},
+                {'libelle': 'Serenity', 'valeur': 'Serenity'},
+              ],
               onSelected: (value) {
                 if (!mounted) return;
                 setState(() {

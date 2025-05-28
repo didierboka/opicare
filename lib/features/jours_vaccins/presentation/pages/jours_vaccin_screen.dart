@@ -44,7 +44,11 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
               label: 'Liste des districts',
               selectedValue: selectedDistrict,
               hint: 'Sélectionner un district',
-              options: const ['Abidjan', 'Sassandra', 'Boundiali'],
+              options: const [
+                {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+                {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+                {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+              ],
               onSelected: (value) {
                 if (!mounted) return;
                 setState(() {
@@ -57,7 +61,12 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
               label: 'Liste des centres',
               selectedValue: selectedCenter,
               hint: 'Sélectionner un centre',
-              options: const ['ABOBO PK18', 'YOPOUGON TOI ROUGE', 'COCODY ANGRE'],
+              options: [
+                {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+                {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+                {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+                {'libelle': 'ABOBO-OUEST', 'valeur': 'ABOBO-OUEST'},
+              ],
               onSelected: (value) {
                 if (!mounted) return;
                 setState(() {
@@ -70,7 +79,15 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
               label: 'Jours de vaccins',
               selectedValue: selectedVaccin,
               hint: 'Sélectionner un jour',
-              options: const ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
+              options: [
+                {'libelle': 'Lundi', 'valeur': 'Lundi'},
+                {'libelle': 'Mardi', 'valeur': 'Mardi'},
+                {'libelle': 'Mercredi', 'valeur': 'Mercredi'},
+                {'libelle': 'Jeudi', 'valeur': 'Jeudi'},
+                {'libelle': 'Vendredi', 'valeur': 'Vendredi'},
+                {'libelle': 'Samedi', 'valeur': 'Samedi'},
+                {'libelle': 'Dimanche', 'valeur': 'Dimanche'},
+              ],
               onSelected: (value) {
                 if (!mounted) return;
                 setState(() {

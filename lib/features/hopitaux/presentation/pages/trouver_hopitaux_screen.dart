@@ -50,7 +50,12 @@ class _TrouverHopitauxScreenState extends State<TrouverHopitauxScreen> {
                 label: 'Liste des districts',
                 selectedValue: selectedDistrict,
                 hint: 'Sélectionner un district',
-                options: const ['Abidjan', 'Sassandra', 'Boundiali', 'ABOBO-OUEST'],
+                options: [
+                  {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+                  {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+                  {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+                  {'libelle': 'ABOBO-OUEST', 'valeur': 'ABOBO-OUEST'},
+                ],
                 onSelected: (value) {
                   if (!mounted) return;
                   setState(() {

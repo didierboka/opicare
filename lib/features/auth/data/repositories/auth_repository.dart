@@ -10,6 +10,15 @@ abstract class AuthRepository {
     required String password,
     required bool rememberMe,
   });
+
+  Future<CustomResponse<UserModel>> register({
+    required String nom,
+    required String prenoms,
+    required String dateNaissance,
+    required String telephone,
+    required String email,
+    required String genre,
+  });
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -22,22 +31,17 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<CustomResponse<UserModel>> login({
-    required String emailOrPhone,
-    required String password,
-    required bool rememberMe
-  }) async {
+  Future<CustomResponse<UserModel>> login(
+      {required String emailOrPhone,
+      required String password,
+      required bool rememberMe}) async {
     try {
-      print("rememberMeValue: $rememberMe");
-      final response = await apiService.post(
-        '/login',
-        {
-          'd': 'PROD',
-          'login': emailOrPhone,
-          'password': password,
-          'rememberMe': rememberMe.toString()
-        }
-      );
+      final response = await apiService.post('/login', {
+        'd': 'PROD',
+        'login': emailOrPhone,
+        'password': password,
+        'rememberMe': rememberMe.toString()
+      });
 
       if (rememberMe && response.data != null) {
         await localStorage.saveUser(response.data!);
@@ -45,7 +49,45 @@ class AuthRepositoryImpl implements AuthRepository {
 
       return response;
     } catch (e) {
-      print("Erreur AuthRepositoryImpl: ${e.toString()}");
+      return CustomResponse(status: false, message: e.toString());
+    }
+  }
+
+  @override
+  Future<CustomResponse<UserModel>> register({
+    required String nom,
+    required String prenoms,
+    required String dateNaissance,
+    required String telephone,
+    required String email,
+    required String genre,
+  }) async {
+    try {
+      final response = await apiService.post(
+        '/inscription',
+        {
+          'd': 'PROD',
+          'nom': nom,
+          'prenoms': prenoms,
+          'datenaissance': dateNaissance,
+          'numerotel': telephone,
+          'email': email,
+          'sexe': genre,
+        },
+      );
+
+      final myRes = response.response;
+      if (myRes != null) {
+        if (myRes["statut"] == 1) {
+          return CustomResponse(status: true, message: "Inscription réussie");
+        } else if (myRes["statut"] == 0) {
+          return CustomResponse(
+              status: false,
+              message: myRes["message"] ?? "Inscription impossible");
+        }
+      }
+      return response;
+    } catch (e) {
       return CustomResponse(status: false, message: e.toString());
     }
   }

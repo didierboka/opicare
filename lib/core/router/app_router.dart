@@ -2,7 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
-import 'package:opicare/features/auth/presentation/bloc/login_bloc.dart';
+import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
+import 'package:opicare/features/auth/presentation/bloc/register/register_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
 import 'package:opicare/features/auth/presentation/pages/register_page.dart';
 import 'package:opicare/features/change_password/presentation/pages/change_password_screen.dart';
@@ -42,7 +43,12 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: RegisterPage.path,
-      builder: (context, state) => RegisterPage(),
+      builder: (context, state) => BlocProvider(
+        create: (_) => RegisterBloc(
+          authRepository: authRepository,
+        ),
+        child: const RegisterPage(),
+      ),
     ),
     GoRoute(
       path: HomeScreen.path,

@@ -1,8 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
-import '../../data/repositories/auth_repository.dart'; // à créer
-import '../../data/models/auth_response.dart';        // à créer
+import '../../../data/repositories/auth_repository.dart'; // à créer
 
 part 'login_event.dart';
 part 'login_state.dart';

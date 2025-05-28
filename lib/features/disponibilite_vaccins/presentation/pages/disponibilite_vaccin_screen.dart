@@ -43,7 +43,11 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
               label: 'Liste des districts',
               selectedValue: selectedDistrict,
               hint: 'Sélectionner un district',
-              options: const ['Abidjan', 'Sassandra', 'Boundiali'],
+              options: [
+                {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+                {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+                {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+              ],
               onSelected: (value) {
                 if (!mounted) return;
                 setState(() {
@@ -56,7 +60,11 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
               label: 'Liste des centres',
               selectedValue: selectedCenter,
               hint: 'Sélectionner un centre',
-              options: const ['ABOBO PK18', 'YOPOUGON TOI ROUGE', 'COCODY ANGRE'],
+                options: [
+                  {'libelle': 'ABOBO PK18', 'valeur': 'ABOBO PK18'},
+                  {'libelle': 'YOPOUGON TOI ROUGE', 'valeur': 'YOPOUGON TOI ROUGE'},
+                  {'libelle': 'COCODY ANGRE', 'valeur': 'COCODY ANGRE'},
+                ],
               onSelected: (value) {
                 if (!mounted) return;
                 setState(() {
@@ -69,7 +77,11 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
               label: 'Liste des vaccins',
               selectedValue: selectedVaccin,
               hint: 'Sélectionner un vaccin',
-              options: const ['HEPATITE', 'TETANOS', 'MENINGITE'],
+              options: [
+              {'libelle': 'HEPATITE', 'valeur': 'HEPATITE'},
+                {'libelle': 'TETANOS', 'valeur': 'TETANOS'},
+                {'libelle': 'MENINGITE', 'valeur': 'MENINGITE'},
+              ],
               onSelected: (value) {
                 if (!mounted) return;
                 setState(() {

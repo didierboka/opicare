@@ -3,7 +3,7 @@ import 'package:opicare/core/widgets/form_widgets/custom_input_label.dart';
 
 class CustomDatePickerField extends StatelessWidget {
   final String label;
-  final String? selectedDate;
+  final String? selectedDate; // format attendu ici : yyyy-MM-dd
   final ValueChanged<String> onDateSelected;
 
   const CustomDatePickerField({
@@ -21,13 +21,21 @@ class CustomDatePickerField extends StatelessWidget {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      final formattedDate = "${picked.day}/${picked.month}/${picked.year}";
-      onDateSelected(formattedDate);
+      final formattedBackend = "${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}";
+      onDateSelected(formattedBackend);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    String displayDate = 'Sélectionner la date';
+    if (selectedDate != null) {
+      final parts = selectedDate!.split('-');
+      if (parts.length == 3) {
+        displayDate = "${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}";
+      }
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -48,7 +56,7 @@ class CustomDatePickerField extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    selectedDate ?? 'Sélectionner la date',
+                    displayDate,
                     style: const TextStyle(color: Colors.black54),
                   ),
                 ),

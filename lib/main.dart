@@ -5,7 +5,7 @@ import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/router/app_router.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
-import 'package:opicare/features/auth/presentation/bloc/login_bloc.dart';
+import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 
 void main() async {

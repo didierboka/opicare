@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CustomSelectField extends StatelessWidget {
   final String label;
   final String? selectedValue;
   final String hint;
-  final List<String> options;
+  final List<Map<String, String>> options;
   final ValueChanged<String> onSelected;
+  final bool defaultValidator;
 
   const CustomSelectField({
     super.key,
@@ -14,60 +16,45 @@ class CustomSelectField extends StatelessWidget {
     required this.hint,
     required this.options,
     required this.onSelected,
+    this.defaultValidator = false,
   });
-
-  void _openSelection(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: options
-                .map((option) => ListTile(
-              title: Text(option),
-              onTap: () {
-                Navigator.of(context).pop();
-                onSelected(option);
-              },
-            ))
-                .toList(),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
+    final bool hasError = defaultValidator && (selectedValue == null || selectedValue!.isEmpty);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label, style: const TextStyle(fontSize: 14, color: Colors.black54)),
         const SizedBox(height: 5),
-        GestureDetector(
-          onTap: () => _openSelection(context),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            height: 50,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: const Color(0xFFE0E0E0)),
+        DropdownButtonFormField2<String>(
+          isExpanded: true,
+          value: selectedValue,
+          decoration: InputDecoration(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: hasError ? Colors.red : const Color(0xFFE0E0E0)),
             ),
-            child: Row(
-              children: [
-                const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    selectedValue ?? hint,
-                    style: const TextStyle(color: Colors.black54),
-                  ),
-                ),
-              ],
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: hasError ? Colors.red : const Color(0xFFE0E0E0)),
             ),
           ),
+          hint: Text(hint, style: TextStyle(color: hasError ? Colors.red : Colors.black54)),
+          items: options.map((opt) {
+            return DropdownMenuItem<String>(
+              value: opt['valeur'],
+              child: Text(opt['libelle'] ?? ''),
+            );
+          }).toList(),
+          validator: defaultValidator
+              ? (value) => (value == null || value.isEmpty) ? 'Ce champ est requis' : null
+              : null,
+          onChanged: (val) {
+            if (val != null) onSelected(val);
+          },
         ),
       ],
     );
