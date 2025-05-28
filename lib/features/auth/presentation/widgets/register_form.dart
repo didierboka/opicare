@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/enums/app_enums.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_checkbox.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_date_picker_field.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_input_field.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_select_field.dart';
+import 'package:opicare/features/auth/presentation/bloc/register/register_bloc.dart';
+import 'package:opicare/features/auth/presentation/pages/login_page.dart';
+
+import '../../../../core/helpers/ui_helpers.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -14,71 +20,153 @@ class RegisterForm extends StatefulWidget {
 }
 
 class _RegisterFormState extends State<RegisterForm> {
+  final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final surnameController = TextEditingController();
-  final birthDateController = TextEditingController();
   final phoneController = TextEditingController();
   final emailController = TextEditingController();
-  final genderController = TextEditingController();
+  final dateController = TextEditingController();
+  final genreController = TextEditingController();
   String? selectedDate;
   String? selectedGenre;
+  bool rememberMe = false;
+
   @override
   void dispose() {
     nameController.dispose();
     surnameController.dispose();
-    birthDateController.dispose();
     phoneController.dispose();
     emailController.dispose();
-    genderController.dispose();
+    dateController.dispose();
+    genreController.dispose();
     super.dispose();
+  }
+
+  bool validateMail(String email) {
+    return RegExp(
+        r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$'
+    ).hasMatch(email);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Form(child: Column(
-      children: [
-        CustomInputField(controller: nameController,hint: 'Nom', icon: Icons.person_outline, label: 'Nom', ),
-        const SizedBox(height: 20),
-        CustomInputField(controller: surnameController, hint: 'Prénoms', icon: Icons.person_outline, label: 'Prénoms',),
-        const SizedBox(height: 20),
-        //CustomInputField(controller: birthDateController, hint: '', icon: Icons.person_outline, label: 'Date de naissance',),
-        CustomDatePickerField(
-          label: 'Date de naissance',
-          selectedDate: selectedDate,
-          onDateSelected: (date) {
-            if (!mounted) return;
-            setState(() {
-              selectedDate = date;
-            });
-          },
-        ),
-        const SizedBox(height: 20),
-        CustomInputField(controller: phoneController, hint: 'Téléphone', icon: Icons.phone_android, label: 'Téléphone',),
-        const SizedBox(height: 20),
-        CustomInputField(controller: emailController, hint: 'Email', icon: Icons.email, label: 'Email',),
-        const SizedBox(height: 20),
-        //CustomInputField(controller: genderController, hint: 'Genre', icon: Icons.people,label: 'Genre'),
-        CustomSelectField(
-          label: 'Genre',
-          selectedValue: selectedGenre,
-          hint: 'Sélectionner un genre',
-          options: const ['Masculin', 'Féminin'],
-          onSelected: (value) {
-            if (!mounted) return;
-            setState(() {
-              selectedGenre = value;
-            });
-          },
-        ),
-        const SizedBox(height: 10),
-        CustomCheckbox(
-            value: false, onChanged: (v) {}, label: 'Se souvenir de moi'),
-        const SizedBox(height: 10),
-        CustomButton(
-          text: 'Créer le compte',
-          onPressed: () {context.go('/login');},
-        ),
-      ],
-    ));
+    return BlocConsumer<RegisterBloc, RegisterState>(
+      listener: (context, state) {
+        showLoader(context, state is RegisterLoading);
+
+        if (state is RegisterSuccess) {
+          showSnackbar(context,
+            message: state.message,
+            type: MessageType.success,
+          );
+          context.go(LoginPage.path);
+        }
+
+        if (state is RegisterFailure) {
+          showSnackbar(context,
+            message: state.message,
+            type: MessageType.error,
+          );
+        }
+      },
+      builder: (context, state) {
+        return Form(
+          key: formKey,
+          child: Column(
+            children: [
+              CustomInputField(
+                controller: nameController,
+                hint: 'Nom',
+                icon: Icons.person_outline,
+                label: 'Nom',
+              ),
+              const SizedBox(height: 20),
+              CustomInputField(
+                controller: surnameController,
+                hint: 'Prénoms',
+                icon: Icons.person_outline,
+                label: 'Prénoms',
+              ),
+              const SizedBox(height: 20),
+              CustomDateInputField(
+                label: 'Date de naissance',
+                hint: 'jj/mm/aaaa',
+                icon: Icons.calendar_today,
+                controller: dateController,
+              ),
+              const SizedBox(height: 20),
+              CustomInputField(
+                controller: phoneController,
+                hint: '0000000000',
+                icon: Icons.phone_android,
+                label: 'Téléphone',
+                keyBoardType: TextInputType.phone,
+                validator: (value) {
+                  if (!RegExp(r'^[0-9]{10}$').hasMatch(value!)) {
+                    return 'Numéro invalide';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              CustomInputField(
+                controller: emailController,
+                hint: 'test@gmail.com',
+                icon: Icons.email,
+                label: 'Email',
+                keyBoardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (!validateMail(value!)) {
+                    return 'Email invalide';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              CustomSelectField(
+                label: 'Genre',
+                selectedValue: selectedGenre,
+                hint: 'Sélectionner le genre',
+                options: [
+                  {'valeur': 'M', 'libelle': 'Masculin'},
+                  {'valeur': 'F', 'libelle': 'Féminin'},
+                ],
+                onSelected: (val) => setState(() => selectedGenre = val),
+                defaultValidator: true,
+              ),
+
+
+              const SizedBox(height: 20),
+              CustomCheckbox(
+                value: rememberMe,
+                onChanged: (v) {
+                  setState(() => rememberMe = v ?? false);
+                },
+                label: 'Se souvenir de moi',
+              ),
+              const SizedBox(height: 20),
+              CustomButton(
+                text: 'Créer le compte',
+                onPressed: () {
+                  if (formKey.currentState!.validate() &&
+                      selectedGenre != null) {
+                    context.read<RegisterBloc>().add(
+                      RegisterSubmitted(
+                        nom: nameController.text,
+                        prenoms: surnameController.text,
+                        dateNaissance: dateController.text,
+                        telephone: '225${phoneController.text}',
+                        email: emailController.text,
+                        genre: selectedGenre!,
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

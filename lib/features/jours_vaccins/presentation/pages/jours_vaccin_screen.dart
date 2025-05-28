@@ -40,44 +40,61 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
           children: [
             Text('Faire une recherche', style: TextStyles.titleMedium),
             const SizedBox(height: 20),
-            CustomSelectField(
-              label: 'Liste des districts',
-              selectedValue: selectedDistrict,
-              hint: 'Sélectionner un district',
-              options: const ['Abidjan', 'Sassandra', 'Boundiali'],
-              onSelected: (value) {
-                if (!mounted) return;
-                setState(() {
-                  selectedDistrict = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            CustomSelectField(
-              label: 'Liste des centres',
-              selectedValue: selectedCenter,
-              hint: 'Sélectionner un centre',
-              options: const ['ABOBO PK18', 'YOPOUGON TOI ROUGE', 'COCODY ANGRE'],
-              onSelected: (value) {
-                if (!mounted) return;
-                setState(() {
-                  selectedCenter = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            CustomSelectField(
-              label: 'Jours de vaccins',
-              selectedValue: selectedVaccin,
-              hint: 'Sélectionner un jour',
-              options: const ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'],
-              onSelected: (value) {
-                if (!mounted) return;
-                setState(() {
-                  selectedVaccin = value;
-                });
-              },
-            ),
+            // CustomSelectField(
+            //   label: 'Liste des districts',
+            //   selectedValue: selectedDistrict,
+            //   hint: 'Sélectionner un district',
+            //   options: const [
+            //     {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+            //     {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+            //     {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+            //   ],
+            //   onSelected: (value) {
+            //     if (!mounted) return;
+            //     setState(() {
+            //       selectedDistrict = value;
+            //     });
+            //   },
+            // ),
+            // const SizedBox(height: 16),
+            // CustomSelectField(
+            //   label: 'Liste des centres',
+            //   selectedValue: selectedCenter,
+            //   hint: 'Sélectionner un centre',
+            //   options: [
+            //     {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+            //     {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+            //     {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+            //     {'libelle': 'ABOBO-OUEST', 'valeur': 'ABOBO-OUEST'},
+            //   ],
+            //   onSelected: (value) {
+            //     if (!mounted) return;
+            //     setState(() {
+            //       selectedCenter = value;
+            //     });
+            //   },
+            // ),
+            // const SizedBox(height: 16),
+            // CustomSelectField(
+            //   label: 'Jours de vaccins',
+            //   selectedValue: selectedVaccin,
+            //   hint: 'Sélectionner un jour',
+            //   options: [
+            //     {'libelle': 'Lundi', 'valeur': 'Lundi'},
+            //     {'libelle': 'Mardi', 'valeur': 'Mardi'},
+            //     {'libelle': 'Mercredi', 'valeur': 'Mercredi'},
+            //     {'libelle': 'Jeudi', 'valeur': 'Jeudi'},
+            //     {'libelle': 'Vendredi', 'valeur': 'Vendredi'},
+            //     {'libelle': 'Samedi', 'valeur': 'Samedi'},
+            //     {'libelle': 'Dimanche', 'valeur': 'Dimanche'},
+            //   ],
+            //   onSelected: (value) {
+            //     if (!mounted) return;
+            //     setState(() {
+            //       selectedVaccin = value;
+            //     });
+            //   },
+            // ),
             const SizedBox(height: 30),
             Text('Résultat', style: TextStyles.titleMedium),
             const SizedBox(height: 10),
