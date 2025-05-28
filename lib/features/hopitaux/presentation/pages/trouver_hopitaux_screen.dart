@@ -46,23 +46,23 @@ class _TrouverHopitauxScreenState extends State<TrouverHopitauxScreen> {
             children: [
               Text('Faire une rechercher', style: TextStyles.titleMedium),
               const SizedBox(height: 20),
-              CustomSelectField(
-                label: 'Liste des districts',
-                selectedValue: selectedDistrict,
-                hint: 'Sélectionner un district',
-                options: [
-                  {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
-                  {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
-                  {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
-                  {'libelle': 'ABOBO-OUEST', 'valeur': 'ABOBO-OUEST'},
-                ],
-                onSelected: (value) {
-                  if (!mounted) return;
-                  setState(() {
-                    selectedDistrict = value;
-                  });
-                },
-              ),
+              // CustomSelectField(
+              //   label: 'Liste des districts',
+              //   selectedValue: selectedDistrict,
+              //   hint: 'Sélectionner un district',
+              //   options: [
+              //     {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+              //     {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+              //     {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+              //     {'libelle': 'ABOBO-OUEST', 'valeur': 'ABOBO-OUEST'},
+              //   ],
+              //   onSelected: (value) {
+              //     if (!mounted) return;
+              //     setState(() {
+              //       selectedDistrict = value;
+              //     });
+              //   },
+              // ),
               const SizedBox(height: 30),
               Text('Résultat', style: TextStyles.titleMedium),
               const SizedBox(height: 10),

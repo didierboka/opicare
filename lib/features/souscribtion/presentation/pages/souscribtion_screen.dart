@@ -35,23 +35,23 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CustomSelectField(
-              label: 'Type d\'abonnements',
-              selectedValue: selectedAbonnement,
-              hint: 'Choisir un abonnement',
-              options: [
-                {'libelle': 'Premium', 'valeur': 'Premium'},
-                {'libelle': 'Standard', 'valeur': 'Standard'},
-                {'libelle': 'Business', 'valeur': 'Business'},
-                {'libelle': 'Serenity', 'valeur': 'Serenity'},
-              ],
-              onSelected: (value) {
-                if (!mounted) return;
-                setState(() {
-                  selectedAbonnement = value;
-                });
-              },
-            ),
+            // CustomSelectField(
+            //   label: 'Type d\'abonnements',
+            //   selectedValue: selectedAbonnement,
+            //   hint: 'Choisir un abonnement',
+            //   options: [
+            //     {'libelle': 'Premium', 'valeur': 'Premium'},
+            //     {'libelle': 'Standard', 'valeur': 'Standard'},
+            //     {'libelle': 'Business', 'valeur': 'Business'},
+            //     {'libelle': 'Serenity', 'valeur': 'Serenity'},
+            //   ],
+            //   onSelected: (value) {
+            //     if (!mounted) return;
+            //     setState(() {
+            //       selectedAbonnement = value;
+            //     });
+            //   },
+            // ),
             const SizedBox(height: 16),
             CustomInputField(
               controller: _yearsController,

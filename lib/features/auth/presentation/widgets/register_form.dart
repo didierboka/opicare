@@ -25,6 +25,8 @@ class _RegisterFormState extends State<RegisterForm> {
   final surnameController = TextEditingController();
   final phoneController = TextEditingController();
   final emailController = TextEditingController();
+  final dateController = TextEditingController();
+  final genreController = TextEditingController();
   String? selectedDate;
   String? selectedGenre;
   bool rememberMe = false;
@@ -35,6 +37,8 @@ class _RegisterFormState extends State<RegisterForm> {
     surnameController.dispose();
     phoneController.dispose();
     emailController.dispose();
+    dateController.dispose();
+    genreController.dispose();
     super.dispose();
   }
 
@@ -84,12 +88,11 @@ class _RegisterFormState extends State<RegisterForm> {
                 label: 'Prénoms',
               ),
               const SizedBox(height: 20),
-              CustomDatePickerField(
+              CustomDateInputField(
                 label: 'Date de naissance',
-                selectedDate: selectedDate,
-                onDateSelected: (date) {
-                  setState(() => selectedDate = date);
-                },
+                hint: 'jj/mm/aaaa',
+                icon: Icons.calendar_today,
+                controller: dateController,
               ),
               const SizedBox(height: 20),
               CustomInputField(
@@ -123,16 +126,15 @@ class _RegisterFormState extends State<RegisterForm> {
               CustomSelectField(
                 label: 'Genre',
                 selectedValue: selectedGenre,
-                hint: 'Sélectionner un genre',
+                hint: 'Sélectionner le genre',
                 options: [
-                  {'libelle': 'Masculin', 'valeur': 'M'},
-                  {'libelle': 'Féminin', 'valeur': 'F'},
+                  {'valeur': 'M', 'libelle': 'Masculin'},
+                  {'valeur': 'F', 'libelle': 'Féminin'},
                 ],
-                onSelected: (value) {
-                  setState(() => selectedGenre = value);
-                },
-                defaultValidator: false,
+                onSelected: (val) => setState(() => selectedGenre = val),
+                defaultValidator: true,
               ),
+
 
               const SizedBox(height: 20),
               CustomCheckbox(
@@ -147,14 +149,13 @@ class _RegisterFormState extends State<RegisterForm> {
                 text: 'Créer le compte',
                 onPressed: () {
                   if (formKey.currentState!.validate() &&
-                      selectedDate != null &&
                       selectedGenre != null) {
                     context.read<RegisterBloc>().add(
                       RegisterSubmitted(
                         nom: nameController.text,
                         prenoms: surnameController.text,
-                        dateNaissance: selectedDate!,
-                        telephone: '+225${phoneController.text}',
+                        dateNaissance: dateController.text,
+                        telephone: '225${phoneController.text}',
                         email: emailController.text,
                         genre: selectedGenre!,
                       ),
