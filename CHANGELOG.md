@@ -1,38 +1,21 @@
-# 1.0.0 (2025-05-29)
+# Changelog
 
+Toutes les modifications notables de ce projet seront documentées dans ce fichier.
 
-### Bug Fixes
+Le format est basé sur [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+et ce projet suit la spécification [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-* **ci:** use working changelog tool ([8ade316](https://github.com/didierboka/opicare/commit/8ade316ff1da595454552903ca9b324e54c4a9b2))
+## [Unreleased]
+### Added
+- **setup**: add changelog automation ([dbfe2da](https://github.com/didierboka/opicare/commit/dbfe2da))
+- **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
+### Changed
+- update changelog.yml file ([b548956](https://github.com/didierboka/opicare/commit/b548956))
+- update package.json with changelog scripts ([385ea3e](https://github.com/didierboka/opicare/commit/385ea3e))
+- update package.json with changelog scripts ([f4b935a](https://github.com/didierboka/opicare/commit/f4b935a))
+- add GitHub Actions for changelog automation ([f855a1a](https://github.com/didierboka/opicare/commit/f855a1a))
 
-### Features
-
-* **changelog:** setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/64335861f11ae4e170184a2311f16a0dd1708988))
-* **setup:** add changelog automation ([dbfe2da](https://github.com/didierboka/opicare/commit/dbfe2da200fd7509c7c365f9ebed3731e6e2cf7e))
-
-
-
-# 1.0.0 (2025-05-29)
-
-
-### Bug Fixes
-
-* **ci:** use working changelog tool ([8ade316](https://github.com/didierboka/opicare/commit/8ade316ff1da595454552903ca9b324e54c4a9b2))
-
-
-### Features
-
-* **changelog:** setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/64335861f11ae4e170184a2311f16a0dd1708988))
-
-
-
-# 1.0.0 (2025-05-29)
-
-
-### Features
-
-* **changelog:** setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/64335861f11ae4e170184a2311f16a0dd1708988))
-
-
+### Fixed
+- **ci**: use working changelog tool ([8ade316](https://github.com/didierboka/opicare/commit/8ade316))
 
