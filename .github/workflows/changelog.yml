@@ -3,8 +3,6 @@ name: Auto Changelog
 on:
   push:
     branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   changelog:
@@ -15,17 +13,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: dart-lang/setup-dart@v1
+      - uses: actions/setup-node@v4
         with:
-          sdk: stable
+          node-version: '18'
 
       - name: Install dependencies
-        run: |
-          dart pub global activate conventional_changelog
+        run: npm install
 
       - name: Generate changelog
-        run: |
-          dart pub global run conventional_changelog
+        run: npm run changelog
 
       - name: Check if changelog changed
         id: changelog-check
@@ -44,3 +40,5 @@ jobs:
           git add CHANGELOG.md
           git commit -m "docs: update changelog [skip ci]"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
