@@ -10,6 +10,9 @@ class CustomInputField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final TextInputType? keyBoardType;
+  final bool defaultValidation;
+  final String? Function(String? value)? validator;
+
 
   const CustomInputField({
     super.key,
@@ -19,6 +22,8 @@ class CustomInputField extends StatelessWidget {
     required this.label,
     this.obscureText = false,
     this.keyBoardType,
+    this.defaultValidation = true,
+    this.validator,
   });
 
   @override
@@ -54,6 +59,12 @@ class CustomInputField extends StatelessWidget {
               borderSide: const BorderSide(color: Colours.inputBorder),
             ),
           ),
+          validator: defaultValidation
+              ? (value) {
+            if (value == null || value.isEmpty) return 'Ce champ est réquis';
+            return validator?.call(value);
+          }
+              : validator,
         ),
       ],
     );

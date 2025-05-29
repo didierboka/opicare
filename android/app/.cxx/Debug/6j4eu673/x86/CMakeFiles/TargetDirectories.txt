@@ -1,0 +1,2 @@
+C:/Users/i7/Documents/FLUTTER PROJECT/opicare_project/opicare/android/app/.cxx/Debug/6j4eu673/x86/CMakeFiles/edit_cache.dir
+C:/Users/i7/Documents/FLUTTER PROJECT/opicare_project/opicare/android/app/.cxx/Debug/6j4eu673/x86/CMakeFiles/rebuild_cache.dir

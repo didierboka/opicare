@@ -39,45 +39,57 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
           children: [
             Text('Rechercher', style: TextStyles.titleMedium),
             const SizedBox(height: 20),
-            CustomSelectField(
-              label: 'Liste des districts',
-              selectedValue: selectedDistrict,
-              hint: 'Sélectionner un district',
-              options: const ['Abidjan', 'Sassandra', 'Boundiali'],
-              onSelected: (value) {
-                if (!mounted) return;
-                setState(() {
-                  selectedDistrict = value;
-                });
-              },
-            ),
+            // CustomSelectField(
+            //   label: 'Liste des districts',
+            //   selectedValue: selectedDistrict,
+            //   hint: 'Sélectionner un district',
+            //   options: [
+            //     {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+            //     {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+            //     {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+            //   ],
+            //   onSelected: (value) {
+            //     if (!mounted) return;
+            //     setState(() {
+            //       selectedDistrict = value;
+            //     });
+            //   },
+            // ),
             const SizedBox(height: 16),
-            CustomSelectField(
-              label: 'Liste des centres',
-              selectedValue: selectedCenter,
-              hint: 'Sélectionner un centre',
-              options: const ['ABOBO PK18', 'YOPOUGON TOI ROUGE', 'COCODY ANGRE'],
-              onSelected: (value) {
-                if (!mounted) return;
-                setState(() {
-                  selectedCenter = value;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            CustomSelectField(
-              label: 'Liste des vaccins',
-              selectedValue: selectedVaccin,
-              hint: 'Sélectionner un vaccin',
-              options: const ['HEPATITE', 'TETANOS', 'MENINGITE'],
-              onSelected: (value) {
-                if (!mounted) return;
-                setState(() {
-                  selectedVaccin = value;
-                });
-              },
-            ),
-            const SizedBox(height: 30),
+            // CustomSelectField(
+            //   label: 'Liste des centres',
+            //   selectedValue: selectedCenter,
+            //   hint: 'Sélectionner un centre',
+            //     options: [
+            //       {'libelle': 'ABOBO PK18', 'valeur': 'ABOBO PK18'},
+            //       {'libelle': 'YOPOUGON TOI ROUGE', 'valeur': 'YOPOUGON TOI ROUGE'},
+            //       {'libelle': 'COCODY ANGRE', 'valeur': 'COCODY ANGRE'},
+            //     ],
+            //   onSelected: (value) {
+            //     if (!mounted) return;
+            //     setState(() {
+            //       selectedCenter = value;
+            //     });
+            //   },
+            // ),
+            // const SizedBox(height: 16),
+            // CustomSelectField(
+            //   label: 'Liste des vaccins',
+            //   selectedValue: selectedVaccin,
+            //   hint: 'Sélectionner un vaccin',
+            //   options: [
+            //   {'libelle': 'HEPATITE', 'valeur': 'HEPATITE'},
+            //     {'libelle': 'TETANOS', 'valeur': 'TETANOS'},
+            //     {'libelle': 'MENINGITE', 'valeur': 'MENINGITE'},
+            //   ],
+            //   onSelected: (value) {
+            //     if (!mounted) return;
+            //     setState(() {
+            //       selectedVaccin = value;
+            //     });
+            //   },
+            // ),
+            // const SizedBox(height: 30),
             Text('Résultat', style: TextStyles.titleMedium),
             const SizedBox(height: 10),
             Text('(Aucun résultat trouvé!)', style: TextStyles.bodyRegular),

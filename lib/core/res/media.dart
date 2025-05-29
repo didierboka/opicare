@@ -2,7 +2,7 @@ abstract class Media {
   const Media();
 
   static const _baseImage = 'assets/images';
-  static const _baseLottie = 'assets/lottie';
+  static const _baseLottie = 'assets/lottiesFiles';
   //Auth
   static const user = '$_baseImage/user.png';
   static const addUser = '$_baseImage/add-user.png';
@@ -24,6 +24,11 @@ abstract class Media {
 
   //Welcome
   static const logo = '$_baseImage/unlock.png';
+
+
+
+  //Lotties
+  static const loader = '$_baseLottie/loading.json';
 
 
 }
