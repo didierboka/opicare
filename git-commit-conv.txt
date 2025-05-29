@@ -1,0 +1,21 @@
+Types recommandés pour Flutter :
+    feat: nouvelle fonctionnalité
+    fix: correction de bug
+    perf: amélioration de performance
+    refactor: refactorisation du code
+    style: changements de style/UI
+    test: ajout ou modification de tests
+    docs: documentation
+    build: changements du système de build
+    ci: changements CI/CD
+    chore: tâches de maintenance
+
+Scopes suggérés :
+    auth: authentification
+    ui: interface utilisateur
+    api: API/services
+    db: base de données
+    nav: navigation
+    android: spécifique Android
+    ios: spécifique iOS
+    web: spécifique Web

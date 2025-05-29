@@ -1,0 +1,46 @@
+name: Auto Changelog
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install dependencies
+        run: |
+          dart pub global activate conventional_changelog
+
+      - name: Generate changelog
+        run: |
+          dart pub global run conventional_changelog
+
+      - name: Check if changelog changed
+        id: changelog-check
+        run: |
+          if git diff --exit-code CHANGELOG.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit changelog
+        if: steps.changelog-check.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add CHANGELOG.md
+          git commit -m "docs: update changelog [skip ci]"
+          git push

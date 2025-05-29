@@ -1,0 +1,13 @@
+#!/bin/sh
+# Validation du format des commits
+
+commit_regex='^(feat|fix|perf|refactor|style|test|docs|build|ci|chore)(\(.+\))?: .{1,50}'
+
+if ! grep -qE "$commit_regex" "$1"; then
+    echo "❌ Format de commit invalide!"
+    echo "Utilise: type(scope): description"
+    echo "Exemple: feat(auth): add biometric authentication"
+    exit 1
+fi
+
+echo "✅ Format de commit valide"

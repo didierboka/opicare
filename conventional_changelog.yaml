@@ -1,0 +1,47 @@
+# Configuration pour conventional_changelog
+repository_url: https://github.com/didierboka/opicare.git
+template: flutter
+version_files:
+  - pubspec.yaml
+commit_types:
+  feat:
+    description: Nouvelles fonctionnalités
+    title: "✨ Fonctionnalités"
+  fix:
+    description: Corrections de bugs
+    title: "🐛 Corrections"
+  perf:
+    description: Améliorations de performances
+    title: "⚡ Performances"
+  refactor:
+    description: Refactorisation du code
+    title: "♻️ Refactorisation"
+  style:
+    description: Changements UI/UX
+    title: "💄 Interface"
+  test:
+    description: Tests
+    title: "✅ Tests"
+  docs:
+    description: Documentation
+    title: "📚 Documentation"
+  build:
+    description: Système de build
+    title: "🔧 Build"
+  ci:
+    description: Intégration continue
+    title: "👷 CI/CD"
+  chore:
+    description: Maintenance
+    title: "🔨 Maintenance"
+
+scopes:
+  - auth
+  - ui
+  - api
+  - db
+  - nav
+  - android
+  - ios
+  - web
+  - core
