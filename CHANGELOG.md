@@ -7,6 +7,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- **ui**: see user info and pic ([7d8c54f](https://github.com/didierboka/opicare/commit/7d8c54f))
 - **ui**: see user info and pic ([7427090](https://github.com/didierboka/opicare/commit/7427090))
 - **setup**: add changelog automation ([dbfe2da](https://github.com/didierboka/opicare/commit/dbfe2da))
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
