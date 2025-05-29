@@ -9,13 +9,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "changelog": "node scripts/generate-changelog.js",
-    "changelog:release": "node scripts/generate-changelog.js --release"
+    "changelog:check": "node scripts/generate-changelog.js --dry-run"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
-  "devDependencies": {
-    "conventional-changelog-cli": "^5.0.0"
-  }
+  "description": ""
 }

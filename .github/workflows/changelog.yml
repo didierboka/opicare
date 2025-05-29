@@ -22,10 +22,7 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Generate changelog
+      - name: Generate changelog with custom script
         run: npm run changelog
 
       - name: Check if changelog changed

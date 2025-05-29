@@ -11,6 +11,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- **changelog**: wip generate changelog ([ebed6ae](https://github.com/didierboka/opicare/commit/ebed6ae))
 - update changelog.yml file ([b548956](https://github.com/didierboka/opicare/commit/b548956))
 - update package.json with changelog scripts ([385ea3e](https://github.com/didierboka/opicare/commit/385ea3e))
 - update package.json with changelog scripts ([f4b935a](https://github.com/didierboka/opicare/commit/f4b935a))
