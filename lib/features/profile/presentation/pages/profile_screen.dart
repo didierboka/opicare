@@ -8,19 +8,16 @@ import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 
 class MonProfilScreen extends StatelessWidget {
   MonProfilScreen({super.key});
+
   static const path = '/profile';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
-      appBar: CustomAppBar(
-          title: 'Mon profil',
-          scaffoldKey: _scaffoldKey
-      ),
+      appBar: CustomAppBar(title: 'Mon profil', scaffoldKey: _scaffoldKey),
       drawer: CustomDrawer(),
       //backgroundColor: Colours.background,
       body: SingleChildScrollView(
@@ -50,7 +47,7 @@ class MonProfilScreen extends StatelessWidget {
                       _infoRow('Nom', 'BOKA Eren', 'Date de naissance', '2022-02-28'),
                       _infoRow('Genre', 'M', 'Contact', '2250757187963'),
                       _infoRow('Date d\'abonnement', '2025-05-09', 'Date d\'expiration', '2026-05-09'),
-                      _infoRow('Email', 'didierboka.personal@gmail.com', 'Mot de passe', '[protected]',value2Color:  Colours.primaryBlue),
+                      _infoRow('Email', 'didierboka.personal@gmail.com', 'Mot de passe', '[protected]', value2Color: Colours.primaryBlue),
                     ],
                   ),
                 ),
@@ -121,7 +118,7 @@ class MonProfilScreen extends StatelessWidget {
       children: [
         Text(label, style: TextStyles.bodyRegular.copyWith(fontSize: 12)),
         const SizedBox(height: 4),
-        Text(value, style: TextStyles.bodyBold.copyWith(fontSize: 13,color: valueColor)),
+        Text(value, style: TextStyles.bodyBold.copyWith(fontSize: 13, color: valueColor)),
       ],
     );
   }

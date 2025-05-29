@@ -2,7 +2,7 @@ abstract class Media {
   const Media();
 
   static const _baseImage = 'assets/images';
-  static const _baseLottie = 'assets/lottiesFiles';
+  static const _baseLottie = 'assets/lotties';
   //Auth
   static const user = '$_baseImage/user.png';
   static const addUser = '$_baseImage/add-user.png';
@@ -29,6 +29,10 @@ abstract class Media {
 
   //Lotties
   static const loader = '$_baseLottie/loading.json';
+
+
+  // Profil
+  static const profilPhotoPath = 'https://opisms.net/ecarnet/upload/photo/';
 
 
 }
