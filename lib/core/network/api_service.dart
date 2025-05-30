@@ -28,6 +28,7 @@ class ApiService<T> {
     print("START API SERVICE POST");
     final url = Uri.parse('$baseUrl$endpoint');
     CustomResponse<T> res = CustomResponse<T>(isLoading: true);
+    data['d'] = 'PROD';
     try {
       final response = await http.post(
         url,
