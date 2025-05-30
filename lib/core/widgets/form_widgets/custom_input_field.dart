@@ -12,7 +12,7 @@ class CustomInputField extends StatelessWidget {
   final TextInputType? keyBoardType;
   final bool defaultValidation;
   final String? Function(String? value)? validator;
-
+  final void Function(String)? onChanged;
 
   const CustomInputField({
     super.key,
@@ -24,6 +24,7 @@ class CustomInputField extends StatelessWidget {
     this.keyBoardType,
     this.defaultValidation = true,
     this.validator,
+    this.onChanged
   });
 
   @override
@@ -38,6 +39,7 @@ class CustomInputField extends StatelessWidget {
           keyboardType: keyBoardType,
           obscureText: obscureText,
           style: TextStyles.inputText,
+          onChanged: onChanged,
           decoration: InputDecoration(
             isDense: true,
             filled: true,

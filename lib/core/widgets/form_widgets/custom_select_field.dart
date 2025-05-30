@@ -13,6 +13,7 @@ class CustomSelectField extends StatelessWidget {
   final ValueChanged<String> onSelected;
   final bool defaultValidator;
   final String? Function(String?)? validator;
+  final bool isEnabled;
 
   const CustomSelectField({
     super.key,
@@ -23,6 +24,7 @@ class CustomSelectField extends StatelessWidget {
     required this.onSelected,
     this.defaultValidator = false,
     this.validator,
+    this.isEnabled = true
   });
 
   @override
@@ -62,6 +64,7 @@ class CustomSelectField extends StatelessWidget {
           onChanged: (val) {
             if (val != null) onSelected(val);
           },
+          enableFeedback: isEnabled,
         ),
       ],
     );

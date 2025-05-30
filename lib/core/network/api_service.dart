@@ -74,13 +74,13 @@ class ApiService<T> {
     res.message = httpResBody["\$msg"] ?? httpResBody["msg"] ?? ResponseMessage.unKnownErrorMessage;
 
     if (res.status) {
-      String successM = httpResBody["msg"] ?? ResponseMessage.successMessage;
-      res.message = successM;
-      if (httpResBody['datas'] != null) {
-        res.datas = (httpResBody['datas'] as List).map((item) => fromJson(item)).toList();
-      } else if (httpResBody['data'] != null) {
-        res.data = fromJson(httpResBody['data']);
+      final dynamic data = httpResBody['data'] ?? httpResBody['datas'];
+      if (data is List) {
+        res.datas = data.map<T>((item) => fromJson(item)).toList();
+      } else if (data is Map<String, dynamic>) {
+        res.data = fromJson(data);
       }
+      res.message = httpResBody["msg"] ?? ResponseMessage.successMessage;
     }
     print("END API SERVICE _processResponse");
     return res;
