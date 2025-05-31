@@ -29,6 +29,9 @@ class CustomSelectField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final validValue = options.any((opt) => opt['valeur'] == selectedValue)
+        ? selectedValue
+        : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -36,7 +39,7 @@ class CustomSelectField extends StatelessWidget {
         const SizedBox(height: 5),
         DropdownButtonFormField2<String>(
           isExpanded: true,
-          value: selectedValue,
+          value: validValue,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             border: OutlineInputBorder(

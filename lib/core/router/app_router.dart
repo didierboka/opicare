@@ -9,9 +9,13 @@ import 'package:opicare/features/auth/presentation/bloc/register/register_bloc.d
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
 import 'package:opicare/features/auth/presentation/pages/register_page.dart';
 import 'package:opicare/features/change_password/presentation/pages/change_password_screen.dart';
+import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
+import 'package:opicare/features/disponibilite_vaccins/presentation/bloc/dispo_vaccin_bloc.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
+import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
+import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_screen.dart';
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
@@ -34,7 +38,9 @@ final authRepository = AuthRepositoryImpl(
   apiService: ApiService<UserModel>(fromJson: UserModel.fromJson),
   localStorage: SharedPreferencesStorage(),
 );
+final dispoVaccinRepository = DispoVaccinRepositoryImpl();
 final souscriptionRepository = SouscriptionRepositoryImpl();
+final joursVaccinRepository = JoursVaccinRepositoryImpl();
 final appRouter = GoRouter(
   initialLocation: AppWrapper.path,
   redirect: (BuildContext context, GoRouterState state) {
@@ -120,11 +126,22 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: DisponibiliteVaccinScreen.path,
-      builder: (context, state) => DisponibiliteVaccinScreen(),
+      builder: (context, state) => BlocProvider(
+        create: (_) => DispoVaccinBloc(
+          dispoVaccinRepository: dispoVaccinRepository,
+        ),
+        child:  DisponibiliteVaccinScreen(),
+      ),
     ),
     GoRoute(
       path: JoursVaccinScreen.path,
-      builder: (context, state) => JoursVaccinScreen(),
+      builder: (context, state) => BlocProvider(
+        create: (_) => JoursVaccinBloc(
+          joursVaccinRepository: joursVaccinRepository,
+          dispoVaccinRepository: dispoVaccinRepository,
+        ),
+        child:  JoursVaccinScreen(),
+      ),
     ),
     GoRoute(
       path: TrouverHopitauxScreen.path,
