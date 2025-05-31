@@ -8,6 +8,8 @@ import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/register/register_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
 import 'package:opicare/features/auth/presentation/pages/register_page.dart';
+import 'package:opicare/features/change_password/data/repositories/change_pwd_repository.dart';
+import 'package:opicare/features/change_password/presentation/bloc/change_pwd_bloc.dart';
 import 'package:opicare/features/change_password/presentation/pages/change_password_screen.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/bloc/dispo_vaccin_bloc.dart';
@@ -41,6 +43,7 @@ final authRepository = AuthRepositoryImpl(
 final dispoVaccinRepository = DispoVaccinRepositoryImpl();
 final souscriptionRepository = SouscriptionRepositoryImpl();
 final joursVaccinRepository = JoursVaccinRepositoryImpl();
+final changePwdRepository = ChangePwdRepositoryImpl();
 final appRouter = GoRouter(
   initialLocation: AppWrapper.path,
   redirect: (BuildContext context, GoRouterState state) {
@@ -122,7 +125,12 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: ChangePasswordScreen.path,
-      builder: (context, state) => ChangePasswordScreen(),
+      builder:   (context, state) => BlocProvider(
+        create: (_) => ChangePwdBloc(
+          changePwdRepository: changePwdRepository,
+        ),
+        child:  ChangePasswordScreen(),
+      ),
     ),
     GoRoute(
       path: DisponibiliteVaccinScreen.path,
