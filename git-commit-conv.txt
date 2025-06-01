@@ -1,4 +1,4 @@
-Types recommandés pour Flutter :
+Types recommandés :
     feat: nouvelle fonctionnalité
     fix: correction de bug
     perf: amélioration de performance

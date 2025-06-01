@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -117,7 +119,13 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: MonProfilScreen.path,
-      builder: (context, state) => MonProfilScreen(),
+      builder: (context, state) {
+        final authState = context.read<AuthBloc>().state;
+
+        log("authState => ${authState.toString()}");
+
+        return MonProfilScreen();
+      },
     ),
     GoRoute(
       path: PlanAbonnementScreen.path,
@@ -125,11 +133,11 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: ChangePasswordScreen.path,
-      builder:   (context, state) => BlocProvider(
+      builder: (context, state) => BlocProvider(
         create: (_) => ChangePwdBloc(
           changePwdRepository: changePwdRepository,
         ),
-        child:  ChangePasswordScreen(),
+        child: ChangePasswordScreen(),
       ),
     ),
     GoRoute(
@@ -138,7 +146,7 @@ final appRouter = GoRouter(
         create: (_) => DispoVaccinBloc(
           dispoVaccinRepository: dispoVaccinRepository,
         ),
-        child:  DisponibiliteVaccinScreen(),
+        child: DisponibiliteVaccinScreen(),
       ),
     ),
     GoRoute(
@@ -148,7 +156,7 @@ final appRouter = GoRouter(
           joursVaccinRepository: joursVaccinRepository,
           dispoVaccinRepository: dispoVaccinRepository,
         ),
-        child:  JoursVaccinScreen(),
+        child: JoursVaccinScreen(),
       ),
     ),
     GoRoute(
