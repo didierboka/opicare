@@ -27,7 +27,6 @@ class _RegisterFormState extends State<RegisterForm> {
   final emailController = TextEditingController();
   final dateController = TextEditingController();
   final genreController = TextEditingController();
-  String? selectedDate;
   String? selectedGenre;
   bool rememberMe = false;
 
