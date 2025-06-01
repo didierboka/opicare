@@ -6,6 +6,8 @@ import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 
+import '../../../../shared/widgets/image_b64_widget.dart';
+
 class MonProfilScreen extends StatelessWidget {
   MonProfilScreen({super.key});
 
@@ -76,12 +78,13 @@ class MonProfilScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Image.asset(
-                Media.photo, // Remplace par ton chemin correct
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 300,
-              ),
+              // child: Image.asset(
+              //   Media.photo, // Remplace par ton chemin correct
+              //   fit: BoxFit.cover,
+              //   width: double.infinity,
+              //   height: 300,
+              // ),
+              child: Base64ImageWidget(base64String: Media.photo64Temp,)
             ),
             const SizedBox(height: 8),
             const Text('Photo de profil', style: TextStyles.bodyBold),

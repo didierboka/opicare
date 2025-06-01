@@ -6,6 +6,8 @@ class UserModel {
   final String phone;
   final String sex;
   final String birthdate;
+  final String carnetPhoto;
+  final String userPic;
 
 
 
@@ -15,6 +17,8 @@ class UserModel {
     required this.surname,
     required this.email,
     required this.phone,
+    required this.carnetPhoto,
+    required this.userPic,
     required this.sex,
     required this.birthdate,
 
@@ -30,7 +34,8 @@ class UserModel {
       phone: json['NUMEROPAT'] ?? '',
       sex: json['SEXEPAT'] ?? '',
       birthdate: json['DATEPAT'] ?? '',
-
+      carnetPhoto: json['PHOTOCARNET'] ?? '',
+      userPic: json['PHOTOPAT'] ?? '',
     );
   }
 
