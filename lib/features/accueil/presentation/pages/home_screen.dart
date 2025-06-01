@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
@@ -8,6 +9,7 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/accueil/presentation/widgets/home_card.dart';
 import 'package:opicare/features/accueil/presentation/widgets/option_card.dart';
+import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
@@ -19,8 +21,10 @@ class HomeScreen extends StatelessWidget {
 
   HomeScreen({super.key});
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
+    final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -43,7 +47,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             Text(
-              'Eren',
+              user.surname,
               style: TextStyles.titleMedium.copyWith(
                 color: Colours.homeCardSecondaryBlue,
               ),

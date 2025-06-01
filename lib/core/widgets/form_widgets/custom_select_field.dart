@@ -13,6 +13,7 @@ class CustomSelectField extends StatelessWidget {
   final ValueChanged<String> onSelected;
   final bool defaultValidator;
   final String? Function(String?)? validator;
+  final bool isEnabled;
 
   const CustomSelectField({
     super.key,
@@ -23,10 +24,14 @@ class CustomSelectField extends StatelessWidget {
     required this.onSelected,
     this.defaultValidator = false,
     this.validator,
+    this.isEnabled = true
   });
 
   @override
   Widget build(BuildContext context) {
+    final validValue = options.any((opt) => opt['valeur'] == selectedValue)
+        ? selectedValue
+        : null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -34,7 +39,7 @@ class CustomSelectField extends StatelessWidget {
         const SizedBox(height: 5),
         DropdownButtonFormField2<String>(
           isExpanded: true,
-          value: selectedValue,
+          value: validValue,
           decoration: InputDecoration(
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             border: OutlineInputBorder(
@@ -62,6 +67,7 @@ class CustomSelectField extends StatelessWidget {
           onChanged: (val) {
             if (val != null) onSelected(val);
           },
+          enableFeedback: isEnabled,
         ),
       ],
     );
