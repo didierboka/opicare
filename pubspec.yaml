@@ -31,7 +31,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  conventional_changelog: ^2.0.0
+  #conventional_changelog: ^2.0.0
   flutter_lints: ^5.0.0
   build_runner:
   flutter_gen_runner:
@@ -42,7 +42,7 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
   remove_alpha_ios: true
-  image_path: "assets/images/ic_launcher_adaptive_fore.png"
+  image_path: "assets/images/launcher_icon.png"
   min_sdk_android: 21
 
 

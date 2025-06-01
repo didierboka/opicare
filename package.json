@@ -9,7 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "changelog": "node scripts/generate-changelog.js",
-    "changelog:check": "node scripts/generate-changelog.js --dry-run"
+    "changelog:check": "node scripts/generate-changelog.js --dry-run",
+    "release": "node scripts/create-release.js"
   },
   "keywords": [],
   "author": "",
