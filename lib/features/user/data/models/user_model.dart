@@ -1,4 +1,5 @@
 class UserModel {
+
   final String id;
   final String name;
   final String surname;
@@ -10,9 +11,6 @@ class UserModel {
   final String userPic;
   final String dateAbon;
   final String dateExpiration;
-
-
-
 
   UserModel({
     required this.id,
@@ -42,7 +40,7 @@ class UserModel {
       carnetPhoto: json['PHOTOCARNET'] ?? '',
       userPic: json['PHOTOPAT'] ?? '',
       dateAbon: json['DATE_ABONN'] ?? 'NEANT',
-      dateExpiration: json['DATE_EXPIRATION']?? 'NEANT',
+      dateExpiration: json['DATE_EXPIRATION']?? 'NEANT'
     );
   }
 
@@ -58,7 +56,7 @@ class UserModel {
       'dateAbon': dateAbon,
       'dateExpiration': dateExpiration,
       'userPic': userPic,
-      carnetPhoto: carnetPhoto
+      'carnetPhoto': carnetPhoto
     };
   }
 }

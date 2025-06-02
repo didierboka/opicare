@@ -7,6 +7,10 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+<<<<<<< HEAD
+=======
+- **profil**: user can see its infos ([6764cad](https://github.com/didierboka/opicare/commit/6764cad))
+>>>>>>> 20130c74327d86ba3f86e32822c3d2a74bd9bc69
 - **ui**: add Base64Image widget for show carnet photo file ([223ac61](https://github.com/didierboka/opicare/commit/223ac61))
 - **branding**: add Opicare logo ([fb41462](https://github.com/didierboka/opicare/commit/fb41462))
 - **ui**: see user info and pic ([7d8c54f](https://github.com/didierboka/opicare/commit/7d8c54f))
