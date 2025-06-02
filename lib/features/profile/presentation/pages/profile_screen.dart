@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
+import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 
 import '../../../../shared/widgets/image_b64_widget.dart';
 
@@ -17,6 +19,8 @@ class MonProfilScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
     return Scaffold(
       key: _scaffoldKey,
       appBar: CustomAppBar(title: 'Mon profil', scaffoldKey: _scaffoldKey),
@@ -46,10 +50,12 @@ class MonProfilScreen extends StatelessWidget {
                     children: [
                       Text('Formule', style: TextStyles.titleMedium),
                       const SizedBox(height: 26),
-                      _infoRow('Nom', 'BOKA Eren', 'Date de naissance', '2022-02-28'),
-                      _infoRow('Genre', 'M', 'Contact', '2250757187963'),
-                      _infoRow('Date d\'abonnement', '2025-05-09', 'Date d\'expiration', '2026-05-09'),
-                      _infoRow('Email', 'didierboka.personal@gmail.com', 'Mot de passe', '[protected]', value2Color: Colours.primaryBlue),
+
+                      _infoRow('Nom', '${user.name} ${user.surname}', 'Date de naissance', user.birthdate),
+                      _infoRow('Genre', user.sex, 'Contact', user.phone),
+                      _infoRow('Date d\'abonnement', user.dateAbon, 'Date d\'expiration', user.dateExpiration),
+                      _infoRow('Email', user.email, 'Mot de passe', '[protected]',value2Color:  Colours.primaryBlue),
+
                     ],
                   ),
                 ),

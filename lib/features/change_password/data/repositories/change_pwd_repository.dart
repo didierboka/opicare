@@ -14,7 +14,7 @@ class ChangePwdRepositoryImpl extends ChangePwdRepository{
   Future<CustomResponse<dynamic>> changePassword({required String id, required String opassword, required String password}) async{
    try{
      final ApiService<dynamic> apiService = ApiService(fromJson: (fromJson) => true);
-     final response = await apiService.post('/update/passw', {'id': id, 'opassword': opassword, password: password});
+     final response = await apiService.post('/update/passw', {'id': id, 'opassword': opassword, 'password': password});
      return response;
    }catch(e){
      return CustomResponse(status: false, message: e.toString());

@@ -8,6 +8,9 @@ class UserModel {
   final String birthdate;
   final String carnetPhoto;
   final String userPic;
+  final String dateAbon;
+  final String dateExpiration;
+
 
 
 
@@ -21,6 +24,8 @@ class UserModel {
     required this.userPic,
     required this.sex,
     required this.birthdate,
+    required this.dateAbon,
+    required this.dateExpiration,
 
 
   });
@@ -36,6 +41,8 @@ class UserModel {
       birthdate: json['DATEPAT'] ?? '',
       carnetPhoto: json['PHOTOCARNET'] ?? '',
       userPic: json['PHOTOPAT'] ?? '',
+      dateAbon: json['DATE_ABONN'] ?? 'NEANT',
+      dateExpiration: json['DATE_EXPIRATION']?? 'NEANT',
     );
   }
 
@@ -47,7 +54,11 @@ class UserModel {
       'phone': phone,
       'surname': surname,
       'sex': sex,
-      'birthdate': birthdate
+      'birthdate': birthdate,
+      'dateAbon': dateAbon,
+      'dateExpiration': dateExpiration,
+      'userPic': userPic,
+      carnetPhoto: carnetPhoto
     };
   }
 }
