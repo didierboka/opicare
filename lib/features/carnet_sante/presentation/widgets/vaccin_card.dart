@@ -26,7 +26,7 @@ class VaccineCard extends StatelessWidget {
             _buildDetailRow('Date de rappel', vaccine.recallDate),
             _buildDetailRow('Date d\'administration', vaccine.presenceDate),
             _buildDetailRow('Numéro de lot', vaccine.lotNumber),
-            _buildDetailRow('Centre de vaccination', vaccine.centerName),
+            ///_buildDetailRow('Centre de vaccination', vaccine.centerName),
           ],
         ),
       ),
