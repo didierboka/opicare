@@ -7,11 +7,17 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- **profil**: user can see its infos ([6764cad](https://github.com/didierboka/opicare/commit/6764cad))
+- **ui**: add Base64Image widget for show carnet photo file ([223ac61](https://github.com/didierboka/opicare/commit/223ac61))
+- **branding**: add Opicare logo ([fb41462](https://github.com/didierboka/opicare/commit/fb41462))
+- **ui**: see user info and pic ([7d8c54f](https://github.com/didierboka/opicare/commit/7d8c54f))
 - **ui**: see user info and pic ([7427090](https://github.com/didierboka/opicare/commit/7427090))
 - **setup**: add changelog automation ([dbfe2da](https://github.com/didierboka/opicare/commit/dbfe2da))
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- **code**: review some indent and code ([a654329](https://github.com/didierboka/opicare/commit/a654329))
+- **merge**: merge dev/abole into develop ([a24ff60](https://github.com/didierboka/opicare/commit/a24ff60))
 - **changelog**: wip generate changelog ([ebed6ae](https://github.com/didierboka/opicare/commit/ebed6ae))
 - update changelog [skip ci] ([6c1a79b](https://github.com/didierboka/opicare/commit/6c1a79b))
 - update changelog.yml file ([b548956](https://github.com/didierboka/opicare/commit/b548956))
