@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
+import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -57,7 +59,11 @@ class CustomDrawer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildFooterButton(Icons.home, 'Accueil', () {context.go('/home');}),
-                _buildFooterButton(Icons.logout, 'Déconnexion', () {context.go('/login');}),
+                _buildFooterButton(Icons.logout, 'Déconnexion', () {
+                    Navigator.of(context).pop();
+                    context.read<AuthBloc>().add(AuthLogoutRequested());
+                    context.go('/login');
+                }),
               ],
             ),
           ),
