@@ -30,6 +30,12 @@ void main() async {
                   localStorage: localStorage,
                   authRepository: authRepository,
                 )..add(AuthCheckRequested())),
+        BlocProvider(
+          create: (context) => LoginBloc(
+            authRepository: authRepository,
+            authBloc: context.read<AuthBloc>(),
+          ),
+        ),
       ],
       child: const MyApp(),
     ),

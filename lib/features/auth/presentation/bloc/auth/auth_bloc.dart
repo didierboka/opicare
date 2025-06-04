@@ -1,12 +1,15 @@
 
+import 'dart:convert';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
-
+var logger = Logger();
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LocalStorageService localStorage;
   final AuthRepository authRepository;
@@ -20,16 +23,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogoutRequested>(_onLogoutRequested);
   }
 
-  Future<void> _onAuthCheckRequested(
+  Future _onAuthCheckRequested(
       AuthCheckRequested event,
       Emitter<AuthState> emit,
       ) async {
     emit(AuthLoading());
-    final user = await localStorage.getSavedUser();
-    emit(user != null
-        ? AuthAuthenticated(user)
-        : AuthUnauthenticated()
-    );
+
+    try {
+      final user = await localStorage.getSavedUser();
+      if (user != null) {
+        // Validate user has essential data
+        if (user.id != null && user.id!.isNotEmpty) {
+          logger.i("Valid user foundoo: ${user.name}");
+          emit(AuthAuthenticated(user));
+          return;
+        }
+      }
+      logger.i("No valid user found, redirecting to login");
+      emit(AuthUnauthenticated());
+    } catch (e) {
+      logger.e("Auth check failed: $e");
+      emit(AuthUnauthenticated());
+    }
   }
 
   void _onUserChanged(
@@ -49,4 +64,5 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await localStorage.clearUser();
     emit(AuthUnauthenticated());
   }
+
 }

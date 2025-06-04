@@ -26,11 +26,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       final res = await authRepository.login(
         emailOrPhone: event.emailOrPhone,
         password: event.password,
-        rememberMe: event.rememberMe,
+        //rememberMe: event.rememberMe,
       );
       if (!res.status) {
         emit(LoginFailure(res.message!));
         return;
+      }
+
+      if (event.rememberMe && res.data != null) {
+        await authBloc.localStorage.saveUser(res.data!);
+        // Rafraîchir l'état d'authentification
+        authBloc.add(AuthCheckRequested());
       }
 
       authBloc.add(AuthUserChanged(res.data));

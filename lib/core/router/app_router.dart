@@ -24,9 +24,6 @@ import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_s
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
 import 'package:opicare/features/souscribtion/data/repositories/subscription_repository.dart';
-import 'package:opicare/features/souscribtion/domain/repositories/souscription_repository.dart';
-import 'package:opicare/features/souscribtion/domain/usecases/get_formules_usecase.dart';
-import 'package:opicare/features/souscribtion/domain/usecases/get_type_abos_usecase.dart';
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
 import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_screen.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
@@ -48,26 +45,6 @@ final joursVaccinRepository = JoursVaccinRepositoryImpl();
 final changePwdRepository = ChangePwdRepositoryImpl();
 final appRouter = GoRouter(
   initialLocation: AppWrapper.path,
-  redirect: (BuildContext context, GoRouterState state) {
-    final authState = context.read<AuthBloc>().state;
-    final isLoggedIn = authState is AuthAuthenticated;
-
-    final isLoginRoute = state.matchedLocation == LoginPage.path;
-    final isRegisterRoute = state.matchedLocation == RegisterPage.path;
-    final isWelcomeRoute = state.matchedLocation == WelcomeScreen.path;
-
-    // Si non connecté et essayant d'accéder à une route protégée
-    if (!isLoggedIn && !isLoginRoute && !isRegisterRoute && !isWelcomeRoute) {
-      return LoginPage.path;
-    }
-
-    // Si connecté et essayant d'accéder à login/register/welcome
-    if (isLoggedIn && (isLoginRoute || isRegisterRoute || isWelcomeRoute)) {
-      return HomeScreen.path;
-    }
-
-    return null;
-  },
   routes: [
     GoRoute(
       path: AppWrapper.path,

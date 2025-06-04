@@ -6,6 +6,7 @@ import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_checkbox.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_input_field.dart';
+import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
 
 class LoginForm extends StatefulWidget {
@@ -14,7 +15,6 @@ class LoginForm extends StatefulWidget {
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
-
 class _LoginFormState extends State<LoginForm> {
   final formKey = GlobalKey<FormState>();
   final emailOrPhoneController = TextEditingController(text: '42897250');
@@ -30,67 +30,81 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<LoginBloc, LoginState>(
-      listener: (context, state) {
-        showLoader(context, state is LoginLoading);
-        if (state is LoginSuccess) {
-          // Navigation après connexion réussie
-          context.go('/home');
-        }
-        if (state is LoginFailure) {
-          showSnackbar(context,
-              message: state.message, type: MessageType.error);
-        }
-      },
-      builder: (context, state) {
-        return Form(
-          key: formKey,
-          child: Column(
-            children: [
-              CustomInputField(
-                hint: 'Email ou téléphone',
-                icon: Icons.email,
-                label: 'Email ou téléphone',
-                controller: emailOrPhoneController,
-              ),
-              const SizedBox(height: 20),
-              CustomInputField(
-                hint: 'Mot de passe',
-                icon: Icons.lock,
-                label: 'Mot de passe',
-                controller: passwordController,
-                obscureText: true,
-                keyBoardType: TextInputType.visiblePassword,
-              ),
-              const SizedBox(height: 10),
-              CustomCheckbox(
-                  value: rememberMe,
-                  onChanged: (v) {
-                    setState(() {
-                      rememberMe = v ?? false;
-                    });
+    return MultiBlocListener(
+      listeners: [
+        // Écouter LoginBloc pour les messages
+        BlocListener<LoginBloc, LoginState>(
+          listener: (context, state) {
+            showLoader(context, state is LoginLoading);
+
+            if (state is LoginFailure) {
+              showSnackbar(context,
+                  message: state.message,
+                  type: MessageType.error);
+            }
+          },
+        ),
+        // Écouter AuthBloc pour la navigation
+        BlocListener<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state is AuthAuthenticated) {
+              // Navigation automatique quand authentifié
+              context.go('/home');
+            }
+          },
+        ),
+      ],
+      child: BlocBuilder<LoginBloc, LoginState>(
+        builder: (context, state) {
+          return Form(
+            key: formKey,
+            child: Column(
+              children: [
+                CustomInputField(
+                  hint: 'Email ou téléphone',
+                  icon: Icons.email,
+                  label: 'Email ou téléphone',
+                  controller: emailOrPhoneController,
+                ),
+                const SizedBox(height: 20),
+                CustomInputField(
+                  hint: 'Mot de passe',
+                  icon: Icons.lock,
+                  label: 'Mot de passe',
+                  controller: passwordController,
+                  obscureText: true,
+                  keyBoardType: TextInputType.visiblePassword,
+                ),
+                const SizedBox(height: 10),
+                CustomCheckbox(
+                    value: rememberMe,
+                    onChanged: (v) {
+                      setState(() {
+                        rememberMe = v ?? false;
+                      });
+                    },
+                    label: 'Se souvenir de moi'
+                ),
+                const SizedBox(height: 10),
+                CustomButton(
+                  text: 'Connexion',
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      context.read<LoginBloc>().add(
+                        LoginSubmitted(
+                          emailOrPhone: emailOrPhoneController.text,
+                          password: passwordController.text,
+                          rememberMe: rememberMe,
+                        ),
+                      );
+                    }
                   },
-                  label: 'Se souvenir de moi'
-              ),
-              const SizedBox(height: 10),
-              CustomButton(
-                text: 'Connexion',
-                onPressed: () {
-                  if (formKey.currentState!.validate()) {
-                    context.read<LoginBloc>().add(
-                      LoginSubmitted(
-                        emailOrPhone: emailOrPhoneController.text,
-                        password: passwordController.text,
-                        rememberMe: rememberMe,
-                      ),
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
-        );
-      },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

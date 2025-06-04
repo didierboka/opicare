@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
+import 'package:opicare/features/auth/presentation/pages/register_page.dart';
 import 'package:opicare/features/auth/presentation/widgets/login_form.dart';
 
 class LoginPage extends StatelessWidget {
@@ -44,7 +45,7 @@ class LoginPage extends StatelessWidget {
                       style:  TextStyles.bodyRegular.copyWith(color: Colours.primaryBlue, fontWeight: FontWeight.bold),
                       recognizer: TapGestureRecognizer()..onTap = () {
                         // Action d'inscription ici
-                        context.go('/register');
+                        context.go(RegisterPage.path);
                       },
                     ),
                   ],

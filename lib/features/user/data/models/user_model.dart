@@ -39,24 +39,24 @@ class UserModel {
       birthdate: json['DATEPAT'] ?? '',
       carnetPhoto: json['PHOTOCARNET'] ?? '',
       userPic: json['PHOTOPAT'] ?? '',
-      dateAbon: json['DATE_ABONN'] ?? 'NEANT',
-      dateExpiration: json['DATE_EXPIRATION']?? 'NEANT'
+      dateAbon: json['DATE_ABONN'] ?? 'N/A',
+      dateExpiration: json['DATE_EXPIRATION']?? 'N/A',
     );
   }
 
   Map<String, dynamic> toJson(){
     return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'phone': phone,
-      'surname': surname,
-      'sex': sex,
-      'birthdate': birthdate,
-      'dateAbon': dateAbon,
-      'dateExpiration': dateExpiration,
-      'userPic': userPic,
-      'carnetPhoto': carnetPhoto
+      'ID': id,
+      'NOMPAT': name,
+      'EMAILPAT': email,
+      'NUMEROPAT': phone,
+      'PRENOMPAT': surname,
+      'SEXEPAT': sex,
+      'DATEPAT': birthdate,
+      'DATE_ABONN': dateAbon,
+      'DATE_EXPIRATION': dateExpiration,
+      //'PHOTOPAT': userPic,
+      //'PHOTOCARNET': carnetPhoto
     };
   }
 }

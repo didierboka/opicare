@@ -7,8 +7,7 @@ import 'package:opicare/features/user/data/models/user_model.dart';
 abstract class AuthRepository {
   Future<CustomResponse<UserModel>> login({
     required String emailOrPhone,
-    required String password,
-    required bool rememberMe,
+    required String password
   });
 
   Future<CustomResponse<UserModel>> register({
@@ -33,19 +32,15 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<CustomResponse<UserModel>> login(
       {required String emailOrPhone,
-      required String password,
-      required bool rememberMe}) async {
+      required String password}) async {
     try {
       final response = await apiService.post('/login', {
         'd': 'PROD',
         'login': emailOrPhone,
         'password': password,
-        'rememberMe': rememberMe.toString()
       });
 
-      if (rememberMe && response.data != null) {
-        await localStorage.saveUser(response.data!);
-      }
+
 
       return response;
     } catch (e) {

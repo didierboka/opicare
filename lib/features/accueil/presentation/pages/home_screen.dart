@@ -24,113 +24,126 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Colours.background,
-        elevation: 0,
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: CircleAvatar(
-            backgroundImage: AssetImage(Media.userProfil),
-            radius: 20,
+    return BlocBuilder<AuthBloc, AuthState>(
+        builder: (context, state) {
+      if (state is! AuthAuthenticated) {
+
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      final user = state.user;
+
+      return Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          backgroundColor: Colours.background,
+          elevation: 0,
+          leading: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircleAvatar(
+              backgroundImage: AssetImage(Media.userProfil),
+              radius: 20,
+            ),
+          ),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Bienvenue',
+                style: TextStyles.bodyRegular.copyWith(
+                  color: Colours.accentYellow,
+                ),
+              ),
+              Text(
+                user.surname,
+                style: TextStyles.titleMedium.copyWith(
+                  color: Colours.homeCardSecondaryBlue,
+                ),
+              ),
+            ],
+          ),
+          actions: [AppBarActions(scaffoldKey: _scaffoldKey)],
+        ),
+        drawer: const CustomDrawer(),
+
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 10),
+              // ✅ Slider horizontal
+              SizedBox(
+                height: 200,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    HomeCard(
+                      title: 'OPISMS,\nMon e-carnet',
+                      subtitle: 'Se vacciner, c\'est prévenir',
+                      buttonText: 'Voir carnet',
+                      backgroundColor: Colours.homeCardSecondaryButtonBlue,
+                      buttonColor: Colours.accentYellow,
+                      imageAsset: Media.vaccination,
+                      urlPath: CarnetSanteScreen.path,
+                    ),
+                    const SizedBox(width: 16),
+                    HomeCard(
+                      title: 'Retrouvez\nvos hôpitaux',
+                      subtitle: 'Recherchez selon la ville',
+                      buttonText: 'Y accéder',
+                      backgroundColor: Colours.primaryBlue,
+                      buttonColor: Colours.homeCardSecondaryButtonBlue,
+                      imageAsset: Media.localisation,
+                      urlPath: TrouverHopitauxScreen.path,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // ✅ Grille sous le slider
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    OptionCard(
+                      title: 'Carnet de santé',
+                      imageAsset: Media.carnetSante,
+                      onTap: () => context.go(CarnetSanteScreen.path),
+                    ),
+                    OptionCard(
+                      title: 'Ma famille',
+                      imageAsset: Media.maFamille,
+                      onTap: () => context.go(FamilleScreen.path),
+                    ),
+
+                    OptionCard(
+                      title: 'Mon abonnement',
+                      imageAsset: Media.monAbonnement,
+                      onTap: () => context.go(SouscriptionScreen.path),
+                    ),
+                    OptionCard(
+                      title: 'Mon profil',
+                      imageAsset: Media.monGrandProfil,
+                      onTap: () => context.go(MonProfilScreen.path),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Bienvenue',
-              style: TextStyles.bodyRegular.copyWith(
-                color: Colours.accentYellow,
-              ),
-            ),
-            Text(
-              user.surname,
-              style: TextStyles.titleMedium.copyWith(
-                color: Colours.homeCardSecondaryBlue,
-              ),
-            ),
-          ],
-        ),
-        actions: [AppBarActions(scaffoldKey: _scaffoldKey)],
-      ),
-      drawer: const CustomDrawer(),
-
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            // ✅ Slider horizontal
-            SizedBox(
-              height: 200,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  HomeCard(
-                    title: 'OPISMS,\nMon e-carnet',
-                    subtitle: 'Se vacciner, c\'est prévenir',
-                    buttonText: 'Voir carnet',
-                    backgroundColor: Colours.homeCardSecondaryButtonBlue,
-                    buttonColor: Colours.accentYellow,
-                    imageAsset: Media.vaccination,
-                    urlPath: CarnetSanteScreen.path,
-                  ),
-                  const SizedBox(width: 16),
-                  HomeCard(
-                    title: 'Retrouvez\nvos hôpitaux',
-                    subtitle: 'Recherchez selon la ville',
-                    buttonText: 'Y accéder',
-                    backgroundColor: Colours.primaryBlue,
-                    buttonColor: Colours.homeCardSecondaryButtonBlue,
-                    imageAsset: Media.localisation,
-                    urlPath: TrouverHopitauxScreen.path,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            // ✅ Grille sous le slider
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  OptionCard(
-                    title: 'Carnet de santé',
-                    imageAsset: Media.carnetSante,
-                    onTap: () => context.go(CarnetSanteScreen.path),
-                  ),
-                  OptionCard(
-                    title: 'Ma famille',
-                    imageAsset: Media.maFamille,
-                    onTap: () => context.go(FamilleScreen.path),
-                  ),
-
-                  OptionCard(
-                    title: 'Mon abonnement',
-                    imageAsset: Media.monAbonnement,
-                    onTap: () => context.go(SouscriptionScreen.path),
-                  ),
-                  OptionCard(
-                    title: 'Mon profil',
-                    imageAsset: Media.monGrandProfil,
-                    onTap: () => context.go(MonProfilScreen.path),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: const CustomBottomNavBar(),
+        bottomNavigationBar: const CustomBottomNavBar(),
+      );
+        }
     );
   }
 }
