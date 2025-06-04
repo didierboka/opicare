@@ -59,11 +59,7 @@ void showLoader(BuildContext context, bool show) {
       barrierDismissible: false,
       context: context,
       builder: (_) => Center(
-        child: Lottie.asset(
-          Media.loader,
-          width: 350,
-          height: 350,
-        ),
+        child: getLoader()
       ),
     );
   } else {
@@ -73,6 +69,12 @@ void showLoader(BuildContext context, bool show) {
     }
   }
 }
+
+Widget getLoader() => Lottie.asset(
+      Media.loader,
+      width: 350,
+      height: 350,
+);
 
 String _getDefaultMessage(MessageType? type) {
   switch (type) {
