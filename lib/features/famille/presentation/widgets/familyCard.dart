@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/features/famille/data/models/family_member.dart';
 class FamilyMemberCard extends StatelessWidget {
   final FamilyMember member;
@@ -9,7 +10,9 @@ class FamilyMemberCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
+        focusColor: Colours.primaryBlue,
         leading: CircleAvatar(
+          backgroundColor: Colours.primaryBlue.withOpacity(0.5),
           child: Text(member.name[0]),
         ),
         title: Text('${member.name} ${member.surname}'),
