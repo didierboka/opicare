@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/centre_model.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/district_model.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_model.dart';
@@ -6,7 +7,7 @@ import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_v
 
 part 'dispo_vaccin_event.dart';
 part 'dispo_vaccin_state.dart';
-
+var logger = Logger();
 class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
   final DispoVaccinRepository dispoVaccinRepository;
   DispoVaccinBloc({required this.dispoVaccinRepository})
@@ -139,8 +140,10 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
       SelectVaccin event, Emitter<DispoVaccinState> emit) {
     if (state is! DispoVaccinLoaded) return;
     final currentState = state as DispoVaccinLoaded;
-
+    logger.i("Vaccin selected: ${event.vaccinId}");
     emit(currentState.copyWith(
+      selectedDistrict: currentState.selectedDistrict,
+      selectedCentre: currentState.selectedCentre,
       selectedVaccin: event.vaccinId,
     ));
   }

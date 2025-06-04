@@ -37,7 +37,7 @@ class DispoVaccinRepositoryImpl implements DispoVaccinRepository{
   Future<CustomResponse<VaccinModel>> getVaccinsCentre(String idCentre) async{
     try{
       final ApiService<VaccinModel> apiService = ApiService(fromJson: (json)=> VaccinModel.fromJson(json));
-      final response = await apiService.post('/listecentredunvaccin', {'id': idCentre});
+      final response = await apiService.post('/jourvaccinationduncentre', {'id': idCentre}, useFormData: false);
       return response;
     }catch(e){
       return CustomResponse(status: false, message: e.toString());

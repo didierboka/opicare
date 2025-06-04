@@ -116,10 +116,10 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
                   options: state is DispoVaccinLoaded
                       ? state.vaccins.map((v) => {
                     'libelle': v.nom,
-                    'valeur': v.nom
+                    'valeur': v.id
                   }).toList()
                       : [],
-                  onSelected: (value) => bloc.add(SelectVaccin(vaccinId: value!)),
+                  onSelected: (value) => bloc.add(SelectVaccin(vaccinId: value)),
                   isEnabled: state is DispoVaccinLoaded &&
                       state.centres.isNotEmpty &&
                       state.selectedCentre != null,
