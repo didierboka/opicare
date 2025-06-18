@@ -27,38 +27,40 @@ class PlanAbonnementScreen extends StatelessWidget {
           scaffoldKey: _scaffoldKey,
         ),
         drawer: const CustomDrawer(),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
-          child: BlocBuilder<FormuleBloc, FormuleState>(
-            builder: (context, state) {
-              if (state is FormuleLoading) {
-                return  Center(child: getLoader());
-              }
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: BlocBuilder<FormuleBloc, FormuleState>(
+              builder: (context, state) {
+                if (state is FormuleLoading) {
+                  return  Center(child: getLoader());
+                }
 
-              if (state is FormuleError) {
-                return Center(child: Text(state.message));
-              }
+                if (state is FormuleError) {
+                  return Center(child: Text(state.message));
+                }
 
-              if (state is FormuleLoaded) {
-                return MasonryGridView.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  itemCount: state.formules.length,
-                  itemBuilder: (context, index) {
-                    final formule = state.formules[index];
-                    return PlanCard(
-                      plan: formule.libelle,
-                      description: formule.description,
-                      price: 'CFA ${formule.tarif}',
-                      note: '⭐ ${formule.bonus}/5',
-                    );
-                  },
-                );
-              }
+                if (state is FormuleLoaded) {
+                  return MasonryGridView.count(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
+                    itemCount: state.formules.length,
+                    itemBuilder: (context, index) {
+                      final formule = state.formules[index];
+                      return PlanCard(
+                        plan: formule.libelle,
+                        description: formule.description,
+                        price: 'CFA ${formule.tarif}',
+                        note: '⭐ ${formule.bonus}/5',
+                      );
+                    },
+                  );
+                }
 
-              return const SizedBox();
-            },
+                return const SizedBox();
+              },
+            ),
           ),
         ),
         bottomNavigationBar: const CustomBottomNavBar(),

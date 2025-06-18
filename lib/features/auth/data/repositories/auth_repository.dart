@@ -5,10 +5,7 @@ import 'package:opicare/features/user/data/models/user_model.dart';
 
 //login:42897250 password:9247
 abstract class AuthRepository {
-  Future<CustomResponse<UserModel>> login({
-    required String emailOrPhone,
-    required String password
-  });
+  Future<CustomResponse<UserModel>> login({required String emailOrPhone, required String password});
 
   Future<CustomResponse<UserModel>> register({
     required String nom,
@@ -30,17 +27,13 @@ class AuthRepositoryImpl implements AuthRepository {
   });
 
   @override
-  Future<CustomResponse<UserModel>> login(
-      {required String emailOrPhone,
-      required String password}) async {
+  Future<CustomResponse<UserModel>> login({required String emailOrPhone, required String password}) async {
     try {
       final response = await apiService.post('/login', {
         'd': 'PROD',
         'login': emailOrPhone,
         'password': password,
       });
-
-
 
       return response;
     } catch (e) {
@@ -76,9 +69,7 @@ class AuthRepositoryImpl implements AuthRepository {
         if (myRes["statut"] == 1) {
           return CustomResponse(status: true, message: "Inscription réussie");
         } else if (myRes["statut"] == 0) {
-          return CustomResponse(
-              status: false,
-              message: myRes["message"] ?? "Inscription impossible");
+          return CustomResponse(status: false, message: myRes["message"] ?? "Inscription impossible");
         }
       }
       return response;

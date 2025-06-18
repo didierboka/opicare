@@ -28,6 +28,7 @@ dependencies:
   logger: ^2.5.0
   flutter_secure_storage: ^9.2.4
 
+
   # Firebase Core - Version compatible avec Flutter 3.27.3
   firebase_core: ^3.8.0
 
@@ -36,6 +37,7 @@ dependencies:
 
   # Autres Firebase services (optionnels)
   firebase_analytics: ^11.3.6
+  get_it: ^8.0.3
 
 dev_dependencies:
   flutter_test:

@@ -5,10 +5,12 @@ import 'package:opicare/features/souscribtion/data/models/type_abo_model.dart';
 import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
 import 'package:opicare/features/souscribtion/domain/entities/type_abo_entity.dart';
 
-
 abstract class SouscriptionRepository {
+
   Future<List<TypeAboModel>> getTypeAbos();
+
   Future<List<FormuleModel>> getFormules(String typeAboId);
+
   Future<CustomResponse<dynamic>> submitSouscription({
     required String typeAbonnement,
     required String formule,
@@ -19,10 +21,11 @@ abstract class SouscriptionRepository {
     required String tarif,
   });
 }
+
 class SouscriptionRepositoryImpl implements SouscriptionRepository {
   @override
   Future<List<TypeAboModel>> getTypeAbos() async {
-    final ApiService<TypeAboModel> apiService = ApiService(fromJson: (json)=> TypeAboModel.fromJson(json));
+    final ApiService<TypeAboModel> apiService = ApiService(fromJson: (json) => TypeAboModel.fromJson(json));
     final response = await apiService.post(
       '/listetypeabonnement',
       {'d': 'PROD'},
@@ -35,7 +38,7 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
 
   @override
   Future<List<FormuleModel>> getFormules(String typeAboId) async {
-    final ApiService<FormuleModel> apiService = ApiService(fromJson: (json)=> FormuleModel.fromJson(json));
+    final ApiService<FormuleModel> apiService = ApiService(fromJson: (json) => FormuleModel.fromJson(json));
     final response = await apiService.post(
       '/listeformule',
       {'d': 'PROD', 'id': typeAboId},
@@ -55,7 +58,7 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
     required String email,
     required String tarif,
   }) async {
-    final ApiService<dynamic> apiService = ApiService(fromJson: (json)=> true);
+    final ApiService<dynamic> apiService = ApiService(fromJson: (json) => true);
 
     final response = await apiService.post(
       '/abonnement',
@@ -73,10 +76,10 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
 
     final myRes = response.response;
 
-    if(myRes!["statut"] == 1){
-      return CustomResponse(status: true, message: response.message?? "Abonnement réussi");
-    }else{
-      return CustomResponse(status: false, message: response.message?? "Abonnement échoué");
+    if (myRes!["statut"] == 1) {
+      return CustomResponse(status: true, message: response.message ?? "Abonnement réussi");
+    } else {
+      return CustomResponse(status: false, message: response.message ?? "Abonnement échoué");
     }
   }
 }

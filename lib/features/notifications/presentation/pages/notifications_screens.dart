@@ -31,26 +31,28 @@ class NotificationScreen extends StatelessWidget {
       ),
       drawer: CustomDrawer(),
       bottomNavigationBar: CustomBottomNavBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('SMS reçus', style: TextStyles.titleMedium),
-            const SizedBox(height: 20),
-            Expanded(
-              child: smsList.isNotEmpty
-                  ? ListView.separated(
-                itemCount: smsList.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final sms = smsList[index];
-                  return NotifCard(sms: sms);
-                },
-              )
-                  : Center(child: Text('(Aucun SMS reçu)', style: TextStyles.bodyRegular)),
-            ),
-          ],
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('SMS reçus', style: TextStyles.titleMedium),
+              const SizedBox(height: 20),
+              Expanded(
+                child: smsList.isNotEmpty
+                    ? ListView.separated(
+                  itemCount: smsList.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    final sms = smsList[index];
+                    return NotifCard(sms: sms);
+                  },
+                )
+                    : Center(child: Text('(Aucun SMS reçu)', style: TextStyles.bodyRegular)),
+              ),
+            ],
+          ),
         ),
       ),
     );

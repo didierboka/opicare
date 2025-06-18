@@ -42,75 +42,77 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
       ),
       drawer: const CustomDrawer(),
       bottomNavigationBar: const CustomBottomNavBar(),
-      body: BlocConsumer<JoursVaccinBloc, JoursVaccinState>(
-        listener: (context, state) {
-          showLoader(context, state is JoursVaccinLoading);
+      body: SafeArea(
+        child: BlocConsumer<JoursVaccinBloc, JoursVaccinState>(
+          listener: (context, state) {
+            showLoader(context, state is JoursVaccinLoading);
 
-          if (state is JoursVaccinFailure) {
-            showSnackbar(context, message: state.message, type: MessageType.error);
+            if (state is JoursVaccinFailure) {
+              showSnackbar(context, message: state.message, type: MessageType.error);
 
-            if (state.previousState != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.read<JoursVaccinBloc>().emit(state.previousState!);
-              });
+              if (state.previousState != null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  context.read<JoursVaccinBloc>().emit(state.previousState!);
+                });
+              }
             }
-          }
-        },
-        builder: (context, state) {
-          final bloc = context.read<JoursVaccinBloc>();
+          },
+          builder: (context, state) {
+            final bloc = context.read<JoursVaccinBloc>();
 
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Faire une recherche', style: TextStyles.titleMedium),
-                const SizedBox(height: 20),
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Faire une recherche', style: TextStyles.titleMedium),
+                  const SizedBox(height: 20),
 
-                CustomSelectField(
-                  label: 'Liste des districts',
-                  selectedValue: state is JoursVaccinLoaded ? state.selectedDistrict : null,
-                  hint: 'Sélectionner un district',
-                  options: state is JoursVaccinLoaded
-                      ? state.districts.map((d) => {'libelle': d.nom, 'valeur': d.id}).toList()
-                      : [],
-                  onSelected: (value) => bloc.add(SelectDistrict(districtId: value!)),
-                ),
-                const SizedBox(height: 16),
+                  CustomSelectField(
+                    label: 'Liste des districts',
+                    selectedValue: state is JoursVaccinLoaded ? state.selectedDistrict : null,
+                    hint: 'Sélectionner un district',
+                    options: state is JoursVaccinLoaded
+                        ? state.districts.map((d) => {'libelle': d.nom, 'valeur': d.id}).toList()
+                        : [],
+                    onSelected: (value) => bloc.add(SelectDistrict(districtId: value!)),
+                  ),
+                  const SizedBox(height: 16),
 
-                CustomSelectField(
-                  label: 'Liste des centres',
-                  selectedValue: state is JoursVaccinLoaded ? state.selectedCentre : null,
-                  hint: 'Sélectionner un centre',
-                  options: state is JoursVaccinLoaded
-                      ? state.centres.map((c) => {'libelle': c.nom, 'valeur': c.id}).toList()
-                      : [],
-                  onSelected: (value) {
-                    if (value != null) {
-                      bloc.add(SelectCentre(centretId: value));
-                    }
-                  },
-                  isEnabled: state is JoursVaccinLoaded && state.selectedDistrict != null,
-                ),
-                const SizedBox(height: 16),
+                  CustomSelectField(
+                    label: 'Liste des centres',
+                    selectedValue: state is JoursVaccinLoaded ? state.selectedCentre : null,
+                    hint: 'Sélectionner un centre',
+                    options: state is JoursVaccinLoaded
+                        ? state.centres.map((c) => {'libelle': c.nom, 'valeur': c.id}).toList()
+                        : [],
+                    onSelected: (value) {
+                      if (value != null) {
+                        bloc.add(SelectCentre(centretId: value));
+                      }
+                    },
+                    isEnabled: state is JoursVaccinLoaded && state.selectedDistrict != null,
+                  ),
+                  const SizedBox(height: 16),
 
-                CustomSelectField(
-                  label: 'Jours de vaccins',
-                  selectedValue: state is JoursVaccinLoaded ? state.selectedJour : null,
-                  hint: 'Sélectionner un jour',
-                  options: jours.map((j) => {'libelle': j.libelle, 'valeur': j.valeur}).toList(),
-                  onSelected: (value) => bloc.add(SelectJour(jourId: value!)),
-                  isEnabled: state is JoursVaccinLoaded && state.selectedCentre != null,
-                ),
-                const SizedBox(height: 30),
+                  CustomSelectField(
+                    label: 'Jours de vaccins',
+                    selectedValue: state is JoursVaccinLoaded ? state.selectedJour : null,
+                    hint: 'Sélectionner un jour',
+                    options: jours.map((j) => {'libelle': j.libelle, 'valeur': j.valeur}).toList(),
+                    onSelected: (value) => bloc.add(SelectJour(jourId: value!)),
+                    isEnabled: state is JoursVaccinLoaded && state.selectedCentre != null,
+                  ),
+                  const SizedBox(height: 30),
 
-                Text('Résultat', style: TextStyles.titleMedium),
-                const SizedBox(height: 10),
-                Text('(Aucun résultat trouvé!)', style: TextStyles.bodyRegular),
-              ],
-            ),
-          );
-        },
+                  Text('Résultat', style: TextStyles.titleMedium),
+                  const SizedBox(height: 10),
+                  Text('(Aucun résultat trouvé!)', style: TextStyles.bodyRegular),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

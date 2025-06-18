@@ -17,10 +17,11 @@ class CarnetSanteScreen extends StatelessWidget {
   static const path = '/carnet_sante';
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-   CarnetSanteScreen({super.key});
+  CarnetSanteScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
 
     return BlocProvider(
@@ -36,19 +37,24 @@ class CarnetSanteScreen extends StatelessWidget {
           scaffoldKey: _scaffoldKey,
         ),
         drawer: const CustomDrawer(),
-        body: Column(
-          children: [
-            HealthCardHeader(
-              title: 'Vacciner, c\'est prévenir',
-              highlightText: 'Gratuit',
-              subtitle: 'de 0 et 15 mois',
-              imageAsset: 'assets/images/vaccination-sans-bg.png',
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            child: Column(
+              children: [
+                HealthCardHeader(
+                  title: 'Vacciner, c\'est prévenir',
+                  highlightText: 'Gratuit',
+                  subtitle: 'de 0 et 15 mois',
+                  imageAsset: 'assets/images/vaccination-sans-bg.png',
+                ),
+                //const TabBarHeader(),
+                const Expanded(child: VaccineTabView()),
+              ],
             ),
-            //const TabBarHeader(),
-            const Expanded(child: VaccineTabView()),
-          ],
+          ),
         ),
-        bottomNavigationBar: const CustomBottomNavBar(),
+        bottomNavigationBar: CustomBottomNavBar(),
       ),
     );
   }

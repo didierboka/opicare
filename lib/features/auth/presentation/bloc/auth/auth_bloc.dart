@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,8 +7,11 @@ import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 
 part 'auth_event.dart';
+
 part 'auth_state.dart';
+
 var logger = Logger();
+
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LocalStorageService localStorage;
   final AuthRepository authRepository;
@@ -24,9 +26,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future _onAuthCheckRequested(
-      AuthCheckRequested event,
-      Emitter<AuthState> emit,
-      ) async {
+    AuthCheckRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     emit(AuthLoading());
 
     try {
@@ -48,21 +50,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   void _onUserChanged(
-      AuthUserChanged event,
-      Emitter<AuthState> emit,
-      ) {
-    emit(event.user != null
-        ? AuthAuthenticated(event.user!)
-        : AuthUnauthenticated()
-    );
+    AuthUserChanged event,
+    Emitter<AuthState> emit,
+  ) {
+    emit(event.user != null ? AuthAuthenticated(event.user!) : AuthUnauthenticated());
   }
 
   Future<void> _onLogoutRequested(
-      AuthLogoutRequested event,
-      Emitter<AuthState> emit,
-      ) async {
+    AuthLogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
     await localStorage.clearUser();
     emit(AuthUnauthenticated());
   }
-
 }

@@ -21,8 +21,19 @@ class LoginPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(Media.user, height: 40),
+              //  Image.asset(Media.user, height: 40),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(child: Image.asset(Media.logoINHP, height: 80)),
+                  const SizedBox(width: 20),
+                  Flexible(child: Image.asset(Media.logoMS, height: 80)),
+                ],
+              ),
+
               const SizedBox(height: 20),
+
               Text(
                 'Connexion',
                 style: TextStyles.titleLarge

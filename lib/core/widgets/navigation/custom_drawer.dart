@@ -13,6 +13,7 @@ import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_sc
 import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_screen.dart';
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
+import 'package:opicare/features/welcome/welcome.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -23,7 +24,8 @@ class CustomDrawer extends StatelessWidget {
     return BlocConsumer<AuthBloc, AuthState>(listener: (context, state) {
       if (state is AuthUnauthenticated) {
         // Redirection gérée par le routeur après déconnexion
-        context.go('/login');
+        //  context.go('/login');
+        context.go(WelcomeScreen.path);
       }
     }, builder: (context, state) {
       if (state is! AuthAuthenticated) {
@@ -41,19 +43,13 @@ class CustomDrawer extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
               child: Row(
                 children: [
-                  CircleAvatar(
-                      radius: 30,
-                      backgroundImage: AssetImage(Media.userProfil)),
+                  CircleAvatar(radius: 30, backgroundImage: AssetImage(Media.userProfil)),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(user.surname,
-                          style: TextStyles.bodyBold
-                              .copyWith(color: Colours.background)),
-                      Text(user.phone,
-                          style: TextStyles.bodyRegular
-                              .copyWith(color: Colours.background)),
+                      Text(user.surname, style: TextStyles.bodyBold.copyWith(color: Colours.background)),
+                      Text(user.phone, style: TextStyles.bodyRegular.copyWith(color: Colours.background)),
                     ],
                   )
                 ],
@@ -139,17 +135,12 @@ class CustomDrawer extends StatelessWidget {
     });
   }
 
-  Widget _buildDrawerItem(
-      {required IconData icon,
-      required String text,
-      required VoidCallback onTap}) {
+  Widget _buildDrawerItem({required IconData icon, required String text, required VoidCallback onTap}) {
     return Column(
       children: [
         ListTile(
           leading: Icon(icon, color: Colours.secondaryText),
-          title: Text(text,
-              style:
-                  TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
+          title: Text(text, style: TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
           onTap: onTap,
         ),
         const Divider(height: 1, color: Colours.inputBorder),
@@ -165,9 +156,7 @@ class CustomDrawer extends StatelessWidget {
         children: [
           Icon(icon, color: Colours.secondaryText),
           const SizedBox(height: 4),
-          Text(label,
-              style:
-                  TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
+          Text(label, style: TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
         ],
       ),
     );

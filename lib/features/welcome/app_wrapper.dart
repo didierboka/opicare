@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
-import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';

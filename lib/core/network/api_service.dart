@@ -7,16 +7,11 @@ import 'package:opicare/core/network/custom_response.dart';
 
 import '../constants/api_url.dart';
 
-
 class ApiService<T> {
-
-
   final String baseUrl;
   final T Function(Map<String, dynamic>) fromJson;
 
-
   ApiService({this.baseUrl = ApiUrl.prod, required this.fromJson});
-
 
   Future<CustomResponse<T>> get(String endpoint) async {
     final url = Uri.parse('$baseUrl$endpoint');
@@ -24,28 +19,30 @@ class ApiService<T> {
       final response = await http.get(url);
       return _processResponse(response);
     } catch (e) {
-      return CustomResponse<T>(
-          status: false, message: 'Erreur de connexion: $e');
+      return CustomResponse<T>(status: false, message: 'Erreur de connexion: $e');
     }
   }
-
 
   Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true}) async {
     print("START API SERVICE POST");
     final url = Uri.parse('$baseUrl$endpoint');
+
+    print("${url.toString()} ${data.toString()}");
+
     CustomResponse<T> res = CustomResponse<T>(isLoading: true);
+
     data['d'] = 'PROD';
+
     try {
       final response = await http.post(
         url,
         body: useFormData ? data : jsonEncode(data),
         headers: {
-          'Content-Type':
-          useFormData ? 'application/x-www-form-urlencoded' : 'application/json',
+          'Content-Type': useFormData ? 'application/x-www-form-urlencoded' : 'application/json',
         },
       );
       res = _processResponse(response);
-    }on TimeoutException catch (e) {
+    } on TimeoutException catch (e) {
       res = CustomResponse<T>(
         status: false,
         message: 'Délai d\'attente dépassé: $e',
@@ -64,14 +61,12 @@ class ApiService<T> {
         message: 'Erreur inconnue: $e',
         errorType: ErrorType.unknown,
       );
-    }finally{
+    } finally {
       res.isLoading = false;
     }
     print("END API SERVICE POST");
     return res;
-
   }
-
 
   CustomResponse<T> _processResponse(http.Response response) {
     if (kDebugMode) {
@@ -100,4 +95,3 @@ class ApiService<T> {
     return res;
   }
 }
-

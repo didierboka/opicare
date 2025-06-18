@@ -26,6 +26,8 @@ abstract class Media {
 
   //Welcome
   static const logo = '$_baseImage/unlock.png';
+  static const logoMS = '$_baseImage/logo_sante.jpg';
+  static const logoINHP = '$_baseImage/logo_inhp.png';
 
 
 

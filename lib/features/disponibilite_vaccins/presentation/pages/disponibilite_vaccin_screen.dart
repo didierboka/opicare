@@ -59,79 +59,81 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
           if (state is SouscriptionFailure) {
             return const SizedBox();
           }
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Rechercher', style: TextStyles.titleMedium),
-                const SizedBox(height: 20),
+          return SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Rechercher', style: TextStyles.titleMedium),
+                  const SizedBox(height: 20),
 
-                // Menu District
-                CustomSelectField(
-                  label: 'Liste des districts',
-                  selectedValue: state is DispoVaccinLoaded
-                      ? state.selectedDistrict
-                      : null,
-                  hint: 'Sélectionner un district',
-                  options: state is DispoVaccinLoaded
-                      ? state.districts.map((d) => {
-                    'libelle': d.nom,
-                    'valeur': d.id
-                  }).toList()
-                      : [],
-                  onSelected: (value) => bloc.add(SelectDistrict(districtId: value!)),
-                ),
-                const SizedBox(height: 16),
+                  // Menu District
+                  CustomSelectField(
+                    label: 'Liste des districts',
+                    selectedValue: state is DispoVaccinLoaded
+                        ? state.selectedDistrict
+                        : null,
+                    hint: 'Sélectionner un district',
+                    options: state is DispoVaccinLoaded
+                        ? state.districts.map((d) => {
+                      'libelle': d.nom,
+                      'valeur': d.id
+                    }).toList()
+                        : [],
+                    onSelected: (value) => bloc.add(SelectDistrict(districtId: value!)),
+                  ),
+                  const SizedBox(height: 16),
 
-                // Menu Centre
-                CustomSelectField(
-                  label: 'Liste des centres',
-                  selectedValue: state is DispoVaccinLoaded
-                      ? state.selectedCentre
-                      : null,
-                  hint: 'Sélectionner un centre',
-                  options: state is DispoVaccinLoaded
-                      ? state.centres
-                      .map((c) => {'libelle': c.nom, 'valeur': c.id})
-                      .toList()
-                      : [],
-                  onSelected: (value) {
-                    if (value != null) {
-                      bloc.add(SelectCentre(centretId: value));
-                    }
-                  },
-                  isEnabled: state is DispoVaccinLoaded &&
-                      state.selectedDistrict != null,
-                ),
-                const SizedBox(height: 16),
+                  // Menu Centre
+                  CustomSelectField(
+                    label: 'Liste des centres',
+                    selectedValue: state is DispoVaccinLoaded
+                        ? state.selectedCentre
+                        : null,
+                    hint: 'Sélectionner un centre',
+                    options: state is DispoVaccinLoaded
+                        ? state.centres
+                        .map((c) => {'libelle': c.nom, 'valeur': c.id})
+                        .toList()
+                        : [],
+                    onSelected: (value) {
+                      if (value != null) {
+                        bloc.add(SelectCentre(centretId: value));
+                      }
+                    },
+                    isEnabled: state is DispoVaccinLoaded &&
+                        state.selectedDistrict != null,
+                  ),
+                  const SizedBox(height: 16),
 
-                // Menu Vaccin
-                CustomSelectField(
-                  label: 'Liste des vaccins',
-                  selectedValue: state is DispoVaccinLoaded
-                      ? state.selectedVaccin
-                      : null,
-                  hint: 'Sélectionner un vaccin',
-                  options: state is DispoVaccinLoaded
-                      ? state.vaccins.map((v) => {
-                    'libelle': v.nom,
-                    'valeur': v.id
-                  }).toList()
-                      : [],
-                  onSelected: (value) => bloc.add(SelectVaccin(vaccinId: value)),
-                  isEnabled: state is DispoVaccinLoaded &&
-                      state.centres.isNotEmpty &&
-                      state.selectedCentre != null,
-                ),
-                const SizedBox(height: 30),
+                  // Menu Vaccin
+                  CustomSelectField(
+                    label: 'Liste des vaccins',
+                    selectedValue: state is DispoVaccinLoaded
+                        ? state.selectedVaccin
+                        : null,
+                    hint: 'Sélectionner un vaccin',
+                    options: state is DispoVaccinLoaded
+                        ? state.vaccins.map((v) => {
+                      'libelle': v.nom,
+                      'valeur': v.id
+                    }).toList()
+                        : [],
+                    onSelected: (value) => bloc.add(SelectVaccin(vaccinId: value)),
+                    isEnabled: state is DispoVaccinLoaded &&
+                        state.centres.isNotEmpty &&
+                        state.selectedCentre != null,
+                  ),
+                  const SizedBox(height: 30),
 
-                // Section Résultats
-                Text('Résultat', style: TextStyles.titleMedium),
-                const SizedBox(height: 10),
-                Text('(Aucun vaccin trouvé)', style: TextStyles.bodyRegular)
-                //_buildResults(context, state),
-              ],
+                  // Section Résultats
+                  Text('Résultat', style: TextStyles.titleMedium),
+                  const SizedBox(height: 10),
+                  Text('(Aucun vaccin trouvé)', style: TextStyles.bodyRegular)
+                  //_buildResults(context, state),
+                ],
+              ),
             ),
           );
         },

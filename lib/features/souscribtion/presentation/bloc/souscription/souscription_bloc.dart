@@ -7,29 +7,38 @@ import 'package:opicare/features/souscribtion/data/repositories/subscription_rep
 import 'package:opicare/features/souscribtion/domain/usecases/get_formules_usecase.dart';
 import 'package:opicare/features/souscribtion/domain/usecases/get_type_abos_usecase.dart';
 
-
 //part of 'souscription_bloc.dart';
 
 //part of 'souscription_bloc.dart';
 
 abstract class SouscriptionEvent {}
+
 class LoadTypeAbos extends SouscriptionEvent {}
+
 class LoadFormules extends SouscriptionEvent {
   final String typeAboId;
+
   LoadFormules(this.typeAboId);
 }
+
 class SelectTypeAbo extends SouscriptionEvent {
   final String? typeAboId;
+
   SelectTypeAbo(this.typeAboId);
 }
+
 class SelectFormule extends SouscriptionEvent {
   final String? formuleId;
+
   SelectFormule(this.formuleId);
 }
+
 class UpdateYears extends SouscriptionEvent {
   final String years;
+
   UpdateYears(this.years);
 }
+
 class SubmitSouscription extends SouscriptionEvent {
   final String typeAbonnement;
   final String formule;
@@ -38,17 +47,24 @@ class SubmitSouscription extends SouscriptionEvent {
   final String numtel;
   final String email;
   final String tarif;
+
   SubmitSouscription({
     required this.typeAbonnement,
     required this.formule,
     required this.years,
-    required this.id, required this.numtel, required this.email, required this.tarif,
+    required this.id,
+    required this.numtel,
+    required this.email,
+    required this.tarif,
   });
 }
 
 abstract class SouscriptionState {}
+
 class SouscriptionInitial extends SouscriptionState {}
+
 class SouscriptionLoading extends SouscriptionState {}
+
 class SouscriptionLoaded extends SouscriptionState {
   final List<TypeAboModel> typeAbos;
   final List<FormuleModel> formules;
@@ -84,12 +100,16 @@ class SouscriptionLoaded extends SouscriptionState {
     );
   }
 }
+
 class SouscriptionSuccess extends SouscriptionState {
   final String message;
+
   SouscriptionSuccess(this.message);
 }
+
 class SouscriptionFailure extends SouscriptionState {
   final String message;
+
   SouscriptionFailure(this.message);
 }
 
@@ -97,8 +117,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
   final SouscriptionRepository souscriptionRepository;
   final TextEditingController yearsController = TextEditingController(text: '1');
 
-  SouscriptionBloc({required this.souscriptionRepository})
-      : super(SouscriptionInitial()) {
+  SouscriptionBloc({required this.souscriptionRepository}) : super(SouscriptionInitial()) {
     on<LoadTypeAbos>(_onLoadTypeAbos);
     on<LoadFormules>(_onLoadFormules);
     on<SelectTypeAbo>(_onSelectTypeAbo);
@@ -182,7 +201,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
       orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: 0.toString()),
     );
 
-    final  total = (formule.prix * currentState.years) as double;
+    final total = (formule.prix * currentState.years) as double;
 
     emit(currentState.copyWith(
       selectedFormule: event.formuleId,

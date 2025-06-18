@@ -31,13 +31,15 @@ class FamilleScreen extends StatelessWidget {
         ),
         drawer: const CustomDrawer(),
         bottomNavigationBar: const CustomBottomNavBar(),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              Expanded(child: _buildFamilyMembersList()),
-            ],
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                Expanded(child: _buildFamilyMembersList()),
+              ],
+            ),
           ),
         ),
       ),

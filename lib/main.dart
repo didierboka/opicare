@@ -1,38 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:opicare/core/helpers/local_storage_service.dart';
-import 'package:opicare/core/network/api_service.dart';
+import 'package:opicare/core/di.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/router/app_router.dart';
-import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
-import 'package:opicare/features/user/data/models/user_model.dart';
+
+import 'core/helpers/local_storage_service.dart';
+import 'features/auth/data/repositories/auth_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final localStorage = SharedPreferencesStorage();
-  final apiService = ApiService<UserModel>(
-    fromJson: UserModel.fromJson,
-  );
-
-  final authRepository = AuthRepositoryImpl(
-    apiService: apiService,
-    localStorage: localStorage,
-  );
+  // Initialiser la dependency injection
+  await Di.init();
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(
-            create: (context) => AuthBloc(
-                  localStorage: localStorage,
-                  authRepository: authRepository,
-                )..add(AuthCheckRequested())),
+          create: (context) => AuthBloc(
+            localStorage: Di.get<LocalStorageService>(),
+            authRepository: Di.get<AuthRepository>(),
+          )..add(AuthCheckRequested()),
+        ),
         BlocProvider(
           create: (context) => LoginBloc(
-            authRepository: authRepository,
+            authRepository: Di.get<AuthRepository>(),
             authBloc: context.read<AuthBloc>(),
           ),
         ),

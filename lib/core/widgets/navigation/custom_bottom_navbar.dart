@@ -18,42 +18,46 @@ class CustomBottomNavBar extends StatelessWidget {
       MonProfilScreen.path,
     ];
 
-    return Container(
-      margin: const EdgeInsets.only(right: 16, left: 16, bottom: 10),
-      decoration: BoxDecoration(
-        color: Colours.accentYellow,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
-        border: Border.all(color: Colours.secondaryText),
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(16)),
-        child: BottomNavigationBar(
-          currentIndex: _calculateSelectedIndex(context),
-          onTap: (index) => context.go(routes[index]),
-          type: BottomNavigationBarType.fixed,
-          selectedItemColor: Colours.secondaryText,//primaryBlue
-          unselectedItemColor: Colours.secondaryText,
-          iconSize: 20,
-          selectedLabelStyle: const TextStyle(fontSize: 10),
-          unselectedLabelStyle: const TextStyle(fontSize: 10),
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'ACCUEIL'),
-            BottomNavigationBarItem(icon: Icon(Icons.search), label: 'PARAMETRE'),
-            BottomNavigationBarItem(icon: Icon(Icons.book), label: 'E-CARNET'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'PROFIL'),
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.only(right: 16, left: 16),
+        decoration: BoxDecoration(
+          color: Colours.background,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
           ],
+          border: Border.all(color: Colours.secondaryText),
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+        ),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.all(Radius.circular(16)),
+          child: BottomNavigationBar(
+            currentIndex: _calculateSelectedIndex(context),
+            onTap: (index) => context.go(routes[index]),
+            type: BottomNavigationBarType.fixed,
+            selectedItemColor: Colours.secondaryText,
+            //primaryBlue
+            unselectedItemColor: Colours.secondaryText,
+            iconSize: 20,
+            selectedLabelStyle: const TextStyle(fontSize: 10),
+            unselectedLabelStyle: const TextStyle(fontSize: 10),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'ACCUEIL'),
+              BottomNavigationBarItem(icon: Icon(Icons.search), label: 'PARAMETRE'),
+              BottomNavigationBarItem(icon: Icon(Icons.book), label: 'E-CARNET'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'PROFIL'),
+            ],
+          ),
         ),
       ),
     );
   }
-
 
   int _calculateSelectedIndex(BuildContext context) {
     final location = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString() ?? '';
@@ -63,5 +67,4 @@ class CustomBottomNavBar extends StatelessWidget {
     if (location.startsWith(MonProfilScreen.path)) return 3;
     return 0;
   }
-
 }
