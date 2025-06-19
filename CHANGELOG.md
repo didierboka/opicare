@@ -7,10 +7,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
-<<<<<<< HEAD
-=======
 - **profil**: user can see its infos ([6764cad](https://github.com/didierboka/opicare/commit/6764cad))
->>>>>>> 20130c74327d86ba3f86e32822c3d2a74bd9bc69
 - **ui**: add Base64Image widget for show carnet photo file ([223ac61](https://github.com/didierboka/opicare/commit/223ac61))
 - **branding**: add Opicare logo ([fb41462](https://github.com/didierboka/opicare/commit/fb41462))
 - **ui**: see user info and pic ([7d8c54f](https://github.com/didierboka/opicare/commit/7d8c54f))
@@ -19,6 +16,11 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- revision de code & logique ([7f8b01c](https://github.com/didierboka/opicare/commit/7f8b01c))
+- revision de code et logic, ajout de injection de dependance (get_it) ([65e5634](https://github.com/didierboka/opicare/commit/65e5634))
+- **git**: fusion de la branche distance ([8b91248](https://github.com/didierboka/opicare/commit/8b91248))
+- update changelog [skip ci] ([20130c7](https://github.com/didierboka/opicare/commit/20130c7))
+- update changelog [skip ci] ([93f5f7b](https://github.com/didierboka/opicare/commit/93f5f7b))
 - **code**: review some indent and code ([a654329](https://github.com/didierboka/opicare/commit/a654329))
 - **merge**: merge dev/abole into develop ([a24ff60](https://github.com/didierboka/opicare/commit/a24ff60))
 - **changelog**: wip generate changelog ([ebed6ae](https://github.com/didierboka/opicare/commit/ebed6ae))
