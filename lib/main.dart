@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/di.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/router/app_router.dart';
+import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
 
@@ -41,16 +42,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'Opisms',
-      routerConfig: appRouter,
-      theme: ThemeData(
-        primaryColor: Colours.secondaryText,
-        scaffoldBackgroundColor: Colours.background,
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(backgroundColor: Colours.background),
-        useMaterial3: true,
-        primarySwatch: Colors.blue,
+    return BackButtonBlockerWidget(
+      message: 'Utilisez le menu pour naviguer dans l\'application',
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'Opisms',
+        routerConfig: appRouter,
+        theme: ThemeData(
+          primaryColor: Colours.secondaryText,
+          scaffoldBackgroundColor: Colours.background,
+          bottomNavigationBarTheme: BottomNavigationBarThemeData(backgroundColor: Colours.background),
+          useMaterial3: true,
+          primarySwatch: Colors.blue,
+        ),
       ),
     );
   }

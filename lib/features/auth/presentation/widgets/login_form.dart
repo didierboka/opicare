@@ -63,9 +63,9 @@ class _LoginFormState extends State<LoginForm> {
             child: Column(
               children: [
                 CustomInputField(
-                  hint: 'Email ou téléphone',
+                  hint: 'Email ou login',
                   icon: Icons.email,
-                  label: 'Email ou téléphone',
+                  label: 'Email ou login',
                   controller: emailOrPhoneController,
                 ),
                 const SizedBox(height: 20),

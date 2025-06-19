@@ -36,22 +36,28 @@ class CustomDrawer extends StatelessWidget {
       return Drawer(
         child: Column(
           children: [
+
             // ✅ En-tête fidèle
             Container(
               width: double.infinity,
               color: Colours.homeCardSecondaryButtonBlue,
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-              child: Row(
+              child: Column(
                 children: [
-                  CircleAvatar(radius: 30, backgroundImage: AssetImage(Media.userProfil)),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 15),
+                  Row(
                     children: [
-                      Text(user.surname, style: TextStyles.bodyBold.copyWith(color: Colours.background)),
-                      Text(user.phone, style: TextStyles.bodyRegular.copyWith(color: Colours.background)),
+                      CircleAvatar(radius: 30, backgroundImage: AssetImage(Media.userProfil)),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(user.surname, style: TextStyles.bodyBold.copyWith(color: Colours.background)),
+                          Text(user.phone, style: TextStyles.bodyRegular.copyWith(color: Colours.background)),
+                        ],
+                      )
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

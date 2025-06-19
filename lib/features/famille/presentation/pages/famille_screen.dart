@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
+import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
@@ -23,22 +24,25 @@ class FamilleScreen extends StatelessWidget {
       create: (context) => FamilleBloc(
         repository: FamilyRepositoryImpl(),
       )..add(LoadFamilyMembers(userId)),
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: CustomAppBar(
-          title: 'Famille',
-          scaffoldKey: _scaffoldKey,
-        ),
-        drawer: const CustomDrawer(),
-        bottomNavigationBar: const CustomBottomNavBar(),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                Expanded(child: _buildFamilyMembersList()),
-              ],
+      child: BackButtonBlockerWidget(
+        message: 'Utilisez le menu pour naviguer',
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: CustomAppBar(
+            title: 'Famille',
+            scaffoldKey: _scaffoldKey,
+          ),
+          drawer: const CustomDrawer(),
+          bottomNavigationBar: const CustomBottomNavBar(),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Expanded(child: _buildFamilyMembersList()),
+                ],
+              ),
             ),
           ),
         ),

@@ -29,7 +29,11 @@ abstract class Media {
   static const logoMS = '$_baseImage/logo_sante.jpg';
   static const logoINHP = '$_baseImage/logo_inhp.png';
 
-
+  static const travelIconGif = "$_baseLottie/solo-traveller.gif";
+  static const infosIconGif = "$_baseLottie/info.gif";
+  static const subscriptionIconGif = "$_baseLottie/monetization.gif";
+  static const familyIconGif = "$_baseLottie/family.gif";
+  static const availableIconGif = "$_baseLottie/available.gif";
 
   //Lotties
   static const loader = '$_baseLottie/loading.json';

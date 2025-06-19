@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/widgets/navigation/appbar_actions.dart';
+import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
@@ -21,7 +22,6 @@ class CarnetSanteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
 
     return BlocProvider(
@@ -30,31 +30,34 @@ class CarnetSanteScreen extends StatelessWidget {
           apiService: ApiService(fromJson: (json) => Vaccine.fromJson(json)),
         ),
       )..add(LoadVaccines(id: user.id)),
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: CustomAppBar(
-          title: 'Mon carnet de santé',
-          scaffoldKey: _scaffoldKey,
-        ),
-        drawer: const CustomDrawer(),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 10.0),
-            child: Column(
-              children: [
-                HealthCardHeader(
-                  title: 'Vacciner, c\'est prévenir',
-                  highlightText: 'Gratuit',
-                  subtitle: 'de 0 et 15 mois',
-                  imageAsset: 'assets/images/vaccination-sans-bg.png',
-                ),
-                //const TabBarHeader(),
-                const Expanded(child: VaccineTabView()),
-              ],
+      child: BackButtonBlockerWidget(
+        message: 'Utilisez le menu pour naviguer',
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: CustomAppBar(
+            title: 'Mon carnet de santé',
+            scaffoldKey: _scaffoldKey,
+          ),
+          drawer: const CustomDrawer(),
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Column(
+                children: [
+                  HealthCardHeader(
+                    title: 'Vacciner, c\'est prévenir',
+                    highlightText: 'Gratuit',
+                    subtitle: 'de 0 et 15 mois',
+                    imageAsset: 'assets/images/vaccination-sans-bg.png',
+                  ),
+                  //const TabBarHeader(),
+                  const Expanded(child: VaccineTabView()),
+                ],
+              ),
             ),
           ),
+          bottomNavigationBar: CustomBottomNavBar(),
         ),
-        bottomNavigationBar: CustomBottomNavBar(),
       ),
     );
   }

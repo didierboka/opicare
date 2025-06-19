@@ -8,6 +8,7 @@ import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_input_field.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_select_field.dart';
+import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
@@ -50,9 +51,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Row(
-          children: [BackButton(), Text('Souscription')],
-        ),
+        title: Text('Souscription'),
       ),
       body: BlocConsumer<SouscriptionBloc, SouscriptionState>(
         listener: (context, state) {
@@ -110,94 +109,97 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
             orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0'),
           );
 
-          return SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    CustomSelectField(
-                      label: 'Type d\'abonnement',
-                      selectedValue: loadedState.selectedTypeAbo,
-                      hint: 'Choisir un abonnement',
-                      options: loadedState.typeAbos.map((t) => {'libelle': t.label, 'valeur': t.id}).toList(),
-                      onSelected: (val) {
-                        context.read<SouscriptionBloc>().add(LoadFormules(val!));
-                        context.read<SouscriptionBloc>().emit(loadedState.copyWith(
-                              selectedTypeAbo: val,
-                              selectedFormule: null,
-                            ));
-                      },
-                      validator: (val) => val == null ? 'Champs requis' : null,
-                    ),
-                    const SizedBox(height: 20),
-                    CustomSelectField(
-                      label: 'Formule',
-                      selectedValue: loadedState.selectedFormule,
-                      hint: 'Choisir une formule',
-                      options: loadedState.formules.map((f) => {'libelle': f.formuleLibelle, 'valeur': f.id}).toList(),
-                      onSelected: (val) {
-                        context.read<SouscriptionBloc>().emit(loadedState.copyWith(
-                              selectedFormule: val,
-                            ));
-                      },
-                      validator: (val) => val == null ? 'Champs requis' : null,
-                      isEnabled: loadedState.selectedTypeAbo != null,
-                    ),
-                    const SizedBox(height: 20),
-                    CustomInputField(
-                      icon: Icons.calendar_month,
-                      controller: context.read<SouscriptionBloc>().yearsController,
-                      onChanged: (value) {
-                        context.read<SouscriptionBloc>().add(UpdateYears(value));
-                      },
-                      label: 'Nombre d\'années',
-                      hint: '1',
-                      keyBoardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Champs requis';
-                        if (int.tryParse(value) == null) return 'Nombre invalide';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 30),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
+          return BackButtonBlockerWidget(
+            message: 'Utilisez le menu pour naviguer',
+            child: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      CustomSelectField(
+                        label: 'Type d\'abonnement',
+                        selectedValue: loadedState.selectedTypeAbo,
+                        hint: 'Choisir un abonnement',
+                        options: loadedState.typeAbos.map((t) => {'libelle': t.label, 'valeur': t.id}).toList(),
+                        onSelected: (val) {
+                          context.read<SouscriptionBloc>().add(LoadFormules(val!));
+                          context.read<SouscriptionBloc>().emit(loadedState.copyWith(
+                                selectedTypeAbo: val,
+                                selectedFormule: null,
+                              ));
+                        },
+                        validator: (val) => val == null ? 'Champs requis' : null,
                       ),
-                      child: Column(
-                        children: [
-                          _buildDetailRow('Formule', selectedFormule.formuleLibelle),
-                          _buildDetailRow('Prix annuel', '${selectedFormule.prix} FCfa'),
-                          _buildDetailRow('Années', context.read<SouscriptionBloc>().yearsController.text),
-                          const Divider(),
-                          _buildDetailRow('Total', '${state.total} FCfa', isBold: true),
-                        ],
+                      const SizedBox(height: 20),
+                      CustomSelectField(
+                        label: 'Formule',
+                        selectedValue: loadedState.selectedFormule,
+                        hint: 'Choisir une formule',
+                        options: loadedState.formules.map((f) => {'libelle': f.formuleLibelle, 'valeur': f.id}).toList(),
+                        onSelected: (val) {
+                          context.read<SouscriptionBloc>().emit(loadedState.copyWith(
+                                selectedFormule: val,
+                              ));
+                        },
+                        validator: (val) => val == null ? 'Champs requis' : null,
+                        isEnabled: loadedState.selectedTypeAbo != null,
                       ),
-                    ),
-                    const SizedBox(height: 30),
-                    CustomButton(
-                      text: 'Souscrire',
-                      onPressed: () {
-                        if (_formKey.currentState!.validate() && loadedState.selectedTypeAbo != null && loadedState.selectedFormule != null) {
-                          context.read<SouscriptionBloc>().add(
-                                SubmitSouscription(
-                                  id: user.id,
-                                  numtel: user.phone,
-                                  email: user.email,
-                                  tarif: selectedFormule.prix,
-                                  typeAbonnement: loadedState.selectedTypeAbo!,
-                                  formule: loadedState.selectedFormule!,
-                                  years: int.parse(context.read<SouscriptionBloc>().yearsController.text),
-                                ),
-                              );
-                        }
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 20),
+                      CustomInputField(
+                        icon: Icons.calendar_month,
+                        controller: context.read<SouscriptionBloc>().yearsController,
+                        onChanged: (value) {
+                          context.read<SouscriptionBloc>().add(UpdateYears(value));
+                        },
+                        label: 'Nombre d\'années',
+                        hint: '1',
+                        keyBoardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return 'Champs requis';
+                          if (int.tryParse(value) == null) return 'Nombre invalide';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 30),
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildDetailRow('Formule', selectedFormule.formuleLibelle),
+                            _buildDetailRow('Prix annuel', '${selectedFormule.prix} FCfa'),
+                            _buildDetailRow('Années', context.read<SouscriptionBloc>().yearsController.text),
+                            const Divider(),
+                            _buildDetailRow('Total', '${state.total} FCfa', isBold: true),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      CustomButton(
+                        text: 'Souscrire',
+                        onPressed: () {
+                          if (_formKey.currentState!.validate() && loadedState.selectedTypeAbo != null && loadedState.selectedFormule != null) {
+                            context.read<SouscriptionBloc>().add(
+                                  SubmitSouscription(
+                                    id: user.id,
+                                    numtel: user.phone,
+                                    email: user.email,
+                                    tarif: selectedFormule.prix,
+                                    typeAbonnement: loadedState.selectedTypeAbo!,
+                                    formule: loadedState.selectedFormule!,
+                                    years: int.parse(context.read<SouscriptionBloc>().yearsController.text),
+                                  ),
+                                );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

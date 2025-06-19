@@ -11,7 +11,7 @@ class VaccineTabView extends StatelessWidget {
   Widget build(BuildContext context) {
 
     return DefaultTabController(
-      length: 3,
+      length: 4,
       child: Column(
         children: [
           TabBar(
@@ -22,6 +22,7 @@ class VaccineTabView extends StatelessWidget {
               Tab(text: "Effectués"),
               Tab(text: "Manqués"),
               Tab(text: "Prochains"),
+              Tab(text: "Programmés"),
             ],
           ),
           Expanded(
@@ -30,6 +31,7 @@ class VaccineTabView extends StatelessWidget {
                 _buildVaccineList(context),
                 const Center(child: Text("Aucun vaccin manqué")),
                 const Center(child: Text("Aucun vaccin à venir")),
+                const Center(child: Text("Aucun vaccin à programmer")),
               ],
             ),
           ),

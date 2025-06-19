@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
+import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
@@ -31,27 +32,30 @@ class NotificationScreen extends StatelessWidget {
       ),
       drawer: CustomDrawer(),
       bottomNavigationBar: CustomBottomNavBar(),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('SMS reçus', style: TextStyles.titleMedium),
-              const SizedBox(height: 20),
-              Expanded(
-                child: smsList.isNotEmpty
-                    ? ListView.separated(
-                  itemCount: smsList.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final sms = smsList[index];
-                    return NotifCard(sms: sms);
-                  },
-                )
-                    : Center(child: Text('(Aucun SMS reçu)', style: TextStyles.bodyRegular)),
-              ),
-            ],
+      body: BackButtonBlockerWidget(
+        message: 'Utilisez le menu pour naviguer',
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('SMS reçus', style: TextStyles.titleMedium),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: smsList.isNotEmpty
+                      ? ListView.separated(
+                    itemCount: smsList.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 12),
+                    itemBuilder: (context, index) {
+                      final sms = smsList[index];
+                      return NotifCard(sms: sms);
+                    },
+                  )
+                      : Center(child: Text('(Aucun SMS reçu)', style: TextStyles.bodyRegular)),
+                ),
+              ],
+            ),
           ),
         ),
       ),

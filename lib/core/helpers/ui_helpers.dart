@@ -76,6 +76,9 @@ Widget getLoader() => Lottie.asset(
       height: 350,
 );
 
+
+
+
 String _getDefaultMessage(MessageType? type) {
   switch (type) {
     case MessageType.error:

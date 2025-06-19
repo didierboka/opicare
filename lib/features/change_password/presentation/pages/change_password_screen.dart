@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
+import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
@@ -12,36 +13,39 @@ class ChangePasswordScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: CustomAppBar(
-        title: '',
-        scaffoldKey: _scaffoldKey,
-        hideNotif: true,
-      ),
-      drawer: CustomDrawer(),
-      bottomNavigationBar: CustomBottomNavBar(),
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset(Media.unlock, height: 40),
-              const SizedBox(height: 20),
-              Text(
-                'Changer de mot de passe',
-                style: TextStyles.titleMedium
-              ),
-              const SizedBox(height: 5),
-              Text(
-                'Saisir nouveau mot de passe',
-                style: TextStyles.subtitle,
-              ),
-              const SizedBox(height: 30),
-              ChangePwdForm()
-            ],
+    return BackButtonBlockerWidget(
+      message: 'Utilisez le menu pour naviguer',
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: CustomAppBar(
+          title: '',
+          scaffoldKey: _scaffoldKey,
+          hideNotif: true,
+        ),
+        drawer: CustomDrawer(),
+        bottomNavigationBar: CustomBottomNavBar(),
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.asset(Media.unlock, height: 40),
+                const SizedBox(height: 20),
+                Text(
+                  'Changer de mot de passe',
+                  style: TextStyles.titleMedium
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  'Saisir nouveau mot de passe',
+                  style: TextStyles.subtitle,
+                ),
+                const SizedBox(height: 30),
+                ChangePwdForm()
+              ],
+            ),
           ),
         ),
       ),

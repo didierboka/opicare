@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
+import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
@@ -38,37 +39,39 @@ class _TrouverHopitauxScreenState extends State<TrouverHopitauxScreen> {
       ),
       drawer: CustomDrawer(),
       bottomNavigationBar: CustomBottomNavBar(),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Faire une rechercher', style: TextStyles.titleMedium),
-                const SizedBox(height: 20),
-                // CustomSelectField(
-                //   label: 'Liste des districts',
-                //   selectedValue: selectedDistrict,
-                //   hint: 'Sélectionner un district',
-                //   options: [
-                //     {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
-                //     {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
-                //     {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
-                //     {'libelle': 'ABOBO-OUEST', 'valeur': 'ABOBO-OUEST'},
-                //   ],
-                //   onSelected: (value) {
-                //     if (!mounted) return;
-                //     setState(() {
-                //       selectedDistrict = value;
-                //     });
-                //   },
-                // ),
-                const SizedBox(height: 30),
-                Text('Résultat', style: TextStyles.titleMedium),
-                const SizedBox(height: 10),
-                ...hopitaux.map((e) => _hopitalItem(e)).toList(),
-              ],
+      body: BackButtonBlockerWidget(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Faire une rechercher', style: TextStyles.titleMedium),
+                  const SizedBox(height: 20),
+                  // CustomSelectField(
+                  //   label: 'Liste des districts',
+                  //   selectedValue: selectedDistrict,
+                  //   hint: 'Sélectionner un district',
+                  //   options: [
+                  //     {'libelle': 'Abidjan', 'valeur': 'Abidjan'},
+                  //     {'libelle': 'Sassandra', 'valeur': 'Sassandra'},
+                  //     {'libelle': 'Boundiali', 'valeur': 'Boundiali'},
+                  //     {'libelle': 'ABOBO-OUEST', 'valeur': 'ABOBO-OUEST'},
+                  //   ],
+                  //   onSelected: (value) {
+                  //     if (!mounted) return;
+                  //     setState(() {
+                  //       selectedDistrict = value;
+                  //     });
+                  //   },
+                  // ),
+                  const SizedBox(height: 30),
+                  Text('Résultat', style: TextStyles.titleMedium),
+                  const SizedBox(height: 10),
+                  ...hopitaux.map((e) => _hopitalItem(e)).toList(),
+                ],
+              ),
             ),
           ),
         ),

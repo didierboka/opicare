@@ -28,7 +28,7 @@ class OptionCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(imageAsset, height: 100),
+            Image.asset(imageAsset, height: 80),
             const SizedBox(height: 8),
             Text(title, style: TextStyles.bodyRegular, textAlign: TextAlign.center),
           ],
