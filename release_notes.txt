@@ -1,9 +1,18 @@
 🚀 Version 1.0.0 version 5
 
-🐛 Corrections :
-- Visibilité des saisies dans les select list
-- Régler le problème de soumission de tâches
-- Aligner le chrono sur 6h de temps qui démarre dès la création du ticket et qui s’arrête à la cloture du ticket
+## ✅ Fonctionnalités Disponibles
+
+### 🔐 **Authentification & Sécurité**
+- **Connexion** : Authentification par email/téléphone et mot de passe
+- **Inscription** : Création de compte avec validation des données
+- **Gestion de session** : Connexion persistante avec stockage sécurisé
+- **Changement de mot de passe** : Mise à jour sécurisée du mot de passe
+
+### 💉 **E-Carnet de Santé (NOUVEAU)**
+- **Vaccins Effectués** : Historique complet des vaccinations éffectués
+- **Vaccins Manqués** : Alertes pour les vaccinations en manqués
+- **Prochains Vaccins** : Planification des vaccinations à venir
+
 
 📱 Compatibilité :
 - iOS 13+

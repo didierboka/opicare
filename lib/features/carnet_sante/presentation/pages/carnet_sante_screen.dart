@@ -24,7 +24,7 @@ class CarnetSanteScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) => CarnetBloc(
         repository: Di.get<CarnetRepository>(),
-      )..add(LoadVaccines(id: user.id)),
+      )..add(LoadVaccines(id: user.patID)),
       child: BackButtonBlockerWidget(
         message: 'Utilisez le menu pour naviguer',
         child: Scaffold(

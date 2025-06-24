@@ -30,7 +30,7 @@ class SharedPreferencesStorage implements LocalStorageService {
 
       if (userData != null && userData.isNotEmpty) {
         final jsonData = jsonDecode(userData);
-        mylog.logger.i("userData get: $jsonData");
+        // mylog.logger.i("userData get: $jsonData");
 
         // Validate that essential fields exist
         if (jsonData['ID'] != null && jsonData['ID'].toString().isNotEmpty) {

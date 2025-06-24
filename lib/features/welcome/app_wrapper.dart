@@ -24,7 +24,7 @@ class AppWrapper extends StatelessWidget {
 
         if (state is AuthAuthenticated) {
           // Double-check user validity
-          if (state.user.id.isNotEmpty) {
+          if (state.user.patID.isNotEmpty) {
             logger.i("User authenticated: ${state.user.name}");
             return HomeScreen();
           } else {

@@ -75,13 +75,14 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     LoadVaccines event,
     Emitter<CarnetState> emit,
   ) async {
-    if (state is! CarnetLoaded) {
+    if (state is CarnetInitial) {
       emit(CarnetLoading());
     }
     
     try {
       final vaccines = await repository.getVaccines(event.id);
       final currentState = state;
+      
       if (currentState is CarnetLoaded) {
         emit(currentState.copyWith(vaccines: vaccines.datas!));
       } else {
@@ -100,13 +101,14 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     LoadMissedVaccines event,
     Emitter<CarnetState> emit,
   ) async {
-    if (state is! CarnetLoaded) {
+    if (state is CarnetInitial) {
       emit(CarnetLoading());
     }
     
     try {
       final missedVaccines = await repository.getMissedVaccines(event.id);
       final currentState = state;
+      
       if (currentState is CarnetLoaded) {
         emit(currentState.copyWith(missedVaccines: missedVaccines.datas!));
       } else {
@@ -125,13 +127,14 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     LoadUpcomingVaccines event,
     Emitter<CarnetState> emit,
   ) async {
-    if (state is! CarnetLoaded) {
+    if (state is CarnetInitial) {
       emit(CarnetLoading());
     }
     
     try {
       final upcomingVaccines = await repository.getUpcomingVaccines(event.id);
       final currentState = state;
+      
       if (currentState is CarnetLoaded) {
         emit(currentState.copyWith(upcomingVaccines: upcomingVaccines.datas!));
       } else {

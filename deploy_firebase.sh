@@ -5,8 +5,8 @@
 PROJECT_ID="opicare-2025"
 IOS_APP_ID="1:822401793104:ios:eba36db1ef2d0f9015a555"
 ANDROID_APP_ID="1:259776475722:android:bf29660ecb8ce82f2bacb3"
-# TESTER_GROUPS="testers-android"
-TESTER_GROUPS="didierboka.developer@gmail.com"
+TESTER_GROUPS="testers-android"
+# TESTER_GROUPS="didierboka.developer@gmail.com"
 RELEASE_NOTES_FILE="release_notes.txt"
 DEFAULT_RELEASE_NOTES="Build automatique - $(date '+%Y-%m-%d %H:%M')"
 

@@ -35,7 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await localStorage.getSavedUser();
       if (user != null) {
         // Validate user has essential data
-        if (user.id != null && user.id!.isNotEmpty) {
+        if (user.patID != null && user.patID.isNotEmpty) {
           logger.i("Valid user foundoo: ${user.name}");
           emit(AuthAuthenticated(user));
           return;

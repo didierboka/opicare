@@ -18,27 +18,47 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
   late TabController _tabController;
   bool _hasLoadedMissed = false;
   bool _hasLoadedUpcoming = false;
+  bool _hasLoadedEffectues = false;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_onTabChanged);
+    
+    // Charger automatiquement les données de l'onglet Effectués au démarrage
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadEffectuesData();
+    });
+  }
+
+  void _loadEffectuesData() {
+    if (!_hasLoadedEffectues) {
+      final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+      context.read<CarnetBloc>().add(LoadVaccines(id: user.patID));
+      _hasLoadedEffectues = true;
+    }
   }
 
   void _onTabChanged() {
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
     
     switch (_tabController.index) {
+      case 0: // Onglet "Effectués"
+        context.read<CarnetBloc>().add(LoadVaccines(id: user.patID));
+        if (!_hasLoadedEffectues) {
+          _hasLoadedEffectues = true;
+        }
+        break;
       case 1: // Onglet "Manqués"
+        context.read<CarnetBloc>().add(LoadMissedVaccines(id: user.patID));
         if (!_hasLoadedMissed) {
-          context.read<CarnetBloc>().add(LoadMissedVaccines(id: user.id));
           _hasLoadedMissed = true;
         }
         break;
       case 2: // Onglet "Prochains"
+        context.read<CarnetBloc>().add(LoadUpcomingVaccines(id: user.patID));
         if (!_hasLoadedUpcoming) {
-          context.read<CarnetBloc>().add(LoadUpcomingVaccines(id: user.id));
           _hasLoadedUpcoming = true;
         }
         break;
@@ -54,7 +74,7 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Column(
         children: [
           TabBar(
@@ -66,7 +86,6 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
               Tab(text: "Effectués"),
               Tab(text: "Manqués"),
               Tab(text: "Prochains"),
-              Tab(text: "Programmés"),
             ],
           ),
           Expanded(
@@ -76,7 +95,6 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
                 _buildVaccineList(context),
                 _buildMissedVaccineList(context),
                 _buildUpcomingVaccineList(context),
-                const Center(child: Text("Aucun vaccin à programmer")),
               ],
             ),
           ),

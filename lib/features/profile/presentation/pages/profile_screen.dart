@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
@@ -19,9 +21,69 @@ class MonProfilScreen extends StatelessWidget {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   var logger = Logger();
+
+  void _diagnoseBase64(BuildContext context, String base64String) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Diagnostic Base64'),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Longueur: ${base64String.length}'),
+              const SizedBox(height: 8),
+              Text('Est vide: ${base64String.isEmpty}'),
+              const SizedBox(height: 8),
+              Text('Contient des espaces: ${base64String.contains(' ')}'),
+              const SizedBox(height: 8),
+              Text('Contient des retours à la ligne: ${base64String.contains('\n')}'),
+              const SizedBox(height: 8),
+              Text('Contient des tabulations: ${base64String.contains('\t')}'),
+              const SizedBox(height: 8),
+              Text('Premiers 50 caractères:'),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  base64String.substring(0, base64String.length > 50 ? 50 : base64String.length),
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text('Caractères 70-80 (zone d\'erreur):'),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  base64String.length > 70 
+                    ? base64String.substring(70, base64String.length > 80 ? 80 : base64String.length)
+                    : 'Pas assez de caractères',
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Fermer'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
     return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
       // Vérification sécurisée de l'état
       if (state is! AuthAuthenticated) {
@@ -33,6 +95,16 @@ class MonProfilScreen extends StatelessWidget {
         );
       }
       final user = state.user;
+
+      // Logs de diagnostic pour l'image
+      log("=== DIAGNOSTIC IMAGE ===");
+      log("user.carnetPhoto length: ${user.carnetPhoto.length}");
+      log("user.carnetPhoto isEmpty: ${user.carnetPhoto.isEmpty}");
+      log("user.carnetPhoto starts with: ${user.carnetPhoto.isNotEmpty ? user.carnetPhoto.substring(0, user.carnetPhoto.length > 20 ? 20 : user.carnetPhoto.length) : 'VIDE'}");
+      log("user.userPic length: ${user.userPic.length}");
+      log("user.userPic isEmpty: ${user.userPic.isEmpty}");
+      log("========================");
+
       return Scaffold(
         key: _scaffoldKey,
         appBar: CustomAppBar(title: 'Mon profil', scaffoldKey: _scaffoldKey),
@@ -64,14 +136,10 @@ class MonProfilScreen extends StatelessWidget {
                           children: [
                             Text('Formule', style: TextStyles.titleMedium),
                             const SizedBox(height: 26),
-                            _infoRow('Nom', '${user.name} ${user.surname}',
-                                'Date de naissance', user.birthdate),
+                            _infoRow('Nom', '${user.name} ${user.surname}', 'Date de naissance', user.birthdate),
                             _infoRow('Genre', user.sex, 'Contact', user.phone),
-                            _infoRow('Date d\'abonnement', user.dateAbon,
-                                'Date d\'expiration', user.dateExpiration),
-                            _infoRow(
-                                'Email', user.email, 'Mot de passe', '[protected]',
-                                value2Color: Colours.primaryBlue),
+                            _infoRow('Date d\'abonnement', user.dateAbon, 'Date d\'expiration', user.dateExpiration),
+                            _infoRow('Email', user.email, 'Mot de passe', '[protected]', value2Color: Colours.primaryBlue),
                           ],
                         ),
                       ),
@@ -95,22 +163,56 @@ class MonProfilScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      // child: Image.asset(
-                      //   Media.photo, // Remplace par ton chemin correct
-                      //   fit: BoxFit.cover,
-                      //   width: double.infinity,
-                      //   height: 300,
-                      // ),
-                      child: Base64ImageWidget(
-                        base64String: Media.photo64Temp,
-                      )),
-                  const SizedBox(height: 8),
-                  const Text('Photo de profil', style: TextStyles.bodyBold),
+                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    clipBehavior: Clip.antiAlias,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Bouton de diagnostic
+                        // if (user.carnetPhoto.isNotEmpty)
+                        //   Padding(
+                        //     padding: const EdgeInsets.only(bottom: 8),
+                        //     child: ElevatedButton.icon(
+                        //       onPressed: () => _diagnoseBase64(context, user.carnetPhoto),
+                        //       icon: const Icon(Icons.bug_report, size: 16),
+                        //       label: const Text('Diagnostic Base64'),
+                        //       style: ElevatedButton.styleFrom(
+                        //         backgroundColor: Colors.orange,
+                        //         foregroundColor: Colors.white,
+                        //         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        //       ),
+                        //     ),
+                        //   ),
+                        
+                        // Image du carnet (peut être base64 ou URL)
+                        FlexibleImageWidget(
+                          imageSource: user.carnetPhoto,
+                          height: 300,
+                          isBase64: true,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text('Photo du carnet', style: TextStyles.bodyBold),
+                        const SizedBox(height: 16),
+                        
+                        // Image de profil (si disponible)
+                        if (user.userPic.isNotEmpty && user.userPic != 'null' && user.userPic != 'N/A')
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              FlexibleImageWidget(
+                                imageSource: "https://opisms.net/ecarnet/upload/photo/${user.userPic}",
+                                height: 200,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text('Photo de profil', style: TextStyles.bodyBold),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -122,8 +224,7 @@ class MonProfilScreen extends StatelessWidget {
     });
   }
 
-  Widget _infoRow(String label1, String value1, String label2, String value2,
-      {Color? value2Color}) {
+  Widget _infoRow(String label1, String value1, String label2, String value2, {Color? value2Color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -148,9 +249,7 @@ class MonProfilScreen extends StatelessWidget {
       children: [
         Text(label, style: TextStyles.bodyRegular.copyWith(fontSize: 12)),
         const SizedBox(height: 4),
-        Text(value,
-            style:
-                TextStyles.bodyBold.copyWith(fontSize: 13, color: valueColor)),
+        Text(value, style: TextStyles.bodyBold.copyWith(fontSize: 13, color: valueColor)),
       ],
     );
   }

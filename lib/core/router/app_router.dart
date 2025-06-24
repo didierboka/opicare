@@ -88,9 +88,7 @@ final appRouter = GoRouter(
       path: MonProfilScreen.path,
       builder: (context, state) {
         final authState = context.read<AuthBloc>().state;
-
         log("authState => ${authState.toString()}");
-
         return MonProfilScreen();
       },
     ),

@@ -23,7 +23,7 @@ class CarnetRepositoryImpl implements CarnetRepository {
 
   @override
   Future<CustomResponse<Vaccine>> getVaccines(String id) async {
-    final response = await apiService.post('/ecarnet', {'id': id});
+    final response = await apiService.post('/visiterealisee', {'id': id});
     if (!response.status) throw Exception(response.message);
     return response;
   }

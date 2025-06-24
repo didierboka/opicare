@@ -186,7 +186,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                           if (_formKey.currentState!.validate() && loadedState.selectedTypeAbo != null && loadedState.selectedFormule != null) {
                             context.read<SouscriptionBloc>().add(
                                   SubmitSouscription(
-                                    id: user.id,
+                                    id: user.patID,
                                     numtel: user.phone,
                                     email: user.email,
                                     tarif: selectedFormule.prix,

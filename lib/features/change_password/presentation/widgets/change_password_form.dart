@@ -70,7 +70,7 @@ class _ChangePwdFormState extends State<ChangePwdForm> {
                 if (formKey.currentState!.validate()) {
                   context.read<ChangePwdBloc>().add(
                     ChangePwdSubmitted(
-                      id: user.id,
+                      id: user.patID,
                       password: passwordController.text,
                       opassword: oldPasswordController.text,
                     ),

@@ -18,7 +18,7 @@ class FamilleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Récupère l'ID utilisateur depuis AuthBloc
-    final userId = (context.read<AuthBloc>().state as AuthAuthenticated).user.id;
+    final userId = (context.read<AuthBloc>().state as AuthAuthenticated).user.patID;
 
     return BlocProvider(
       create: (context) => FamilleBloc(

@@ -1,6 +1,7 @@
 class UserModel {
 
   final String id;
+  final String patID;
   final String name;
   final String surname;
   final String email;
@@ -14,6 +15,7 @@ class UserModel {
 
   UserModel({
     required this.id,
+    required this.patID,
     required this.name,
     required this.surname,
     required this.email,
@@ -31,6 +33,7 @@ class UserModel {
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['ID'] ?? '',
+      patID: json['IDPAT'] ?? '',
       name: json['NOMPAT'] ?? '',
       surname: json['PRENOMPAT'] ?? '',
       email: json['EMAILPAT'] ?? '',
@@ -47,6 +50,7 @@ class UserModel {
   Map<String, dynamic> toJson(){
     return {
       'ID': id,
+      'IDPAT': patID,
       'NOMPAT': name,
       'EMAILPAT': email,
       'NUMEROPAT': phone,
@@ -55,8 +59,8 @@ class UserModel {
       'DATEPAT': birthdate,
       'DATE_ABONN': dateAbon,
       'DATE_EXPIRATION': dateExpiration,
-      //'PHOTOPAT': userPic,
-      //'PHOTOCARNET': carnetPhoto
+      'PHOTOPAT': userPic,
+      'PHOTOCARNET': carnetPhoto
     };
   }
 }

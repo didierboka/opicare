@@ -86,7 +86,7 @@ class Di {
   static Future<void> _initCoreServices() async {
     // Local Storage Service - Stockage local sécurisé
     _getIt.registerLazySingleton<LocalStorageService>(
-          () => SharedPreferencesStorage(),
+      () => SharedPreferencesStorage(),
     );
   }
 
@@ -94,62 +94,62 @@ class Di {
   static Future<void> _initApiServices() async {
     // API Service pour UserModel - Authentification et gestion utilisateur
     _getIt.registerLazySingleton<ApiService<UserModel>>(
-          () => ApiService<UserModel>(fromJson: UserModel.fromJson),
+      () => ApiService<UserModel>(fromJson: UserModel.fromJson),
     );
 
     // API Service pour Vaccine - Carnet de santé
     _getIt.registerLazySingleton<ApiService<Vaccine>>(
-          () => ApiService<Vaccine>(fromJson: Vaccine.fromJson),
+      () => ApiService<Vaccine>(fromJson: Vaccine.fromJson),
     );
 
     // API Service pour FamilyMember - Gestion famille
     _getIt.registerLazySingleton<ApiService<FamilyMember>>(
-          () => ApiService<FamilyMember>(fromJson: FamilyMember.fromJson),
+      () => ApiService<FamilyMember>(fromJson: FamilyMember.fromJson),
     );
 
     // API Service pour DistrictModel - Disponibilité vaccins
     _getIt.registerLazySingleton<ApiService<DistrictModel>>(
-          () => ApiService<DistrictModel>(fromJson: DistrictModel.fromJson),
+      () => ApiService<DistrictModel>(fromJson: DistrictModel.fromJson),
     );
 
     // API Service pour CentreModel - Centres de vaccination
     _getIt.registerLazySingleton<ApiService<CentreModel>>(
-          () => ApiService<CentreModel>(fromJson: CentreModel.fromJson),
+      () => ApiService<CentreModel>(fromJson: CentreModel.fromJson),
     );
 
     // API Service pour VaccinModel - Vaccins disponibles
     _getIt.registerLazySingleton<ApiService<VaccinModel>>(
-          () => ApiService<VaccinModel>(fromJson: VaccinModel.fromJson),
+      () => ApiService<VaccinModel>(fromJson: VaccinModel.fromJson),
     );
 
     // API Service pour Formule (Plan Abonnement)
     _getIt.registerLazySingleton<ApiService<Formule>>(
-          () => ApiService<Formule>(fromJson: Formule.fromJson),
+      () => ApiService<Formule>(fromJson: Formule.fromJson),
     );
 
     // API Service pour TypeAboModel - Types d'abonnement
     _getIt.registerLazySingleton<ApiService<TypeAboModel>>(
-          () => ApiService<TypeAboModel>(fromJson: TypeAboModel.fromJson),
+      () => ApiService<TypeAboModel>(fromJson: TypeAboModel.fromJson),
     );
 
     // API Service pour FormuleModel (Souscription)
     _getIt.registerLazySingleton<ApiService<FormuleModel>>(
-          () => ApiService<FormuleModel>(fromJson: FormuleModel.fromJson),
+      () => ApiService<FormuleModel>(fromJson: FormuleModel.fromJson),
     );
 
     // API Service pour MissedVaccine - Vaccins manqués
-    _getIt.registerLazySingleton<ApiService<MissedVaccine>>(
-          () => ApiService<MissedVaccine>(fromJson: MissedVaccine.fromJson),
+    _getIt.registerFactory<ApiService<MissedVaccine>>(
+      () => ApiService<MissedVaccine>(fromJson: MissedVaccine.fromJson),
     );
 
     // API Service pour UpcomingVaccine - Prochains vaccins
-    _getIt.registerLazySingleton<ApiService<UpcomingVaccine>>(
-          () => ApiService<UpcomingVaccine>(fromJson: UpcomingVaccine.fromJson),
+    _getIt.registerFactory<ApiService<UpcomingVaccine>>(
+      () => ApiService<UpcomingVaccine>(fromJson: UpcomingVaccine.fromJson),
     );
 
     // API Service générique pour les réponses dynamiques
-    _getIt.registerLazySingleton<ApiService<dynamic>>(
-          () => ApiService<dynamic>(fromJson: (json) => true),
+    _getIt.registerFactory<ApiService<dynamic>>(
+      () => ApiService<dynamic>(fromJson: (json) => true),
     );
   }
 
@@ -157,7 +157,7 @@ class Di {
   static Future<void> _initRepositories() async {
     // Auth Repository - Authentification et inscription
     _getIt.registerLazySingleton<AuthRepository>(
-          () => AuthRepositoryImpl(
+      () => AuthRepositoryImpl(
         apiService: _getIt<ApiService<UserModel>>(),
         localStorage: _getIt<LocalStorageService>(),
       ),
@@ -165,7 +165,7 @@ class Di {
 
     // Carnet Repository - Gestion du carnet de santé
     _getIt.registerLazySingleton<CarnetRepository>(
-          () => CarnetRepositoryImpl(
+      () => CarnetRepositoryImpl(
         apiService: _getIt<ApiService<Vaccine>>(),
         missedVaccineApiService: _getIt<ApiService<MissedVaccine>>(),
         upcomingVaccineApiService: _getIt<ApiService<UpcomingVaccine>>(),
@@ -174,32 +174,32 @@ class Di {
 
     // Family Repository - Gestion des membres de famille
     _getIt.registerLazySingleton<FamilyRepository>(
-          () => FamilyRepositoryImpl(),
+      () => FamilyRepositoryImpl(),
     );
 
     // Dispo Vaccin Repository - Disponibilité des vaccins
     _getIt.registerLazySingleton<DispoVaccinRepository>(
-          () => DispoVaccinRepositoryImpl(),
+      () => DispoVaccinRepositoryImpl(),
     );
 
     // Jours Vaccin Repository - Jours de vaccination
     _getIt.registerLazySingleton<JoursVaccinRepository>(
-          () => JoursVaccinRepositoryImpl(),
+      () => JoursVaccinRepositoryImpl(),
     );
 
     // Formule Repository (Plan Abonnement) - Formules d'abonnement
     _getIt.registerLazySingleton<FormuleRepository>(
-          () => FormuleRepositoryImpl(),
+      () => FormuleRepositoryImpl(),
     );
 
     // Souscription Repository - Gestion des souscriptions
     _getIt.registerLazySingleton<SouscriptionRepository>(
-          () => SouscriptionRepositoryImpl(),
+      () => SouscriptionRepositoryImpl(),
     );
 
     // Change Password Repository - Changement de mot de passe
     _getIt.registerLazySingleton<ChangePwdRepository>(
-          () => ChangePwdRepositoryImpl(),
+      () => ChangePwdRepositoryImpl(),
     );
   }
 
@@ -218,4 +218,3 @@ class Di {
   /// Réinitialise toutes les dépendances (utile pour les tests)
   static void reset() => _getIt.reset();
 }
-
