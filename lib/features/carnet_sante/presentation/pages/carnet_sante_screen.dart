@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:opicare/core/network/api_service.dart';
-import 'package:opicare/core/res/styles/colours.dart';
-import 'package:opicare/core/widgets/navigation/appbar_actions.dart';
+import 'package:opicare/core/di.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
-import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/repositories/carnet_repository.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/widgets/health_card_header.dart';
@@ -26,9 +23,7 @@ class CarnetSanteScreen extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => CarnetBloc(
-        repository: CarnetRepositoryImpl(
-          apiService: ApiService(fromJson: (json) => Vaccine.fromJson(json)),
-        ),
+        repository: Di.get<CarnetRepository>(),
       )..add(LoadVaccines(id: user.id)),
       child: BackButtonBlockerWidget(
         message: 'Utilisez le menu pour naviguer',

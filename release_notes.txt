@@ -1,0 +1,10 @@
+🚀 Version 1.0.0 version 5
+
+🐛 Corrections :
+- Visibilité des saisies dans les select list
+- Régler le problème de soumission de tâches
+- Aligner le chrono sur 6h de temps qui démarre dès la création du ticket et qui s’arrête à la cloture du ticket
+
+📱 Compatibilité :
+- iOS 13+
+- Android API 21+

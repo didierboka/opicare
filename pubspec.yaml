@@ -3,7 +3,7 @@ description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 
 environment:
@@ -31,12 +31,11 @@ dependencies:
 
   # Firebase Core - Version compatible avec Flutter 3.27.3
   firebase_core: ^3.8.0
-
   # Firebase Crashlytics - Version compatible
   firebase_crashlytics: ^4.1.6
-
   # Autres Firebase services (optionnels)
   firebase_analytics: ^11.3.6
+
   get_it: ^8.0.3
 
 dev_dependencies:

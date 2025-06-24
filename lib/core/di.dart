@@ -18,6 +18,8 @@ import 'package:opicare/features/souscribtion/data/models/formule.dart';
 import 'package:opicare/features/souscribtion/data/models/type_abo_model.dart';
 import 'package:opicare/features/souscribtion/data/repositories/subscription_repository.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
+import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
+import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
 
 /// * Jun, 2025
 /// * Created by didierboka on 18/06/2025.
@@ -135,6 +137,16 @@ class Di {
           () => ApiService<FormuleModel>(fromJson: FormuleModel.fromJson),
     );
 
+    // API Service pour MissedVaccine - Vaccins manqués
+    _getIt.registerLazySingleton<ApiService<MissedVaccine>>(
+          () => ApiService<MissedVaccine>(fromJson: MissedVaccine.fromJson),
+    );
+
+    // API Service pour UpcomingVaccine - Prochains vaccins
+    _getIt.registerLazySingleton<ApiService<UpcomingVaccine>>(
+          () => ApiService<UpcomingVaccine>(fromJson: UpcomingVaccine.fromJson),
+    );
+
     // API Service générique pour les réponses dynamiques
     _getIt.registerLazySingleton<ApiService<dynamic>>(
           () => ApiService<dynamic>(fromJson: (json) => true),
@@ -155,6 +167,8 @@ class Di {
     _getIt.registerLazySingleton<CarnetRepository>(
           () => CarnetRepositoryImpl(
         apiService: _getIt<ApiService<Vaccine>>(),
+        missedVaccineApiService: _getIt<ApiService<MissedVaccine>>(),
+        upcomingVaccineApiService: _getIt<ApiService<UpcomingVaccine>>(),
       ),
     );
 

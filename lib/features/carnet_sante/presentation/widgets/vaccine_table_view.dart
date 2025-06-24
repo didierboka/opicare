@@ -1,20 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/res/styles/colours.dart';
+import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/widgets/vaccin_card.dart';
+import 'package:opicare/features/carnet_sante/presentation/widgets/missed_vaccine_card.dart';
+import 'package:opicare/features/carnet_sante/presentation/widgets/upcoming_vaccine_card.dart';
 
-class VaccineTabView extends StatelessWidget {
+class VaccineTabView extends StatefulWidget {
   const VaccineTabView({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<VaccineTabView> createState() => _VaccineTabViewState();
+}
 
+class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStateMixin {
+  late TabController _tabController;
+  bool _hasLoadedMissed = false;
+  bool _hasLoadedUpcoming = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+    
+    switch (_tabController.index) {
+      case 1: // Onglet "Manqués"
+        if (!_hasLoadedMissed) {
+          context.read<CarnetBloc>().add(LoadMissedVaccines(id: user.id));
+          _hasLoadedMissed = true;
+        }
+        break;
+      case 2: // Onglet "Prochains"
+        if (!_hasLoadedUpcoming) {
+          context.read<CarnetBloc>().add(LoadUpcomingVaccines(id: user.id));
+          _hasLoadedUpcoming = true;
+        }
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
       child: Column(
         children: [
           TabBar(
+            controller: _tabController,
             labelColor: Colours.primaryBlue,
             unselectedLabelColor: Colours.secondaryText,
             indicatorColor: Colours.primaryBlue,
@@ -27,10 +71,11 @@ class VaccineTabView extends StatelessWidget {
           ),
           Expanded(
             child: TabBarView(
+              controller: _tabController,
               children: [
                 _buildVaccineList(context),
-                const Center(child: Text("Aucun vaccin manqué")),
-                const Center(child: Text("Aucun vaccin à venir")),
+                _buildMissedVaccineList(context),
+                _buildUpcomingVaccineList(context),
                 const Center(child: Text("Aucun vaccin à programmer")),
               ],
             ),
@@ -62,6 +107,68 @@ class VaccineTabView extends StatelessWidget {
             itemBuilder: (context, index) {
               final vaccine = state.vaccines[index];
               return VaccineCard(vaccine: vaccine);
+            },
+          );
+        }
+
+        return const SizedBox();
+      },
+    );
+  }
+
+  Widget _buildMissedVaccineList(BuildContext context) {
+    return BlocBuilder<CarnetBloc, CarnetState>(
+      builder: (context, state) {
+        if (state is CarnetLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is CarnetError) {
+          return Center(child: Text(state.message));
+        }
+
+        if (state is CarnetLoaded) {
+          if (state.missedVaccines.isEmpty) {
+            return const Center(child: Text("Aucun vaccin manqué"));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: state.missedVaccines.length,
+            itemBuilder: (context, index) {
+              final missedVaccine = state.missedVaccines[index];
+              return MissedVaccineCard(missedVaccine: missedVaccine);
+            },
+          );
+        }
+
+        return const SizedBox();
+      },
+    );
+  }
+
+  Widget _buildUpcomingVaccineList(BuildContext context) {
+    return BlocBuilder<CarnetBloc, CarnetState>(
+      builder: (context, state) {
+        if (state is CarnetLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state is CarnetError) {
+          return Center(child: Text(state.message));
+        }
+
+        if (state is CarnetLoaded) {
+          if (state.upcomingVaccines.isEmpty) {
+            return const Center(child: Text("Aucun vaccin à venir"));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: state.upcomingVaccines.length,
+            itemBuilder: (context, index) {
+              final upcomingVaccine = state.upcomingVaccines[index];
+              return UpcomingVaccineCard(upcomingVaccine: upcomingVaccine);
             },
           );
         }
