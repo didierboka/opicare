@@ -139,9 +139,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                         hint: 'Choisir une formule',
                         options: loadedState.formules.map((f) => {'libelle': f.formuleLibelle, 'valeur': f.id}).toList(),
                         onSelected: (val) {
-                          context.read<SouscriptionBloc>().emit(loadedState.copyWith(
-                                selectedFormule: val,
-                              ));
+                          context.read<SouscriptionBloc>().add(SelectFormule(val));
                         },
                         validator: (val) => val == null ? 'Champs requis' : null,
                         isEnabled: loadedState.selectedTypeAbo != null,
@@ -175,7 +173,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                             _buildDetailRow('Prix annuel', '${selectedFormule.prix} FCfa'),
                             _buildDetailRow('Années', context.read<SouscriptionBloc>().yearsController.text),
                             const Divider(),
-                            _buildDetailRow('Total', '${state.total} FCfa', isBold: true),
+                            _buildDetailRow('Total', '${loadedState.total.toStringAsFixed(0)} FCfa', isBold: true),
                           ],
                         ),
                       ),

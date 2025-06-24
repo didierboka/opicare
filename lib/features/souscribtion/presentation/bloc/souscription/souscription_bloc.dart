@@ -198,10 +198,12 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     final formule = currentState.formules.firstWhere(
           (f) => f.id == event.formuleId,
-      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: 0.toString()),
+      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0'),
     );
 
-    final total = (formule.prix * currentState.years) as double;
+    // Convertir le prix en double et calculer le total
+    final prix = double.tryParse(formule.prix) ?? 0.0;
+    final total = prix * currentState.years;
 
     emit(currentState.copyWith(
       selectedFormule: event.formuleId,
@@ -221,12 +223,16 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     final years = int.tryParse(event.years) ?? 1;
     final formule = currentState.formules.firstWhere(
           (f) => f.id == currentState.selectedFormule,
-      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: 0.toString()),
+      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0'),
     );
+
+    // Convertir le prix en double et calculer le total
+    final prix = double.tryParse(formule.prix) ?? 0.0;
+    final total = prix * years;
 
     emit(currentState.copyWith(
       years: years,
-      total: (int.parse(formule.prix) * years) as double,
+      total: total,
     ));
   }
 

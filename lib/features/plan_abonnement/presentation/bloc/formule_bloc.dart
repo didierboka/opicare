@@ -6,20 +6,28 @@ import 'package:opicare/features/plan_abonnement/data/models/formule_model.dart'
 import 'package:opicare/features/plan_abonnement/data/repositories/formule_repository.dart';
 
 abstract class FormuleEvent {}
+
 class LoadFormules extends FormuleEvent {
   final String id;
+
   LoadFormules({required this.id});
 }
 
 abstract class FormuleState {}
+
 class FormuleInitial extends FormuleState {}
+
 class FormuleLoading extends FormuleState {}
+
 class FormuleLoaded extends FormuleState {
   final List<Formule> formules;
+
   FormuleLoaded(this.formules);
 }
+
 class FormuleError extends FormuleState {
   final String message;
+
   FormuleError(this.message);
 }
 
@@ -31,9 +39,9 @@ class FormuleBloc extends Bloc<FormuleEvent, FormuleState> {
   }
 
   Future<void> _onLoadFormules(
-      LoadFormules event,
-      Emitter<FormuleState> emit,
-      ) async {
+    LoadFormules event,
+    Emitter<FormuleState> emit,
+  ) async {
     emit(FormuleLoading());
     try {
       final res = await repository.getFormules(event.id);
