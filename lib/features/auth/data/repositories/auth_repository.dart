@@ -1,6 +1,7 @@
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/network/custom_response.dart';
+import 'package:opicare/features/auth/data/models/delete_account_response.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 
 //login:42897250 password:9247
@@ -15,6 +16,8 @@ abstract class AuthRepository {
     required String email,
     required String genre,
   });
+
+  Future<CustomResponse<DeleteAccountResponse>> deleteAccount({required String userId});
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -72,6 +75,27 @@ class AuthRepositoryImpl implements AuthRepository {
           return CustomResponse(status: false, message: myRes["message"] ?? "Inscription impossible");
         }
       }
+      return response;
+    } catch (e) {
+      return CustomResponse(status: false, message: e.toString());
+    }
+  }
+
+  @override
+  Future<CustomResponse<DeleteAccountResponse>> deleteAccount({required String userId}) async {
+    try {
+      final ApiService<DeleteAccountResponse> deleteApiService = ApiService(
+        fromJson: (json) => DeleteAccountResponse.fromJson(json),
+      );
+
+      final response = await deleteApiService.post(
+        '/user/ecarnetsupprimer',
+        {
+          'd': 'PROD',
+          'id': userId,
+        },
+      );
+
       return response;
     } catch (e) {
       return CustomResponse(status: false, message: e.toString());

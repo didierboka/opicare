@@ -2,17 +2,14 @@
 
 ## ✅ Fonctionnalités Disponibles
 
-### 🔐 **Authentification & Sécurité**
-- **Connexion** : Authentification par email/téléphone et mot de passe
-- **Inscription** : Création de compte avec validation des données
-- **Gestion de session** : Connexion persistante avec stockage sécurisé
-- **Changement de mot de passe** : Mise à jour sécurisée du mot de passe
 
-### 💉 **E-Carnet de Santé (NOUVEAU)**
-- **Vaccins Effectués** : Historique complet des vaccinations éffectués
-- **Vaccins Manqués** : Alertes pour les vaccinations en manqués
-- **Prochains Vaccins** : Planification des vaccinations à venir
+🚨 Nouvelles fonctionnalités
+- Suppression du compte du client
+- Affichage des vaccins effectif
 
+✏️ Corrections
+- Correction de la liste des familles du client
+- Revision des performances
 
 📱 Compatibilité :
 - iOS 13+

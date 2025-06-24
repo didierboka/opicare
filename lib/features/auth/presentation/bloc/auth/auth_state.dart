@@ -12,3 +12,15 @@ class AuthAuthenticated extends AuthState {
 }
 
 class AuthUnauthenticated extends AuthState {}
+
+class DeleteAccountLoading extends AuthState {}
+
+class DeleteAccountSuccess extends AuthState {
+  final String message;
+  DeleteAccountSuccess(this.message);
+}
+
+class DeleteAccountFailure extends AuthState {
+  final String message;
+  DeleteAccountFailure(this.message);
+}

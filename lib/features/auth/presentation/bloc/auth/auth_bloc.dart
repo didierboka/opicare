@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
+import 'package:opicare/features/auth/domain/use_cases/delete_account_usecase.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 
 part 'auth_event.dart';
@@ -15,14 +16,18 @@ var logger = Logger();
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LocalStorageService localStorage;
   final AuthRepository authRepository;
+  late final DeleteAccountUseCase deleteAccountUseCase;
 
   AuthBloc({
     required this.localStorage,
     required this.authRepository,
   }) : super(AuthInitial()) {
+    deleteAccountUseCase = DeleteAccountUseCase(authRepository: authRepository);
+    
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthUserChanged>(_onUserChanged);
     on<AuthLogoutRequested>(_onLogoutRequested);
+    on<DeleteAccountRequested>(_onDeleteAccountRequested);
   }
 
   Future _onAuthCheckRequested(
@@ -62,5 +67,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     await localStorage.clearUser();
     emit(AuthUnauthenticated());
+  }
+
+  Future<void> _onDeleteAccountRequested(
+    DeleteAccountRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(DeleteAccountLoading());
+
+    try {
+      final response = await deleteAccountUseCase.call(userId: event.userId);
+      
+      if (response.status) {
+        // Supprimer les données locales et déconnecter l'utilisateur
+        await localStorage.clearUser();
+        emit(DeleteAccountSuccess(response.message ?? 'Compte supprimé avec succès'));
+        emit(AuthUnauthenticated());
+      } else {
+        emit(DeleteAccountFailure(response.message ?? 'Erreur lors de la suppression du compte'));
+      }
+    } catch (e) {
+      logger.e("Delete account failed: $e");
+      emit(DeleteAccountFailure('Erreur lors de la suppression du compte'));
+    }
   }
 }
