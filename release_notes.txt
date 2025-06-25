@@ -6,6 +6,7 @@
 🚨 Nouvelles fonctionnalités
 - Suppression du compte du client
 - Programmer une visite manquée
+- Affichage de la photo du profil
 
 ✏️ Corrections
 - Revision des infos vaccins

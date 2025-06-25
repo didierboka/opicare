@@ -49,8 +49,18 @@ class HomeScreen extends StatelessWidget {
             leading: Padding(
               padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
-                backgroundImage: AssetImage(Media.userProfil),
                 radius: 20,
+                backgroundImage: user.userPic != null && user.userPic!.isNotEmpty
+                    ? NetworkImage("${Media.photoBaseUrl}${user.userPic}")
+                    : null,
+                backgroundColor: Colours.accentYellow,
+                child: user.userPic == null || user.userPic!.isEmpty
+                    ? Icon(
+                        Icons.person,
+                        color: Colours.homeCardSecondaryBlue,
+                        size: 24,
+                      )
+                    : null,
               ),
             ),
             title: Column(
