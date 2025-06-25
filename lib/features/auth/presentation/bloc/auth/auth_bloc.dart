@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
@@ -23,7 +24,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.authRepository,
   }) : super(AuthInitial()) {
     deleteAccountUseCase = DeleteAccountUseCase(authRepository: authRepository);
-    
+
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthUserChanged>(_onUserChanged);
     on<AuthLogoutRequested>(_onLogoutRequested);
@@ -69,26 +70,37 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthUnauthenticated());
   }
 
-  Future<void> _onDeleteAccountRequested(
-    DeleteAccountRequested event,
-    Emitter<AuthState> emit,
-  ) async {
+
+  Future<void> _onDeleteAccountRequested(DeleteAccountRequested event, Emitter<AuthState> emit) async {
     emit(DeleteAccountLoading());
+    logger.i("DeleteAccount: Starting deletion process for userId: ${event.userId}");
+
+    // Validation de l'userId
+    if (event.userId.isEmpty) {
+      logger.e("DeleteAccount: userId is empty");
+      emit(DeleteAccountFailure('ID utilisateur invalide'));
+      return;
+    }
 
     try {
-      final response = await deleteAccountUseCase.call(userId: event.userId);
+      final response = await deleteAccountUseCase.execute(userId: event.userId);
       
+      logger.i("DeleteAccount: UseCase response - status: ${response.status}, message: ${response.message}");
+      logger.i("DeleteAccount: Response data: ${response.data}");
+
       if (response.status) {
-        // Supprimer les données locales et déconnecter l'utilisateur
+        logger.i("DeleteAccount: Success - clearing local data");
+        // Supprimer les données locales
         await localStorage.clearUser();
         emit(DeleteAccountSuccess(response.message ?? 'Compte supprimé avec succès'));
-        emit(AuthUnauthenticated());
+        // Ne pas émettre AuthUnauthenticated ici, laisser l'UI gérer la redirection
       } else {
+        logger.e("DeleteAccount: Failed - ${response.message}");
         emit(DeleteAccountFailure(response.message ?? 'Erreur lors de la suppression du compte'));
       }
     } catch (e) {
-      logger.e("Delete account failed: $e");
-      emit(DeleteAccountFailure('Erreur lors de la suppression du compte'));
+      logger.e("DeleteAccount: Exception in BLoC - $e");
+      emit(DeleteAccountFailure('Erreur lors de la suppression du compte: $e'));
     }
   }
 }

@@ -8,9 +8,11 @@ class DeleteAccountResponse {
   });
 
   factory DeleteAccountResponse.fromJson(Map<String, dynamic> json) {
+    // L'API retourne code: 0 pour succès, code: 1 pour échec
+    final int code = json['code'] ?? 1;
     return DeleteAccountResponse(
-      status: json['statut'] == 1 || json['status'] == true,
-      message: json['message'] ?? json['msg'],
+      status: code == 0, // code == 0 signifie succès
+      message: json['msg'] ?? 'Aucun message',
     );
   }
 } 

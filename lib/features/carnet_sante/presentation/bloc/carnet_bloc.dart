@@ -76,7 +76,7 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     Emitter<CarnetState> emit,
   ) async {
     if (state is CarnetInitial) {
-      emit(CarnetLoading());
+    emit(CarnetLoading());
     }
     
     try {

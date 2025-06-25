@@ -13,7 +13,10 @@ abstract class LocalStorageService {
   Future<void> clearUser();
 }
 
+
 class SharedPreferencesStorage implements LocalStorageService {
+
+
   @override
   Future<void> saveUser(UserModel user) async {
     final prefs = await SharedPreferences.getInstance();
@@ -21,6 +24,7 @@ class SharedPreferencesStorage implements LocalStorageService {
     //print("userData: ${jsonEncode(user.toJson())}");
     await prefs.setString('user_data', jsonEncode(user.toJson()));
   }
+
 
   @override
   Future<UserModel?> getSavedUser() async {
@@ -30,7 +34,6 @@ class SharedPreferencesStorage implements LocalStorageService {
 
       if (userData != null && userData.isNotEmpty) {
         final jsonData = jsonDecode(userData);
-        // mylog.logger.i("userData get: $jsonData");
 
         // Validate that essential fields exist
         if (jsonData['ID'] != null && jsonData['ID'].toString().isNotEmpty) {
@@ -47,6 +50,7 @@ class SharedPreferencesStorage implements LocalStorageService {
       return null;
     }
   }
+
 
   @override
   Future<void> clearUser() async {

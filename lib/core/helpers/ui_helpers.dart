@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:opicare/core/res/media.dart';
 import '../enums/app_enums.dart';
 
-void showSnackbar(BuildContext context,
-    {String message = '', MessageType? type}) {
+void showSnackbar(BuildContext context, {String message = '', MessageType? type}) {
   Color backgroundColor;
   Icon icon;
 
@@ -36,9 +36,7 @@ void showSnackbar(BuildContext context,
         children: [
           icon,
           const SizedBox(width: 10),
-          Expanded(
-              child: Text(
-                  message.isNotEmpty ? message : _getDefaultMessage(type))),
+          Expanded(child: Text(message.isNotEmpty ? message : _getDefaultMessage(type))),
         ],
       ),
       backgroundColor: backgroundColor,
@@ -52,31 +50,25 @@ void showSnackbar(BuildContext context,
 }
 
 
-
 void showLoader(BuildContext context, bool show) {
   if (show) {
     showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (_) => Center(
-        child: getLoader()
-      ),
+      builder: (_) => Center(child: getLoader()),
     );
   } else {
     // Ne ferme que si un Dialog est ouvert
-    if (Navigator.of(context, rootNavigator: true).canPop()) {
-      Navigator.of(context, rootNavigator: true).pop();
+    //  if (Navigator.of(context, rootNavigator: true).canPop()) {
+    if (context.canPop()) {
+      //  Navigator.of(context, rootNavigator: true).pop();
+      context.pop();
     }
   }
 }
 
-Widget getLoader() => Lottie.asset(
-      Media.loader,
-      width: 350,
-      height: 350,
-);
 
-
+Widget getLoader() => Lottie.asset(Media.loader, width: 350, height: 350,);
 
 
 String _getDefaultMessage(MessageType? type) {

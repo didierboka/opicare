@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -27,65 +28,6 @@ class MonProfilScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   var logger = Logger();
 
-  void _diagnoseBase64(BuildContext context, String base64String) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Diagnostic Base64'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Longueur: ${base64String.length}'),
-              const SizedBox(height: 8),
-              Text('Est vide: ${base64String.isEmpty}'),
-              const SizedBox(height: 8),
-              Text('Contient des espaces: ${base64String.contains(' ')}'),
-              const SizedBox(height: 8),
-              Text('Contient des retours à la ligne: ${base64String.contains('\n')}'),
-              const SizedBox(height: 8),
-              Text('Contient des tabulations: ${base64String.contains('\t')}'),
-              const SizedBox(height: 8),
-              Text('Premiers 50 caractères:'),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  base64String.substring(0, base64String.length > 50 ? 50 : base64String.length),
-                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text('Caractères 70-80 (zone d\'erreur):'),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.red[50],
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  base64String.length > 70 
-                    ? base64String.substring(70, base64String.length > 80 ? 80 : base64String.length)
-                    : 'Pas assez de caractères',
-                  style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-                ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Fermer'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showDeleteAccountDialog(BuildContext context, String userId) {
     showDialog(
@@ -132,6 +74,7 @@ class MonProfilScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
+              print("DeleteAccount: Triggering deletion with userId: $userId");
               context.read<AuthBloc>().add(DeleteAccountRequested(userId));
             },
             style: ElevatedButton.styleFrom(
@@ -145,55 +88,67 @@ class MonProfilScreen extends StatelessWidget {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
-      // Vérification sécurisée de l'état
-      if (state is! AuthAuthenticated) {
-        // Rediriger ou afficher un écran de chargement
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      }
-      final user = state.user;
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        log("DELETION -> ${state.toString()}");
 
-      // Logs de diagnostic pour l'image
-      log("=== DIAGNOSTIC IMAGE ===");
-      log("user.carnetPhoto length: ${user.carnetPhoto.length}");
-      log("user.carnetPhoto isEmpty: ${user.carnetPhoto.isEmpty}");
-      log("user.carnetPhoto starts with: ${user.carnetPhoto.isNotEmpty ? user.carnetPhoto.substring(0, user.carnetPhoto.length > 20 ? 20 : user.carnetPhoto.length) : 'VIDE'}");
-      log("user.userPic length: ${user.userPic.length}");
-      log("user.userPic isEmpty: ${user.userPic.isEmpty}");
-      log("========================");
+        if (state is DeleteAccountLoading) {
+          showLoader(context, true);
+        } else {
+          showLoader(context, false);
+        }
 
-      return BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is DeleteAccountLoading) {
-            showLoader(context, true);
-          } else {
-            showLoader(context, false);
-          }
+        if (state is DeleteAccountSuccess) {
+          showSnackbar(
+            context,
+            message: state.message,
+            type: MessageType.success,
+          );
 
-          if (state is DeleteAccountSuccess) {
-            showSnackbar(
-              context,
-              message: state.message,
-              type: MessageType.success,
-            );
-            context.go(LoginPage.path);
-          }
+          // Rediriger vers la page de login avec un délai pour éviter les conflits
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (context.mounted) {
+              context.go(LoginPage.path);
+            }
+          });
+        }
 
-          if (state is DeleteAccountFailure) {
-            showSnackbar(
-              context,
-              message: state.message,
-              type: MessageType.error,
-            );
-          }
-        },
-        child: Scaffold(
+        if (state is DeleteAccountFailure) {
+          showSnackbar(
+            context,
+            message: state.message,
+            type: MessageType.error,
+          );
+        }
+      },
+      builder: (context, state) {
+        // Vérification sécurisée de l'état
+        if (state is! AuthAuthenticated) {
+          // Rediriger ou afficher un écran de chargement
+          // return const Scaffold(
+          //   body: Center(
+          //     child: CircularProgressIndicator(),
+          //   ),
+          // );
+
+          return SizedBox();
+        }
+
+        final user = state.user;
+
+        // Logs de diagnostic pour l'image
+        log("=== DIAGNOSTIC IMAGE ===");
+        log("user.carnetPhoto length: ${user.carnetPhoto.length}");
+        log("user.carnetPhoto isEmpty: ${user.carnetPhoto.isEmpty}");
+        log("user.carnetPhoto starts with: ${user.carnetPhoto.isNotEmpty ? user.carnetPhoto.substring(0, user.carnetPhoto.length > 20 ? 20 : user.carnetPhoto.length) : 'VIDE'}");
+        log("user.userPic length: ${user.userPic.length}");
+        log("user.userPic isEmpty: ${user.userPic.isEmpty}");
+        log("========================");
+
+        return Scaffold(
           key: _scaffoldKey,
           appBar: CustomAppBar(title: 'Mon profil', scaffoldKey: _scaffoldKey),
           drawer: CustomDrawer(),
@@ -259,22 +214,6 @@ class MonProfilScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Bouton de diagnostic
-                          // if (user.carnetPhoto.isNotEmpty)
-                          //   Padding(
-                          //     padding: const EdgeInsets.only(bottom: 8),
-                          //     child: ElevatedButton.icon(
-                          //       onPressed: () => _diagnoseBase64(context, user.carnetPhoto),
-                          //       icon: const Icon(Icons.bug_report, size: 16),
-                          //       label: const Text('Diagnostic Base64'),
-                          //       style: ElevatedButton.styleFrom(
-                          //         backgroundColor: Colors.orange,
-                          //         foregroundColor: Colors.white,
-                          //         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          //       ),
-                          //     ),
-                          //   ),
-                          
                           // Image du carnet (peut être base64 ou URL)
                           FlexibleImageWidget(
                             imageSource: user.carnetPhoto,
@@ -284,7 +223,7 @@ class MonProfilScreen extends StatelessWidget {
                           const SizedBox(height: 8),
                           const Text('Photo du carnet', style: TextStyles.bodyBold),
                           const SizedBox(height: 16),
-                          
+
                           // Image de profil (si disponible)
                           if (user.userPic.isNotEmpty && user.userPic != 'null' && user.userPic != 'N/A')
                             Column(
@@ -301,8 +240,9 @@ class MonProfilScreen extends StatelessWidget {
                         ],
                       ),
                     ),
+
                     const SizedBox(height: 32),
-                    
+
                     // Section de suppression de compte
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -338,6 +278,33 @@ class MonProfilScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
+                          
+                          // Bouton de test temporaire
+                          if (kDebugMode)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    print("DeleteAccount: Test button pressed");
+                                    print("DeleteAccount: User patID: ${user.patID}");
+                                    print("DeleteAccount: User ID: ${user.id}");
+                                  },
+                                  icon: const Icon(Icons.bug_report, size: 18),
+                                  label: const Text('Test - Afficher les IDs'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.orange,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
@@ -364,10 +331,11 @@ class MonProfilScreen extends StatelessWidget {
             ),
           ),
           bottomNavigationBar: CustomBottomNavBar(),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
+
 
   Widget _infoRow(String label1, String value1, String label2, String value2, {Color? value2Color}) {
     return Padding(
@@ -387,6 +355,7 @@ class MonProfilScreen extends StatelessWidget {
       ),
     );
   }
+
 
   Widget _infoItem(String label, String value, {Color? valueColor}) {
     return Column(

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:opicare/core/constants/messages.dart';
@@ -68,14 +69,21 @@ class ApiService<T> {
     return res;
   }
 
+
   CustomResponse<T> _processResponse(http.Response response) {
     if (kDebugMode) {
       print("START API SERVICE _processResponse");
     }
 
-    final Map<String, dynamic> httpResBody = jsonDecode(utf8.decode(response.bodyBytes));
     final CustomResponse<T> res = CustomResponse<T>();
+
+    if (kDebugMode) {
+      log("${utf8.decode(response.bodyBytes)} ");
+    }
+
+    final Map<String, dynamic> httpResBody = jsonDecode(utf8.decode(response.bodyBytes));
     res.response = httpResBody;
+
     res.status = response.statusCode == 200 && httpResBody["code"] == 0;
     res.message = httpResBody["\$msg"] ?? httpResBody["msg"] ?? ResponseMessage.unKnownErrorMessage;
 

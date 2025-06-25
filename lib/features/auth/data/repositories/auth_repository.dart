@@ -84,21 +84,44 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<CustomResponse<DeleteAccountResponse>> deleteAccount({required String userId}) async {
     try {
+      print("DeleteAccount: Starting deletion for userId: $userId");
+      
+      // Validation de l'userId
+      if (userId.isEmpty) {
+        print("DeleteAccount: userId is empty");
+        return CustomResponse<DeleteAccountResponse>(
+          status: false,
+          message: 'ID utilisateur invalide'
+        );
+      }
+      
       final ApiService<DeleteAccountResponse> deleteApiService = ApiService(
         fromJson: (json) => DeleteAccountResponse.fromJson(json),
       );
 
+      final requestData = {
+        'd': 'PROD',
+        'id': userId,
+      };
+      
+      print("DeleteAccount: Sending request with data: $requestData");
+
       final response = await deleteApiService.post(
-        '/user/ecarnetsupprimer',
-        {
-          'd': 'PROD',
-          'id': userId,
-        },
+        '/ecarnetsupprimer',
+        requestData,
       );
+
+      print("DeleteAccount: API Response - status: ${response.status}, message: ${response.message}");
+      print("DeleteAccount: Response data: ${response.data}");
+      print("DeleteAccount: Raw response: ${response.response}");
 
       return response;
     } catch (e) {
-      return CustomResponse(status: false, message: e.toString());
+      print("DeleteAccount: Exception caught: $e");
+      return CustomResponse<DeleteAccountResponse>(
+        status: false, 
+        message: 'Erreur lors de la suppression: $e'
+      );
     }
   }
 }

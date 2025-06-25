@@ -3,6 +3,7 @@ enum ErrorType { networkError, unknown }
 class CustomResponse<T> {
   bool status;
   String? message;
+  int code;
   List<T>? datas;
   T? data;
   Map<String, dynamic>? response;
@@ -12,6 +13,7 @@ class CustomResponse<T> {
   CustomResponse({
     this.status = false,
     this.message,
+    this.code = 0,
     this.datas,
     this.data,
     this.response,

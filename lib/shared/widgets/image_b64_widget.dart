@@ -96,10 +96,10 @@ class FlexibleImageWidget extends StatelessWidget {
       
       if (cleanBase64.isEmpty) {
         return _buildPlaceholder(context, 'Format d\'image invalide');
-      }
+    }
 
-      // Décoder le base64
-      Uint8List bytes = base64Decode(cleanBase64);
+    // Décoder le base64
+    Uint8List bytes = base64Decode(cleanBase64);
 
       // Vérifier que les bytes ne sont pas vides
       if (bytes.isEmpty) {
@@ -126,8 +126,8 @@ class FlexibleImageWidget extends StatelessWidget {
         String aggressiveClean = _aggressiveCleanBase64(imageSource);
         if (aggressiveClean.isNotEmpty) {
           Uint8List bytes = base64Decode(aggressiveClean);
-          return Image.memory(
-            bytes,
+    return Image.memory(
+      bytes,
             width: width,
             height: height,
             fit: fit,
