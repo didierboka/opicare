@@ -43,8 +43,8 @@ class UserModel {
       carnetPhoto: json['PHOTOCARNET'] ?? '',
       userPic: json['PHOTOPAT'] ?? '',
       dateAbon: json['DATE_ABONN'] ?? 'N/A',
-      //  dateExpiration: json['DATE_EXPIRATION']?? 'N/A',
-      dateExpiration: "2024-10-12",
+      dateExpiration: json['DATE_EXPIRATION']?? 'N/A',
+      //  dateExpiration: "2024-10-12",
       abonnementLabel: json['LIBELLE'] ?? 'N/A',
     );
   }

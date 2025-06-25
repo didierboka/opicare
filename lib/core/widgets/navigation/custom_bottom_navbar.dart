@@ -6,15 +6,20 @@ import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import 'package:opicare/features/change_password/presentation/pages/change_password_screen.dart';
 import 'package:opicare/features/profile/presentation/pages/profile_screen.dart';
+import 'package:opicare/features/user/data/models/user_model.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   final bool isSubscriptionExpired;
   final VoidCallback? onDisabledTap;
+  final VoidCallback? onCarnetAccessDenied;
+  final UserModel? user;
 
   const CustomBottomNavBar({
     super.key,
     this.isSubscriptionExpired = false,
     this.onDisabledTap,
+    this.onCarnetAccessDenied,
+    this.user,
   });
 
   @override
@@ -48,10 +53,21 @@ class CustomBottomNavBar extends StatelessWidget {
             onTap: (index) {
               // Vérifier si l'élément est désactivé
               final currentPage = _getCurrentPage(context);
-              if (isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(index, isSubscriptionExpired, currentPage: currentPage)) {
+              
+              // Priorité 1: Vérifier l'expiration d'abonnement
+              if (isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(index, isSubscriptionExpired, currentPage: currentPage, user: user)) {
                 onDisabledTap?.call();
                 return;
               }
+              
+              // Priorité 2: Vérification spéciale pour E-CARNET (index 2) - seulement si pas expiré
+              if (index == 2 && !isSubscriptionExpired) {
+                if (SubscriptionHelper.shouldDisableCarnetBottomNav(isSubscriptionExpired, user)) {
+                  onCarnetAccessDenied?.call();
+                  return;
+                }
+              }
+              
               context.go(routes[index]);
             },
             type: BottomNavigationBarType.fixed,
@@ -71,7 +87,7 @@ class CustomBottomNavBar extends StatelessWidget {
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.home,
-                  color: isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(0, isSubscriptionExpired, currentPage: _getCurrentPage(context)) 
+                  color: isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(0, isSubscriptionExpired, currentPage: _getCurrentPage(context), user: user) 
                       ? Colors.grey.withOpacity(0.5) 
                       : null,
                 ),
@@ -80,7 +96,7 @@ class CustomBottomNavBar extends StatelessWidget {
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.search,
-                  color: isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(1, isSubscriptionExpired, currentPage: _getCurrentPage(context)) 
+                  color: isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(1, isSubscriptionExpired, currentPage: _getCurrentPage(context), user: user) 
                       ? Colors.grey.withOpacity(0.5) 
                       : null,
                 ),
@@ -89,7 +105,7 @@ class CustomBottomNavBar extends StatelessWidget {
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.book,
-                  color: isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(2, isSubscriptionExpired, currentPage: _getCurrentPage(context)) 
+                  color: SubscriptionHelper.shouldDisableCarnetBottomNav(isSubscriptionExpired, user) 
                       ? Colors.grey.withOpacity(0.5) 
                       : null,
                 ),
@@ -98,7 +114,7 @@ class CustomBottomNavBar extends StatelessWidget {
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.person,
-                  color: isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(3, isSubscriptionExpired, currentPage: _getCurrentPage(context)) 
+                  color: isSubscriptionExpired && SubscriptionHelper.shouldDisableBottomNavItem(3, isSubscriptionExpired, currentPage: _getCurrentPage(context), user: user) 
                       ? Colors.grey.withOpacity(0.5) 
                       : null,
                 ),

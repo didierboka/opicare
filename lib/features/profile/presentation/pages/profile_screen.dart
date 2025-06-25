@@ -56,6 +56,33 @@ class MonProfilScreen extends StatelessWidget {
     );
   }
 
+  void _showCarnetAccessDeniedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Accès refusé'),
+          content: const Text(
+            'Votre formule d\'abonnement ne permet pas de consulter le carnet de santé. Veuillez souscrire à une formule BUSINESS ou SERENITY.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.go(SouscriptionScreen.path);
+              },
+              child: const Text('Souscrire'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showDeleteAccountDialog(BuildContext context, String userId) {
     showDialog(
       context: context,
@@ -395,6 +422,8 @@ class MonProfilScreen extends StatelessWidget {
           bottomNavigationBar: CustomBottomNavBar(
             isSubscriptionExpired: isSubscriptionExpired,
             onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+            onCarnetAccessDenied: () => _showCarnetAccessDeniedDialog(context),
+            user: user,
           ),
         );
       },

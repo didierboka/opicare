@@ -7,6 +7,8 @@
 - Suppression du compte du client
 - Programmer une visite manquée
 - Affichage de la photo du profil
+- Controle sur la date de l'abonnement (expirée)
+- Gestion des acces a mon carnet en fonction de l'abonnement (BUSINESS, SERENITY)
 
 ✏️ Corrections
 - Revision des infos vaccins

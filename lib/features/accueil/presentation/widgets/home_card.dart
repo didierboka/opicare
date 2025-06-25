@@ -10,7 +10,8 @@ class HomeCard extends StatelessWidget {
   final Color backgroundColor;
   final Color buttonColor;
   final String imageAsset;
-  final String urlPath;
+  final String? urlPath;
+  final VoidCallback? onTap;
 
   const HomeCard({
     required this.title,
@@ -19,7 +20,8 @@ class HomeCard extends StatelessWidget {
     required this.backgroundColor,
     required this.buttonColor,
     required this.imageAsset,
-    required this.urlPath
+    this.urlPath,
+    this.onTap,
   });
 
   @override
@@ -51,7 +53,13 @@ class HomeCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-                  onPressed: () => context.go(urlPath),
+                  onPressed: () {
+                    if (onTap != null) {
+                      onTap!();
+                    } else if (urlPath != null) {
+                      context.go(urlPath!);
+                    }
+                  },
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
