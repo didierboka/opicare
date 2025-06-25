@@ -215,13 +215,13 @@ class MonProfilScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           // Image du carnet (peut être base64 ou URL)
-                          FlexibleImageWidget(
-                            imageSource: user.carnetPhoto,
-                            height: 300,
-                            isBase64: true,
-                          ),
-                          const SizedBox(height: 8),
-                          const Text('Photo du carnet', style: TextStyles.bodyBold),
+                          // FlexibleImageWidget(
+                          //   imageSource: user.carnetPhoto,
+                          //   height: 300,
+                          //   isBase64: true,
+                          // ),
+                          // const SizedBox(height: 8),
+                          // const Text('Photo du carnet', style: TextStyles.bodyBold),
                           const SizedBox(height: 16),
 
                           // Image de profil (si disponible)
@@ -277,33 +277,34 @@ class MonProfilScreen extends StatelessWidget {
                               fontSize: 14,
                             ),
                           ),
+
                           const SizedBox(height: 16),
                           
                           // Bouton de test temporaire
-                          if (kDebugMode)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    print("DeleteAccount: Test button pressed");
-                                    print("DeleteAccount: User patID: ${user.patID}");
-                                    print("DeleteAccount: User ID: ${user.id}");
-                                  },
-                                  icon: const Icon(Icons.bug_report, size: 18),
-                                  label: const Text('Test - Afficher les IDs'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.orange,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 12),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                          // if (kDebugMode)
+                          //   Padding(
+                          //     padding: const EdgeInsets.only(bottom: 12),
+                          //     child: SizedBox(
+                          //       width: double.infinity,
+                          //       child: ElevatedButton.icon(
+                          //         onPressed: () {
+                          //           print("DeleteAccount: Test button pressed");
+                          //           print("DeleteAccount: User patID: ${user.patID}");
+                          //           print("DeleteAccount: User ID: ${user.id}");
+                          //         },
+                          //         icon: const Icon(Icons.bug_report, size: 18),
+                          //         label: const Text('Test - Afficher les IDs'),
+                          //         style: ElevatedButton.styleFrom(
+                          //           backgroundColor: Colors.orange,
+                          //           foregroundColor: Colors.white,
+                          //           padding: const EdgeInsets.symmetric(vertical: 12),
+                          //           shape: RoundedRectangleBorder(
+                          //             borderRadius: BorderRadius.circular(8),
+                          //           ),
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ),
                           
                           SizedBox(
                             width: double.infinity,
