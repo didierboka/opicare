@@ -6,12 +6,16 @@ class AppBarActions extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final VoidCallback? onNotificationPressed;
   final bool hideNotif;
+  final bool isSubscriptionExpired;
+  final VoidCallback? onDisabledTap;
 
   const AppBarActions({
     super.key,
     required this.scaffoldKey,
     this.onNotificationPressed,
-    this.hideNotif = false
+    this.hideNotif = false,
+    this.isSubscriptionExpired = false,
+    this.onDisabledTap,
   });
 
   @override
@@ -20,12 +24,26 @@ class AppBarActions extends StatelessWidget {
       children: [
         if (!hideNotif)
         IconButton(
-          icon: const Icon(Icons.notifications_none, color: Colours.homeCardSecondaryButtonBlue),
-          onPressed:  () {context.go('/notifications');},
+          icon: Icon(
+            Icons.notifications_none, 
+            color: isSubscriptionExpired 
+                ? Colors.grey.withOpacity(0.5) 
+                : Colours.homeCardSecondaryButtonBlue
+          ),
+          onPressed: isSubscriptionExpired 
+              ? onDisabledTap 
+              : () {context.go('/notifications');},
         ),
         IconButton(
-          icon: const Icon(Icons.menu, color: Colours.homeCardSecondaryButtonBlue),
-          onPressed: () => scaffoldKey.currentState?.openDrawer(),
+          icon: Icon(
+            Icons.menu, 
+            color: isSubscriptionExpired 
+                ? Colors.grey.withOpacity(0.5) 
+                : Colours.homeCardSecondaryButtonBlue
+          ),
+          onPressed: isSubscriptionExpired 
+              ? onDisabledTap 
+              : () => scaffoldKey.currentState?.openDrawer(),
         ),
       ],
     );

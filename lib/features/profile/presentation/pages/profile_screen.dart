@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:opicare/core/enums/app_enums.dart';
+import 'package:opicare/core/helpers/subscription_helper.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
@@ -17,6 +18,7 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
+import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_screen.dart';
 import '../../../../shared/widgets/image_b64_widget.dart';
 
 class MonProfilScreen extends StatelessWidget {
@@ -27,6 +29,32 @@ class MonProfilScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   var logger = Logger();
 
+  void _showSubscriptionExpiredDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Abonnement expiré'),
+          content: const Text(
+            'Votre abonnement a expiré. Veuillez renouveler votre abonnement pour accéder à toutes les fonctionnalités.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.go(SouscriptionScreen.path);
+              },
+              child: const Text('Renouveler'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showDeleteAccountDialog(BuildContext context, String userId) {
     showDialog(
@@ -137,6 +165,7 @@ class MonProfilScreen extends StatelessWidget {
         }
 
         final user = state.user;
+        final isSubscriptionExpired = SubscriptionHelper.isSubscriptionExpired(user);
 
         // Logs de diagnostic pour l'image
         log("=== DIAGNOSTIC IMAGE ===");
@@ -149,7 +178,12 @@ class MonProfilScreen extends StatelessWidget {
 
         return Scaffold(
           key: _scaffoldKey,
-          appBar: CustomAppBar(title: 'Mon profil', scaffoldKey: _scaffoldKey),
+          appBar: CustomAppBar(
+            title: 'Mon profil', 
+            scaffoldKey: _scaffoldKey,
+            isSubscriptionExpired: isSubscriptionExpired,
+            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+          ),
           drawer: CustomDrawer(),
           body: BackButtonBlockerWidget(
             message: 'Utilisez le menu pour naviguer',
@@ -188,17 +222,32 @@ class MonProfilScreen extends StatelessWidget {
                         Positioned(
                           top: 16,
                           right: 16,
-                          child: Container(
-                            height: 80,
-                            width: 90,
-                            decoration: const BoxDecoration(
-                              color: Colours.homeCardSecondaryButtonBlue,
-                              borderRadius: BorderRadius.only(
-                                topRight: Radius.circular(20),
-                                bottomLeft: Radius.circular(60),
+                          child: GestureDetector(
+                            onTap: isSubscriptionExpired 
+                                ? () => _showSubscriptionExpiredDialog(context)
+                                : null,
+                            child: Opacity(
+                              opacity: isSubscriptionExpired ? 0.5 : 1.0,
+                              child: Container(
+                                height: 80,
+                                width: 90,
+                                decoration: BoxDecoration(
+                                  color: isSubscriptionExpired 
+                                      ? Colours.homeCardSecondaryButtonBlue.withOpacity(0.7)
+                                      : Colours.homeCardSecondaryButtonBlue,
+                                  borderRadius: const BorderRadius.only(
+                                    topRight: Radius.circular(20),
+                                    bottomLeft: Radius.circular(60),
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.edit, 
+                                  color: isSubscriptionExpired 
+                                      ? Colors.grey 
+                                      : Colors.white
+                                ),
                               ),
                             ),
-                            child: const Icon(Icons.edit, color: Colors.white),
                           ),
                         )
                       ],
@@ -308,11 +357,24 @@ class MonProfilScreen extends StatelessWidget {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
-                              onPressed: () => _showDeleteAccountDialog(context, user.patID),
-                              icon: const Icon(Icons.delete_forever, size: 18),
-                              label: const Text('Supprimer mon compte'),
+                              onPressed: isSubscriptionExpired 
+                                  ? () => _showSubscriptionExpiredDialog(context)
+                                  : () => _showDeleteAccountDialog(context, user.patID),
+                              icon: Icon(
+                                Icons.delete_forever, 
+                                size: 18,
+                                color: isSubscriptionExpired ? Colors.grey : Colors.white,
+                              ),
+                              label: Text(
+                                'Supprimer mon compte',
+                                style: TextStyle(
+                                  color: isSubscriptionExpired ? Colors.grey : Colors.white,
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
+                                backgroundColor: isSubscriptionExpired 
+                                    ? Colors.red.withOpacity(0.5)
+                                    : Colors.red,
                                 foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
@@ -330,7 +392,10 @@ class MonProfilScreen extends StatelessWidget {
               ),
             ),
           ),
-          bottomNavigationBar: CustomBottomNavBar(),
+          bottomNavigationBar: CustomBottomNavBar(
+            isSubscriptionExpired: isSubscriptionExpired,
+            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+          ),
         );
       },
     );

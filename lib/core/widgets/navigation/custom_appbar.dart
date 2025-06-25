@@ -8,6 +8,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
   final VoidCallback? onNotificationPressed;
   final bool hideNotif;
+  final bool isSubscriptionExpired;
+  final VoidCallback? onDisabledTap;
 
   const CustomAppBar({
     super.key,
@@ -15,6 +17,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     required this.scaffoldKey,
     this.onNotificationPressed,
     this.hideNotif = false,
+    this.isSubscriptionExpired = false,
+    this.onDisabledTap,
   });
 
   @override
@@ -28,7 +32,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: TextStyles.titleMedium,
       ),
       actions: [
-        AppBarActions(scaffoldKey: scaffoldKey, hideNotif: hideNotif,)
+        AppBarActions(
+          scaffoldKey: scaffoldKey, 
+          hideNotif: hideNotif,
+          isSubscriptionExpired: isSubscriptionExpired,
+          onDisabledTap: onDisabledTap,
+        )
       ],
     );
   }

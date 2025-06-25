@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/helpers/subscription_helper.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
@@ -26,6 +27,33 @@ class HomeScreen extends StatelessWidget {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  void _showSubscriptionExpiredDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Abonnement expiré'),
+          content: const Text(
+            'Votre abonnement a expiré. Veuillez renouveler votre abonnement pour accéder à toutes les fonctionnalités.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.go(SouscriptionScreen.path);
+              },
+              child: const Text('Renouveler'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(builder: (context, state) {
@@ -38,6 +66,7 @@ class HomeScreen extends StatelessWidget {
       }
 
       final user = state.user;
+      final isSubscriptionExpired = SubscriptionHelper.isSubscriptionExpired(user);
 
       return BackButtonBlockerWidget(
         message: 'Utilisez le menu pour naviguer',
@@ -80,7 +109,11 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            actions: [AppBarActions(scaffoldKey: _scaffoldKey)],
+            actions: [AppBarActions(
+              scaffoldKey: _scaffoldKey,
+              isSubscriptionExpired: isSubscriptionExpired,
+              onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+            )],
           ),
           drawer: const CustomDrawer(),
           body: SafeArea(
@@ -133,6 +166,8 @@ class HomeScreen extends StatelessWidget {
                             title: 'Carnet de santé',
                             imageAsset: Media.carnetSante,
                             onTap: () => context.go(CarnetSanteScreen.path),
+                            isDisabled: SubscriptionHelper.shouldDisableOption('Carnet de santé', isSubscriptionExpired),
+                            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
                           ),
                           OptionCard(
                             title: 'Vaccins voyage',
@@ -143,6 +178,8 @@ class HomeScreen extends StatelessWidget {
                                 const SnackBar(content: Text('Fonctionnalité en cours de développement')),
                               );
                             },
+                            isDisabled: SubscriptionHelper.shouldDisableOption('Vaccins voyage', isSubscriptionExpired),
+                            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
                           ),
                           OptionCard(
                             title: 'Informations sur les vaccins',
@@ -153,16 +190,22 @@ class HomeScreen extends StatelessWidget {
                                 const SnackBar(content: Text('Fonctionnalité en cours de développement')),
                               );
                             },
+                            isDisabled: SubscriptionHelper.shouldDisableOption('Informations sur les vaccins', isSubscriptionExpired),
+                            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
                           ),
                           OptionCard(
                             title: 'Mon abonnement',
                             imageAsset: Media.subscriptionIconGif,
                             onTap: () => context.go(SouscriptionScreen.path),
+                            isDisabled: SubscriptionHelper.shouldDisableOption('Mon abonnement', isSubscriptionExpired),
+                            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
                           ),
                           OptionCard(
                             title: 'Ma famille',
                             imageAsset: Media.familyIconGif,
                             onTap: () => context.go(FamilleScreen.path),
+                            isDisabled: SubscriptionHelper.shouldDisableOption('Ma famille', isSubscriptionExpired),
+                            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
                           ),
                           OptionCard(
                             title: 'Vaccin conseillé',
@@ -173,16 +216,22 @@ class HomeScreen extends StatelessWidget {
                                 const SnackBar(content: Text('Fonctionnalité en cours de développement')),
                               );
                             },
+                            isDisabled: SubscriptionHelper.shouldDisableOption('Vaccin conseillé', isSubscriptionExpired),
+                            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
                           ),
                           OptionCard(
                             title: 'Disponibilité vaccins',
                             imageAsset: Media.availableIconGif,
                             onTap: () => context.go(DisponibiliteVaccinScreen.path),
+                            isDisabled: SubscriptionHelper.shouldDisableOption('Disponibilité vaccins', isSubscriptionExpired),
+                            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
                           ),
                           OptionCard(
                             title: 'Mon profil',
                             imageAsset: Media.monGrandProfil,
                             onTap: () => context.go(MonProfilScreen.path),
+                            isDisabled: SubscriptionHelper.shouldDisableOption('Mon profil', isSubscriptionExpired),
+                            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
                           ),
                         ],
                       ),
@@ -192,7 +241,10 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
-          bottomNavigationBar: const CustomBottomNavBar(),
+          bottomNavigationBar: CustomBottomNavBar(
+            isSubscriptionExpired: isSubscriptionExpired,
+            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+          ),
         ),
       );
     });

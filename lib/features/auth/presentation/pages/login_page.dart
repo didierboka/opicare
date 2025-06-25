@@ -28,7 +28,7 @@ class LoginPage extends StatelessWidget {
                 children: [
                   Flexible(child: Image.asset(Media.logoINHP, height: 80)),
                   const SizedBox(width: 20),
-                  Flexible(child: Image.asset(Media.logoMS, height: 80)),
+                  Flexible(child: Image.asset(Media.logoMS, height: 70)),
                 ],
               ),
 

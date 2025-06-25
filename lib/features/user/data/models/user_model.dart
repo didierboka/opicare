@@ -12,6 +12,7 @@ class UserModel {
   final String userPic;
   final String dateAbon;
   final String dateExpiration;
+  final String abonnementLabel;
 
   UserModel({
     required this.id,
@@ -26,8 +27,7 @@ class UserModel {
     required this.birthdate,
     required this.dateAbon,
     required this.dateExpiration,
-
-
+    required this.abonnementLabel
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -43,7 +43,9 @@ class UserModel {
       carnetPhoto: json['PHOTOCARNET'] ?? '',
       userPic: json['PHOTOPAT'] ?? '',
       dateAbon: json['DATE_ABONN'] ?? 'N/A',
-      dateExpiration: json['DATE_EXPIRATION']?? 'N/A',
+      //  dateExpiration: json['DATE_EXPIRATION']?? 'N/A',
+      dateExpiration: "2024-10-12",
+      abonnementLabel: json['LIBELLE'] ?? 'N/A',
     );
   }
 
@@ -60,7 +62,8 @@ class UserModel {
       'DATE_ABONN': dateAbon,
       'DATE_EXPIRATION': dateExpiration,
       'PHOTOPAT': userPic,
-      'PHOTOCARNET': carnetPhoto
+      'PHOTOCARNET': carnetPhoto,
+      'LIBELLE': abonnementLabel
     };
   }
 }
