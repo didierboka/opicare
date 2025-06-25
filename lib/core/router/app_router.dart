@@ -28,6 +28,7 @@ import 'package:opicare/features/welcome/welcome.dart';
 import '../../features/accueil/presentation/pages/home_screen.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
+import '../../features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
 import '../../features/change_password/data/repositories/change_pwd_repository.dart';
 import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import '../../features/profile/presentation/pages/profile_screen.dart';
@@ -79,6 +80,21 @@ final appRouter = GoRouter(
     GoRoute(
       path: CarnetSanteScreen.path,
       builder: (context, state) => CarnetSanteScreen(),
+    ),
+    GoRoute(
+      path: RescheduleVaccineScreen.path,
+      builder: (context, state) {
+        // Récupérer les paramètres de la route
+        final extra = state.extra as Map<String, dynamic>?;
+        final missedVaccine = extra?['missedVaccine'];
+        
+        if (missedVaccine == null) {
+          // Rediriger vers le carnet si pas de données
+          return CarnetSanteScreen();
+        }
+        
+        return RescheduleVaccineScreen(missedVaccine: missedVaccine);
+      },
     ),
     GoRoute(
       path: FamilleScreen.path,

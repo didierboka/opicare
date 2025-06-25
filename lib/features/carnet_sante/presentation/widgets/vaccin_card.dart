@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
@@ -23,8 +24,8 @@ class VaccineCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            _buildDetailRow('Date de rappel', vaccine.recallDate),
-            _buildDetailRow('Date d\'administration', vaccine.presenceDate),
+            _buildDetailRow('Date de rappel', formatDateFromString(vaccine.recallDate)),
+            _buildDetailRow('Date d\'administration', formatDateFromString(vaccine.presenceDate)),
             _buildDetailRow('Numéro de lot', vaccine.lotNumber),
             ///_buildDetailRow('Centre de vaccination', vaccine.centerName),
           ],

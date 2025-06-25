@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
+import 'package:opicare/features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
 
 class MissedVaccineCard extends StatelessWidget {
   final MissedVaccine missedVaccine;
@@ -37,22 +40,41 @@ class MissedVaccineCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            _buildDetailRow('Date de rappel prévue', missedVaccine.dueDate),
+            _buildDetailRow('Date de rappel prévue', formatDateFromString(missedVaccine.dueDate)),
+            _buildDetailRow('Centre', missedVaccine.centreLabel),
             _buildDetailRow('Raison', missedVaccine.reason),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colours.errorRed,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                'VACCIN MANQUÉ',
-                style: TextStyles.caption.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colours.errorRed,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'VACCIN MANQUÉ',
+                    style: TextStyles.caption.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-              ),
+                const Spacer(),
+                ElevatedButton.icon(
+                  onPressed: () => _navigateToReschedule(context),
+                  icon: const Icon(Icons.schedule, size: 16),
+                  label: const Text('Reprogrammer'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colours.primaryBlue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -81,4 +103,11 @@ class MissedVaccineCard extends StatelessWidget {
       ),
     );
   }
-} 
+
+  void _navigateToReschedule(BuildContext context) {
+    context.push(
+      RescheduleVaccineScreen.path,
+      extra: {'missedVaccine': missedVaccine},
+    );
+  }
+}

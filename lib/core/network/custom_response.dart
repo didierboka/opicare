@@ -2,6 +2,7 @@ enum ErrorType { networkError, unknown }
 
 class CustomResponse<T> {
   bool status;
+  int statut;
   String? message;
   int code;
   List<T>? datas;
@@ -14,6 +15,7 @@ class CustomResponse<T> {
     this.status = false,
     this.message,
     this.code = 0,
+    this.statut = 0,
     this.datas,
     this.data,
     this.response,

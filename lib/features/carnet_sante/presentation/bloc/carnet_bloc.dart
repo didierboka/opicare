@@ -26,6 +26,26 @@ class LoadUpcomingVaccines extends CarnetEvent {
   LoadUpcomingVaccines({required this.id});
 }
 
+class RescheduleVaccineRequested extends CarnetEvent {
+  final String vaccineId;
+  final String patientId;
+  final DateTime newDate;
+  final String vaccineName;
+  final String centreId;
+  final String regionId;
+  final String districtId;
+
+  RescheduleVaccineRequested({
+    required this.vaccineId,
+    required this.patientId,
+    required this.newDate,
+    required this.vaccineName,
+    required this.centreId,
+    required this.regionId,
+    required this.districtId,
+  });
+}
+
 abstract class CarnetState {}
 
 class CarnetInitial extends CarnetState {}
@@ -62,6 +82,20 @@ class CarnetError extends CarnetState {
   CarnetError(this.message);
 }
 
+class RescheduleVaccineLoading extends CarnetState {}
+
+class RescheduleVaccineSuccess extends CarnetState {
+  final String message;
+
+  RescheduleVaccineSuccess(this.message);
+}
+
+class RescheduleVaccineFailure extends CarnetState {
+  final String message;
+
+  RescheduleVaccineFailure(this.message);
+}
+
 class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
   final CarnetRepository repository;
 
@@ -69,6 +103,7 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     on<LoadVaccines>(_onLoadVaccines);
     on<LoadMissedVaccines>(_onLoadMissedVaccines);
     on<LoadUpcomingVaccines>(_onLoadUpcomingVaccines);
+    on<RescheduleVaccineRequested>(_onRescheduleVaccineRequested);
   }
 
   Future<void> _onLoadVaccines(
@@ -76,13 +111,13 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     Emitter<CarnetState> emit,
   ) async {
     if (state is CarnetInitial) {
-    emit(CarnetLoading());
+      emit(CarnetLoading());
     }
-    
+
     try {
       final vaccines = await repository.getVaccines(event.id);
       final currentState = state;
-      
+
       if (currentState is CarnetLoaded) {
         emit(currentState.copyWith(vaccines: vaccines.datas!));
       } else {
@@ -104,11 +139,11 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     if (state is CarnetInitial) {
       emit(CarnetLoading());
     }
-    
+
     try {
       final missedVaccines = await repository.getMissedVaccines(event.id);
       final currentState = state;
-      
+
       if (currentState is CarnetLoaded) {
         emit(currentState.copyWith(missedVaccines: missedVaccines.datas!));
       } else {
@@ -130,11 +165,11 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     if (state is CarnetInitial) {
       emit(CarnetLoading());
     }
-    
+
     try {
       final upcomingVaccines = await repository.getUpcomingVaccines(event.id);
       final currentState = state;
-      
+
       if (currentState is CarnetLoaded) {
         emit(currentState.copyWith(upcomingVaccines: upcomingVaccines.datas!));
       } else {
@@ -146,6 +181,32 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
       }
     } catch (e) {
       emit(CarnetError(e.toString()));
+    }
+  }
+
+  Future<void> _onRescheduleVaccineRequested(
+    RescheduleVaccineRequested event,
+    Emitter<CarnetState> emit,
+  ) async {
+    emit(RescheduleVaccineLoading());
+
+    try {
+      final response = await repository.rescheduleVaccine(
+        vaccineId: event.vaccineId,
+        patientId: event.patientId,
+        newDate: event.newDate,
+        centreId: event.centreId,
+        regionId: event.regionId,
+        districtId: event.districtId,
+      );
+
+      if (response.status) {
+        emit(RescheduleVaccineSuccess(response.message ?? 'Vaccin reprogrammé avec succès'));
+      } else {
+        emit(RescheduleVaccineFailure(response.message ?? 'Erreur lors de la reprogrammation'));
+      }
+    } catch (e) {
+      emit(RescheduleVaccineFailure('Erreur lors de la reprogrammation: $e'));
     }
   }
 }

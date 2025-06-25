@@ -17,7 +17,6 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
-
 import '../../../../shared/widgets/image_b64_widget.dart';
 
 class MonProfilScreen extends StatelessWidget {
@@ -179,9 +178,9 @@ class MonProfilScreen extends StatelessWidget {
                             children: [
                               Text('Formule', style: TextStyles.titleMedium),
                               const SizedBox(height: 26),
-                              _infoRow('Nom', '${user.name} ${user.surname}', 'Date de naissance', user.birthdate),
+                              _infoRow('Nom', '${user.name} ${user.surname}', 'Date de naissance', formatDateFromString(user.birthdate)),
                               _infoRow('Genre', user.sex, 'Contact', user.phone),
-                              _infoRow('Date d\'abonnement', user.dateAbon, 'Date d\'expiration', user.dateExpiration),
+                              _infoRow('Date d\'abonnement', formatDateFromString(user.dateAbon), 'Date d\'expiration', formatDateFromString(user.dateExpiration)),
                               _infoRow('Email', user.email, 'Mot de passe', '[protected]', value2Color: Colours.primaryBlue),
                             ],
                           ),

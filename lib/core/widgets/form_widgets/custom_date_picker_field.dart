@@ -11,6 +11,7 @@ class CustomDateInputField extends StatefulWidget {
   final TextEditingController controller;
   final bool defaultValidation;
   final String? Function(String? value)? validator;
+  final bool allowFutureDates;
 
   const CustomDateInputField({
     super.key,
@@ -20,6 +21,7 @@ class CustomDateInputField extends StatefulWidget {
     required this.controller,
     this.defaultValidation = true,
     this.validator,
+    this.allowFutureDates = false,
   });
 
   @override
@@ -39,7 +41,7 @@ class _CustomDateInputFieldState extends State<CustomDateInputField> {
     if (widget.controller.text.isNotEmpty) {
       try {
         final parsed = DateTime.parse(widget.controller.text);
-        _displayDate = DateFormat('dd/MM/yyyy').format(parsed);
+        _displayDate = DateFormat('EEE, d MMM yyyy', 'fr_FR').format(parsed);
       } catch (_) {
         _displayDate = '';
       }
@@ -50,17 +52,21 @@ class _CustomDateInputFieldState extends State<CustomDateInputField> {
 
   Future<void> _selectDate(BuildContext context) async {
     final now = DateTime.now();
+    final lastDate = widget.allowFutureDates 
+        ? DateTime(now.year + 10) // Permettre jusqu'à 10 ans dans le futur
+        : now;
+    
     final picked = await showDatePicker(
       context: context,
       initialDate: now,
       firstDate: DateTime(1900),
-      lastDate: now,
+      lastDate: lastDate,
     );
     if (picked != null) {
       if (!mounted) return;
       setState(() {
         widget.controller.text = DateFormat('yyyy-MM-dd').format(picked); // backend format
-        _displayDate = DateFormat('dd/MM/yyyy').format(picked); // display format
+        _displayDate = DateFormat('EEE, d MMM yyyy', 'fr_FR').format(picked); // display format
       });
     }
   }

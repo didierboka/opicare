@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:opicare/core/res/media.dart';
 import '../enums/app_enums.dart';
+import 'package:intl/intl.dart';
+import 'package:opicare/core/constants/messages.dart';
 
 void showSnackbar(BuildContext context, {String message = '', MessageType? type}) {
   Color backgroundColor;
@@ -83,5 +85,30 @@ String _getDefaultMessage(MessageType? type) {
       return 'Information';
     default:
       return 'Message';
+  }
+}
+
+/// Formate une date en français avec le jour de la semaine
+/// Exemple: "Sam, 12 janv 2024"
+String formatDateFrench(DateTime date) {
+  final formatter = DateFormat('EEE, d MMM yyyy', 'fr_FR');
+  return formatter.format(date);
+}
+
+/// Formate une date en français avec le jour de la semaine (version courte)
+/// Exemple: "Sam, 12 janv"
+String formatDateFrenchShort(DateTime date) {
+  final formatter = DateFormat('EEE, d MMM', 'fr_FR');
+  return formatter.format(date);
+}
+
+/// Formate une date depuis une chaîne ISO
+/// Exemple: "2024-01-12" -> "Sam, 12 janv 2024"
+String formatDateFromString(String dateString) {
+  try {
+    final date = DateTime.parse(dateString);
+    return formatDateFrench(date);
+  } catch (e) {
+    return dateString; // Retourne la chaîne originale si le parsing échoue
   }
 }

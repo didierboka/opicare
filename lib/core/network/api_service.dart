@@ -10,9 +10,11 @@ import '../constants/api_url.dart';
 
 class ApiService<T> {
   final String baseUrl;
+  final String baseUrlAgent;
   final T Function(Map<String, dynamic>) fromJson;
 
-  ApiService({this.baseUrl = ApiUrl.prod, required this.fromJson});
+  ApiService({this.baseUrl = ApiUrl.prod, this.baseUrlAgent = ApiUrl.prodAgent, required this.fromJson});
+
 
   Future<CustomResponse<T>> get(String endpoint) async {
     final url = Uri.parse('$baseUrl$endpoint');
@@ -24,9 +26,9 @@ class ApiService<T> {
     }
   }
 
-  Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true}) async {
+  Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true, bool likeAgent = false}) async {
     print("START API SERVICE POST");
-    final url = Uri.parse('$baseUrl$endpoint');
+    final url = Uri.parse(likeAgent ? '$baseUrlAgent$endpoint' : '$baseUrl$endpoint');
 
     print("${url.toString()} ${data.toString()}");
 
@@ -84,7 +86,26 @@ class ApiService<T> {
     final Map<String, dynamic> httpResBody = jsonDecode(utf8.decode(response.bodyBytes));
     res.response = httpResBody;
 
-    res.status = response.statusCode == 200 && httpResBody["code"] == 0;
+    if (response.statusCode == 200) {
+      if (httpResBody['code'] != null) { // Vérification de la presence de code
+        if (httpResBody['code'] == 0) {
+          res.status = true;
+        } else {
+          res.status = false;
+        }
+      }
+
+      if (httpResBody['statut'] != null) { // Vérification de la presence de statut
+       if (httpResBody['statut'] == 1) {
+         res.status = true;
+       } else {
+         res.status = false;
+       }
+      }
+    } else {
+      res.status = false;
+    }
+
     res.message = httpResBody["\$msg"] ?? httpResBody["msg"] ?? ResponseMessage.unKnownErrorMessage;
 
     if (res.status) {

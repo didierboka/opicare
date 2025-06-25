@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
+import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/famille/data/models/family_member.dart';
 class FamilyMemberCard extends StatelessWidget {
   final FamilyMember member;
@@ -20,7 +22,7 @@ class FamilyMemberCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Sexe: ${member.sex}'),
-            Text('Né(e) le: ${member.birthdate}'),
+            Text('Né(e) le: ${formatDateFromString(member.birthdate)}'),
             Text('Formule: ${member.formula}'),
           ],
         ),

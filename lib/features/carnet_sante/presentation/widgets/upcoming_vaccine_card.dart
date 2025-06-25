@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
@@ -37,7 +38,7 @@ class UpcomingVaccineCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8),
-            _buildDetailRow('Date prévue', upcomingVaccine.dueDate),
+            _buildDetailRow('Date prévue', formatDateFromString(upcomingVaccine.dueDate)),
             _buildDetailRow('Description', upcomingVaccine.description),
             if (upcomingVaccine.centerName.isNotEmpty)
               _buildDetailRow('Centre', upcomingVaccine.centerName),

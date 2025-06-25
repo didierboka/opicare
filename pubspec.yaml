@@ -13,6 +13,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   cupertino_icons: ^1.0.8
   flutter_staggered_grid_view: ^0.6.2
@@ -23,7 +25,7 @@ dependencies:
   shared_preferences: ^2.5.3
   lottie: ^3.3.1
   dropdown_button2: ^2.3.9
-  intl: ^0.20.2
+  intl: ^0.19.0
   flutter_launcher_icons: ^0.14.3
   logger: ^2.5.0
   flutter_secure_storage: ^9.2.4
