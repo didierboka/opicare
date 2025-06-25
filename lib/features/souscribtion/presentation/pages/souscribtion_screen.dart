@@ -3,19 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/enums/app_enums.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
-import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
-import 'package:opicare/core/widgets/form_widgets/custom_input_field.dart';
+import 'package:opicare/core/widgets/form_widgets/custom_increment_field.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_select_field.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
-import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
-import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/souscribtion/data/models/type_abo_model.dart';
-import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
 
 import '../../data/models/formule.dart';
@@ -31,7 +27,6 @@ class SouscriptionScreen extends StatefulWidget {
 
 class _SouscriptionScreenState extends State<SouscriptionScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _yearsController = TextEditingController(text: '1');
 
   @override
   void initState() {
@@ -41,7 +36,6 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
 
   @override
   void dispose() {
-    _yearsController.dispose();
     super.dispose();
   }
 
@@ -80,7 +74,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
         },
         builder: (context, state) {
           if (state is SouscriptionInitial || state is SouscriptionLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const SizedBox();
           }
 
           if (state is SouscriptionFailure) {
@@ -106,7 +100,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
           final loadedState = state as SouscriptionLoaded;
           final selectedFormule = loadedState.formules.firstWhere(
             (f) => f.id == loadedState.selectedFormule,
-            orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0'),
+            orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
           );
 
           return BackButtonBlockerWidget(
@@ -145,18 +139,22 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                         isEnabled: loadedState.selectedTypeAbo != null,
                       ),
                       const SizedBox(height: 20),
-                      CustomInputField(
-                        icon: Icons.calendar_month,
-                        controller: context.read<SouscriptionBloc>().yearsController,
-                        onChanged: (value) {
-                          context.read<SouscriptionBloc>().add(UpdateYears(value));
-                        },
+                      CustomIncrementField(
                         label: 'Nombre d\'années',
                         hint: '1',
-                        keyBoardType: TextInputType.number,
+                        icon: Icons.calendar_month,
+                        value: loadedState.years,
+                        minValue: selectedFormule.bonus > 0 ? selectedFormule.bonus : 1,
+                        increment: selectedFormule.bonus > 0 ? selectedFormule.bonus : 1,
+                        onChanged: (value) {
+                          if (value > loadedState.years) {
+                            context.read<SouscriptionBloc>().add(IncrementYears());
+                          } else {
+                            context.read<SouscriptionBloc>().add(DecrementYears());
+                          }
+                        },
                         validator: (value) {
-                          if (value == null || value.isEmpty) return 'Champs requis';
-                          if (int.tryParse(value) == null) return 'Nombre invalide';
+                          if (value == null || value < selectedFormule.bonus) return 'Nombre d\'années invalide';
                           return null;
                         },
                       ),
@@ -171,7 +169,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                           children: [
                             _buildDetailRow('Formule', selectedFormule.formuleLibelle),
                             _buildDetailRow('Prix annuel', '${selectedFormule.prix} FCfa'),
-                            _buildDetailRow('Années', context.read<SouscriptionBloc>().yearsController.text),
+                            _buildDetailRow('Années', loadedState.years.toString()),
                             const Divider(),
                             _buildDetailRow('Total', '${loadedState.total.toStringAsFixed(0)} FCfa', isBold: true),
                           ],
@@ -190,7 +188,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                                     tarif: selectedFormule.prix,
                                     typeAbonnement: loadedState.selectedTypeAbo!,
                                     formule: loadedState.selectedFormule!,
-                                    years: int.parse(context.read<SouscriptionBloc>().yearsController.text),
+                                    years: loadedState.years,
                                   ),
                                 );
                           }

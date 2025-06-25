@@ -1,42 +1,50 @@
 {
   "code": 0,
-  "msg": "Liste des prochaines visites ",
+  "msg": "Liste des formules",
   "data": [
     {
-      "IDCAL": "19163377",
-      "NOMVAC": "FIEVRE  JAUNE",
-      "DATERAPEL": "2025-06-27",
-      "PRESENCE": "0000-00-00",
-      "LOVAC": "",
-      "NOMCENTR": "INHP-TREICHVILLE",
-      "IDPAT": "216"
+      "IDFORMULE": "1",
+      "LIBELLE": "STANDARD",
+      "TARIF": "1000",
+      "BONUS": "1",
+      "DESCRIPTION": "1 AN",
+      "POINTDEVENTE": "PRESENTIEL",
+      "UNITEABONNEMENT": "Y",
+      "IDTYPEABONNEMENT": "1",
+      "APP_C": "1"
     },
     {
-      "IDCAL": "19163378",
-      "NOMVAC": "FIEVRE TYPHOIDE",
-      "DATERAPEL": "2025-06-27",
-      "PRESENCE": "0000-00-00",
-      "LOVAC": "",
-      "NOMCENTR": "INHP-TREICHVILLE",
-      "IDPAT": "216"
+      "IDFORMULE": "2",
+      "LIBELLE": "PREMIUM",
+      "TARIF": "2000",
+      "BONUS": "3",
+      "DESCRIPTION": "3 ANS+ ACCES EN LIGNE + 2 SMS DE Rappel +INFO SANTE",
+      "POINTDEVENTE": "PRESENTIEL",
+      "UNITEABONNEMENT": "Y",
+      "IDTYPEABONNEMENT": "1",
+      "APP_C": "1"
     },
     {
-      "IDCAL": "19163379",
-      "NOMVAC": "MENINGITE ACYW135",
-      "DATERAPEL": "2025-06-27",
-      "PRESENCE": "0000-00-00",
-      "LOVAC": "",
-      "NOMCENTR": "INHP-TREICHVILLE",
-      "IDPAT": "216"
+      "IDFORMULE": "3",
+      "LIBELLE": "BUSINESS",
+      "TARIF": "5000",
+      "BONUS": "3",
+      "DESCRIPTION": "3 ANS+ ACCES EN LIGNE + 3 SMS DE Rappel +INFO SANTE+APPLICATION MOBILE OPICARE + APPEL VOCAL",
+      "POINTDEVENTE": "PRESENTIEL",
+      "UNITEABONNEMENT": "Y",
+      "IDTYPEABONNEMENT": "1",
+      "APP_C": "1"
     },
     {
-      "IDCAL": "19167303",
-      "NOMVAC": "VAT (1)",
-      "DATERAPEL": "2027-01-06",
-      "PRESENCE": "0000-00-00",
-      "LOVAC": "",
-      "NOMCENTR": "INHP-TREICHVILLE",
-      "IDPAT": "216"
+      "IDFORMULE": "17",
+      "LIBELLE": "SERENITY",
+      "TARIF": "10000",
+      "BONUS": "3",
+      "DESCRIPTION": "3 ANS+ ACCES EN LIGNE + 3 SMS DE Rappel +INFO SANTE+APPLICATION MOBILE OPICARE + APPEL VOCAL+DUPPLICATA OFFERT EN CAS DE PERTE+ LIVRAISON OFFERTE(ABIDJAN)",
+      "POINTDEVENTE": "PRESENTIEL",
+      "UNITEABONNEMENT": "Y",
+      "IDTYPEABONNEMENT": "1",
+      "APP_C": "1"
     }
   ]
 }

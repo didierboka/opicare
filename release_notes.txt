@@ -1,14 +1,15 @@
-🚀 Version 1.0.0 version 5
+🚀 Version 1.0.4 version 4
 
 ## ✅ Fonctionnalités Disponibles
 
 
 🚨 Nouvelles fonctionnalités
 - Suppression du compte du client
-- Affichage des vaccins effectif
+- Programmer une visite manquée
 
 ✏️ Corrections
-- Correction de la liste des familles du client
+- Revision des infos vaccins
+- Revision de l'interface de souscription (avec incremente/decremente)
 - Revision des performances
 
 📱 Compatibilité :

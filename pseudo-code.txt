@@ -1,0 +1,5 @@
+# CALCUL DE L'ABONNEMENT
+    1- Remplace la zone de saisie du nombre d'années par un widget de increment/decrement
+    2- La valeur par defaut est la valeur reccupere du l'objet de la formule avec la propriete : bonus
+    3- Chaque incremente est calculé comme suit : total = ancienne valeur de total + bonus
+    3- Chaque decremente est calculé comme suit : total = ancienne valeur de total - bonus

@@ -6,7 +6,6 @@ import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart
 import 'package:opicare/features/souscribtion/domain/entities/type_abo_entity.dart';
 
 abstract class SouscriptionRepository {
-
   Future<List<TypeAboModel>> getTypeAbos();
 
   Future<List<FormuleModel>> getFormules(String typeAboId);

@@ -39,6 +39,10 @@ class UpdateYears extends SouscriptionEvent {
   UpdateYears(this.years);
 }
 
+class IncrementYears extends SouscriptionEvent {}
+
+class DecrementYears extends SouscriptionEvent {}
+
 class SubmitSouscription extends SouscriptionEvent {
   final String typeAbonnement;
   final String formule;
@@ -115,7 +119,6 @@ class SouscriptionFailure extends SouscriptionState {
 
 class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
   final SouscriptionRepository souscriptionRepository;
-  final TextEditingController yearsController = TextEditingController(text: '1');
 
   SouscriptionBloc({required this.souscriptionRepository}) : super(SouscriptionInitial()) {
     on<LoadTypeAbos>(_onLoadTypeAbos);
@@ -123,13 +126,15 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     on<SelectTypeAbo>(_onSelectTypeAbo);
     on<SelectFormule>(_onSelectFormule);
     on<UpdateYears>(_onUpdateYears);
+    on<IncrementYears>(_onIncrementYears);
+    on<DecrementYears>(_onDecrementYears);
     on<SubmitSouscription>(_onSubmitSouscription);
   }
 
   Future<void> _onLoadTypeAbos(
-      LoadTypeAbos event,
-      Emitter<SouscriptionState> emit,
-      ) async {
+    LoadTypeAbos event,
+    Emitter<SouscriptionState> emit,
+  ) async {
     emit(SouscriptionLoading());
     try {
       final typeAbos = await souscriptionRepository.getTypeAbos();
@@ -143,9 +148,9 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
   }
 
   Future<void> _onLoadFormules(
-      LoadFormules event,
-      Emitter<SouscriptionState> emit,
-      ) async {
+    LoadFormules event,
+    Emitter<SouscriptionState> emit,
+  ) async {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
@@ -164,9 +169,9 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
   }
 
   void _onSelectTypeAbo(
-      SelectTypeAbo event,
-      Emitter<SouscriptionState> emit,
-      ) {
+    SelectTypeAbo event,
+    Emitter<SouscriptionState> emit,
+  ) {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
@@ -182,9 +187,9 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
   }
 
   void _onSelectFormule(
-      SelectFormule event,
-      Emitter<SouscriptionState> emit,
-      ) {
+    SelectFormule event,
+    Emitter<SouscriptionState> emit,
+  ) {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
@@ -192,29 +197,34 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
       emit(currentState.copyWith(
         selectedFormule: null,
         total: 0.0,
+        years: 1,
       ));
       return;
     }
 
     final formule = currentState.formules.firstWhere(
-          (f) => f.id == event.formuleId,
-      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0'),
+      (f) => f.id == event.formuleId,
+      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
     );
 
-    // Convertir le prix en double et calculer le total
-    final prix = double.tryParse(formule.prix) ?? 0.0;
-    final total = prix * currentState.years;
+    // Initialiser les années avec la valeur bonus de la formule
+    final years = formule.bonus > 0 ? formule.bonus : 1;
+    
+    // Prix initial (pas de pas d'incrément au début)
+    final prixInitial = double.tryParse(formule.prix) ?? 0.0;
+    final total = prixInitial;
 
     emit(currentState.copyWith(
       selectedFormule: event.formuleId,
+      years: years,
       total: total,
     ));
   }
 
   void _onUpdateYears(
-      UpdateYears event,
-      Emitter<SouscriptionState> emit,
-      ) {
+    UpdateYears event,
+    Emitter<SouscriptionState> emit,
+  ) {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
@@ -222,13 +232,76 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     final years = int.tryParse(event.years) ?? 1;
     final formule = currentState.formules.firstWhere(
-          (f) => f.id == currentState.selectedFormule,
-      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0'),
+      (f) => f.id == currentState.selectedFormule,
+      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
     );
 
-    // Convertir le prix en double et calculer le total
-    final prix = double.tryParse(formule.prix) ?? 0.0;
-    final total = prix * years;
+    // Calculer le nombre de pas depuis la valeur initiale (bonus)
+    final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
+    
+    // Prix initial + (nombre de pas × prix initial)
+    final prixInitial = double.tryParse(formule.prix) ?? 0.0;
+    final total = prixInitial + (pasIncrement * prixInitial);
+
+    emit(currentState.copyWith(
+      years: years,
+      total: total,
+    ));
+  }
+
+  void _onIncrementYears(
+    IncrementYears event,
+    Emitter<SouscriptionState> emit,
+  ) {
+    if (state is! SouscriptionLoaded) return;
+    final currentState = state as SouscriptionLoaded;
+
+    if (currentState.selectedFormule == null) return;
+
+    final formule = currentState.formules.firstWhere(
+      (f) => f.id == currentState.selectedFormule,
+      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
+    );
+
+    // Incrémenter par la valeur du bonus
+    final years = currentState.years + formule.bonus;
+    
+    // Calculer le nombre de pas d'incrément depuis la valeur initiale (bonus)
+    final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
+    
+    // Prix initial + (nombre de pas × prix initial)
+    final prixInitial = double.tryParse(formule.prix) ?? 0.0;
+    final total = prixInitial + (pasIncrement * prixInitial);
+
+    emit(currentState.copyWith(
+      years: years,
+      total: total,
+    ));
+  }
+
+  void _onDecrementYears(
+    DecrementYears event,
+    Emitter<SouscriptionState> emit,
+  ) {
+    if (state is! SouscriptionLoaded) return;
+    final currentState = state as SouscriptionLoaded;
+
+    if (currentState.selectedFormule == null) return;
+
+    final formule = currentState.formules.firstWhere(
+      (f) => f.id == currentState.selectedFormule,
+      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
+    );
+
+    // Décrémenter par la valeur du bonus, mais ne pas aller en dessous du bonus
+    final years = (currentState.years - formule.bonus).clamp(formule.bonus, double.infinity).toInt();
+    
+    // Calculer le nombre de pas depuis la valeur initiale (bonus)
+    final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
+    
+    // Prix initial + (nombre de pas × prix initial)
+    final prixInitial = double.tryParse(formule.prix) ?? 0.0;
+    final total = prixInitial + (pasIncrement * prixInitial);
 
     emit(currentState.copyWith(
       years: years,
@@ -237,9 +310,9 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
   }
 
   Future<void> _onSubmitSouscription(
-      SubmitSouscription event,
-      Emitter<SouscriptionState> emit,
-      ) async {
+    SubmitSouscription event,
+    Emitter<SouscriptionState> emit,
+  ) async {
     emit(SouscriptionLoading());
     try {
       final response = await souscriptionRepository.submitSouscription(
@@ -264,7 +337,6 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
   @override
   Future<void> close() {
-    yearsController.dispose();
     return super.close();
   }
 }
