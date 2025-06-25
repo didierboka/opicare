@@ -89,7 +89,7 @@ class CustomDrawer extends StatelessWidget {
                       icon: Icons.notifications,
                       text: 'Notifications',
                       onTap: () {
-                        context.go(NotificationScreen.path);
+                        context.go(NotificationScreen.path, extra: user.patID);
                       }),
                   _buildDrawerItem(
                       icon: Icons.payment,

@@ -12,6 +12,8 @@ import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_v
 import 'package:opicare/features/famille/data/models/family_member.dart';
 import 'package:opicare/features/famille/data/repositories/family_repository.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
+import 'package:opicare/features/notifications/data/models/sms_model.dart';
+import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
 import 'package:opicare/features/plan_abonnement/data/models/formule_model.dart';
 import 'package:opicare/features/plan_abonnement/data/repositories/formule_repository.dart';
 import 'package:opicare/features/souscribtion/data/models/formule.dart';
@@ -147,6 +149,11 @@ class Di {
       () => ApiService<UpcomingVaccine>(fromJson: UpcomingVaccine.fromJson),
     );
 
+    // API Service pour SmsModel - SMS reçus
+    _getIt.registerFactory<ApiService<SmsModel>>(
+      () => ApiService<SmsModel>(fromJson: SmsModel.fromJson),
+    );
+
     // API Service générique pour les réponses dynamiques
     _getIt.registerFactory<ApiService<dynamic>>(
       () => ApiService<dynamic>(fromJson: (json) => true),
@@ -195,6 +202,11 @@ class Di {
     // Souscription Repository - Gestion des souscriptions
     _getIt.registerLazySingleton<SouscriptionRepository>(
       () => SouscriptionRepositoryImpl(),
+    );
+
+    // SMS Repository - Gestion des SMS reçus
+    _getIt.registerLazySingleton<SmsRepository>(
+      () => SmsRepositoryImpl(_getIt<ApiService<SmsModel>>()),
     );
 
     // Change Password Repository - Changement de mot de passe

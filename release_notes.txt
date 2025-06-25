@@ -1,19 +1,11 @@
 🚀 Version 1.0.4 version 4
 
-## ✅ Fonctionnalités Disponibles
-
 
 🚨 Nouvelles fonctionnalités
-- Suppression du compte du client
-- Programmer une visite manquée
-- Affichage de la photo du profil
-- Controle sur la date de l'abonnement (expirée)
-- Gestion des acces a mon carnet en fonction de l'abonnement (BUSINESS, SERENITY)
+- Liste des vaccins du client
 
 ✏️ Corrections
-- Revision des infos vaccins
-- Revision de l'interface de souscription (avec incremente/decremente)
-- Revision des performances
+- N/A
 
 📱 Compatibilité :
 - iOS 13+

@@ -18,6 +18,8 @@ import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_sc
 import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_screen.dart';
+import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
+import 'package:opicare/features/notifications/presentation/bloc/sms_bloc.dart';
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
@@ -75,7 +77,15 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: NotificationScreen.path,
-      builder: (context, state) => NotificationScreen(),
+      builder: (context, state) {
+
+        final patientId = state.extra as String;
+
+        return BlocProvider(
+          create: (_) => SmsBloc(Di.get<SmsRepository>()),
+          child: NotificationScreen(patId: patientId),
+        );
+      },
     ),
     GoRoute(
       path: CarnetSanteScreen.path,
@@ -87,12 +97,12 @@ final appRouter = GoRouter(
         // Récupérer les paramètres de la route
         final extra = state.extra as Map<String, dynamic>?;
         final missedVaccine = extra?['missedVaccine'];
-        
+
         if (missedVaccine == null) {
           // Rediriger vers le carnet si pas de données
           return CarnetSanteScreen();
         }
-        
+
         return RescheduleVaccineScreen(missedVaccine: missedVaccine);
       },
     ),

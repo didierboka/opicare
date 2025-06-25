@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/res/styles/colours.dart';
+import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 
 class AppBarActions extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -32,7 +35,12 @@ class AppBarActions extends StatelessWidget {
           ),
           onPressed: isSubscriptionExpired 
               ? onDisabledTap 
-              : () {context.go('/notifications');},
+              : () {
+                  final authState = context.read<AuthBloc>().state;
+                  if (authState is AuthAuthenticated) {
+                    context.go(NotificationScreen.path, extra: authState.user.patID);
+                  }
+                },
         ),
         IconButton(
           icon: Icon(
