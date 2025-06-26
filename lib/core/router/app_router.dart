@@ -14,7 +14,9 @@ import 'package:opicare/features/change_password/presentation/pages/change_passw
 import 'package:opicare/features/disponibilite_vaccins/presentation/bloc/dispo_vaccin_bloc.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
+import 'package:opicare/features/hopitaux/presentation/bloc/hopitaux_bloc.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
+import 'package:opicare/features/hopitaux/data/repositories/hopitaux_repository.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_screen.dart';
@@ -152,7 +154,12 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: TrouverHopitauxScreen.path,
-      builder: (context, state) => TrouverHopitauxScreen(),
+      builder: (context, state) => BlocProvider(
+        create: (_) => HopitauxBloc(
+          hopitauxRepository: Di.get<HopitauxRepository>(),
+        ),
+        child: TrouverHopitauxScreen(),
+      ),
     ),
     GoRoute(
       path: SouscriptionScreen.path,

@@ -8,3 +8,14 @@
     1- Lorsque le client se connecte on a la valeur de la date d'expiration de son abonnnent dans la propriete usermodel.dateExpiration
     2- Si la date est dépassée, grisée tous les menus sauf abonnement et mon profil sur le home ansi que les actions bottoms sauf egalement profil.
     3- Au clic sur un menu grisé, afficher un pop alertant que son abonnement a expiré.
+
+- [ ] Dans la section «Retrouvez les hôpitaux», permet de retrouver un centre en fonction du district sélectionner
+    1- Le district est selectioné par l'utilisateur
+    2- La liste des centres de ce district est affichée
+    3- L'utilisateur peut selectioné un centre parmi la liste
+    4- Lorsque l'utilisateur selectionne un centre
+        4.1- La liste des responsables est affichée
+            4.1.1- Un responsable comprend :
+                - Le nom
+                - Le contact
+                - Son role

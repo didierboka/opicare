@@ -11,6 +11,8 @@ import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_model.
 import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import 'package:opicare/features/famille/data/models/family_member.dart';
 import 'package:opicare/features/famille/data/repositories/family_repository.dart';
+import 'package:opicare/features/hopitaux/data/models/responsable_model.dart';
+import 'package:opicare/features/hopitaux/data/repositories/hopitaux_repository.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
 import 'package:opicare/features/notifications/data/models/sms_model.dart';
 import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
@@ -154,6 +156,11 @@ class Di {
       () => ApiService<SmsModel>(fromJson: SmsModel.fromJson),
     );
 
+    // API Service pour ResponsableModel - Responsables d'hôpitaux
+    _getIt.registerFactory<ApiService<ResponsableModel>>(
+      () => ApiService<ResponsableModel>(fromJson: ResponsableModel.fromJson),
+    );
+
     // API Service générique pour les réponses dynamiques
     _getIt.registerFactory<ApiService<dynamic>>(
       () => ApiService<dynamic>(fromJson: (json) => true),
@@ -212,6 +219,11 @@ class Di {
     // Change Password Repository - Changement de mot de passe
     _getIt.registerLazySingleton<ChangePwdRepository>(
       () => ChangePwdRepositoryImpl(),
+    );
+
+    // Responsable Model Repository - Gestion des responsables
+    _getIt.registerLazySingleton<HopitauxRepository>(
+      () => HopitauxRepositoryImpl(),
     );
   }
 

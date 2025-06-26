@@ -52,3 +52,5 @@ app.*.map.json
 # Flutter Engine Version Cache
 .engine/
 pubspec.lock
+pseudo-code.txt
+temp.json
