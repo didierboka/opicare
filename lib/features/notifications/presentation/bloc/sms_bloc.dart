@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:opicare/features/notifications/data/models/sms_model.dart';
-import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
+import 'package:opicare/core/error/failures.dart';
+import 'package:opicare/features/notifications/domain/entities/sms.dart';
+import 'package:opicare/features/notifications/domain/usecases/get_sms_recus_usecase.dart';
 
 // Events
 abstract class SmsEvent {}
@@ -18,47 +19,41 @@ class SmsInitial extends SmsState {}
 class SmsLoading extends SmsState {}
 
 class SmsLoaded extends SmsState {
-  final List<SmsModel> smsList;
+  final List<Sms> smsList;
   
   SmsLoaded(this.smsList);
 }
 
 class SmsError extends SmsState {
-  final String message;
+  final Failure failure;
   
-  SmsError(this.message);
+  SmsError(this.failure);
 }
 
 // BLoC
 class SmsBloc extends Bloc<SmsEvent, SmsState> {
 
-  final SmsRepository _smsRepository;
+  final GetSmsRecus _getSmsRecus;
 
-  SmsBloc(this._smsRepository) : super(SmsInitial()) {
+  SmsBloc(this._getSmsRecus) : super(SmsInitial()) {
     on<LoadSmsRecus>(_onLoadSmsRecus);
   }
 
   Future<void> _onLoadSmsRecus(LoadSmsRecus event, Emitter<SmsState> emit) async {
     emit(SmsLoading());
     
-    try {
-      // Validation du patId
-      final patId = event.patId;
-      if (patId == null || patId.isEmpty) {
-        emit(SmsError('ID patient manquant. Veuillez vous reconnecter.'));
-        return;
-      }
-      
-      final response = await _smsRepository.getSmsRecus(patId);
-      
-      if (response.status) {
-        final List<SmsModel> smsList = response.datas ?? [];
-        emit(SmsLoaded(smsList));
-      } else {
-        emit(SmsError(response.message ?? 'Erreur lors de la récupération des SMS'));
-      }
-    } catch (e) {
-      emit(SmsError('Erreur de connexion: $e'));
+    // Validation du patId
+    final patId = event.patId;
+    if (patId == null || patId.isEmpty) {
+      emit(SmsError(const ValidationFailure('ID patient manquant. Veuillez vous reconnecter.')));
+      return;
     }
+    
+    final result = await _getSmsRecus(patId);
+    
+    result.fold(
+      (failure) => emit(SmsError(failure)),
+      (smsList) => emit(SmsLoaded(smsList)),
+    );
   }
 } 

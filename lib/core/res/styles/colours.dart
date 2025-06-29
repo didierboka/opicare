@@ -12,4 +12,5 @@ abstract class Colours {
   static const Color inputBackground = Color(0xfffafafa);
   static const Color accentYellow = Color(0xfffec613);
   static const Color errorRed = Color(0xffe74c3c);
+  static const Color successGreen = Color(0xff27ae60);
 }

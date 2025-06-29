@@ -19,3 +19,8 @@
                 - Le nom
                 - Le contact
                 - Son role
+
+- Dans «Mafamille», la selection d’un membre de la famille permet d’afficher le carnet de ce membre.
+    - Mettre une indication sur son statut abonnement
+    - Pour son statut vaccinal voir M. NDRIN
+

@@ -114,7 +114,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                state.message,
+                                state.failure.message,
                                 style: TextStyles.bodyRegular.copyWith(
                                   color: Colours.secondaryText,
                                 ),

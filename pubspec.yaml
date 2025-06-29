@@ -29,7 +29,8 @@ dependencies:
   flutter_launcher_icons: ^0.14.3
   logger: ^2.5.0
   flutter_secure_storage: ^9.2.4
-
+  dartz: ^0.10.1
+  url_launcher: ^6.3.1
 
   # Firebase Core - Version compatible avec Flutter 3.27.3
   firebase_core: ^3.8.0

@@ -21,6 +21,7 @@ import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_rep
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_screen.dart';
 import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
+import 'package:opicare/features/notifications/domain/usecases/get_sms_recus_usecase.dart';
 import 'package:opicare/features/notifications/presentation/bloc/sms_bloc.dart';
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
@@ -35,6 +36,7 @@ import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart'
 import '../../features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
 import '../../features/change_password/data/repositories/change_pwd_repository.dart';
 import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
+import '../../features/notifications/domain/repositories/sms_repository.dart';
 import '../../features/profile/presentation/pages/profile_screen.dart';
 import '../../features/souscribtion/data/repositories/subscription_repository.dart';
 
@@ -84,7 +86,7 @@ final appRouter = GoRouter(
         final patientId = state.extra as String;
 
         return BlocProvider(
-          create: (_) => SmsBloc(Di.get<SmsRepository>()),
+          create: (_) => SmsBloc(Di.get<GetSmsRecus>()),
           child: NotificationScreen(patId: patientId),
         );
       },

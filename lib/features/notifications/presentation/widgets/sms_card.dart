@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
-import 'package:opicare/features/notifications/data/models/sms_model.dart';
+import 'package:opicare/features/notifications/domain/entities/sms.dart';
 
 class SmsCard extends StatelessWidget {
-  final SmsModel sms;
+  final Sms sms;
 
   const SmsCard({super.key, required this.sms});
 
@@ -45,7 +45,7 @@ class SmsCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'SMS #${sms.idMsg}',
+                      'SMS #${sms.id}',
                       style: TextStyles.bodyBold.copyWith(
                         color: Colours.primaryBlue,
                         fontSize: 14,
@@ -53,7 +53,7 @@ class SmsCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Reçu le ${formatDateFromString(sms.dateMsg)} à ${sms.heureMsg}',
+                      'Reçu le ${formatDate(sms.date)}',
                       style: TextStyles.caption.copyWith(
                         color: Colours.secondaryText,
                         fontSize: 12,
@@ -88,7 +88,7 @@ class SmsCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Envoyé le ${formatDateFromString(sms.dateEnvoi)}',
+                'De: ${sms.sender}',
                 style: TextStyles.caption.copyWith(
                   color: Colours.secondaryText,
                   fontSize: 11,
@@ -97,13 +97,15 @@ class SmsCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colours.accentYellow.withOpacity(0.1),
+                  color: sms.isRead 
+                    ? Colours.successGreen.withOpacity(0.1)
+                    : Colours.accentYellow.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'SMS',
+                  sms.isRead ? 'Lu' : 'Non lu',
                   style: TextStyles.caption.copyWith(
-                    color: Colours.accentYellow,
+                    color: sms.isRead ? Colours.successGreen : Colours.accentYellow,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -114,5 +116,9 @@ class SmsCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} à ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 } 

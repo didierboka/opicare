@@ -16,6 +16,9 @@ import 'package:opicare/features/hopitaux/data/repositories/hopitaux_repository.
 import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
 import 'package:opicare/features/notifications/data/models/sms_model.dart';
 import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
+import 'package:opicare/features/notifications/domain/repositories/sms_repository.dart' as domain;
+import 'package:opicare/features/notifications/domain/usecases/get_sms_recus_usecase.dart';
+import 'package:opicare/features/notifications/presentation/bloc/sms_bloc.dart';
 import 'package:opicare/features/plan_abonnement/data/models/formule_model.dart';
 import 'package:opicare/features/plan_abonnement/data/repositories/formule_repository.dart';
 import 'package:opicare/features/souscribtion/data/models/formule.dart';
@@ -212,8 +215,18 @@ class Di {
     );
 
     // SMS Repository - Gestion des SMS reçus
-    _getIt.registerLazySingleton<SmsRepository>(
+    _getIt.registerLazySingleton<domain.SmsRepository>(
       () => SmsRepositoryImpl(_getIt<ApiService<SmsModel>>()),
+    );
+
+    // SMS Use Cases
+    _getIt.registerLazySingleton<GetSmsRecus>(
+      () => GetSmsRecus(_getIt<domain.SmsRepository>()),
+    );
+
+    // SMS Bloc
+    _getIt.registerFactory<SmsBloc>(
+      () => SmsBloc(_getIt<GetSmsRecus>()),
     );
 
     // Change Password Repository - Changement de mot de passe
