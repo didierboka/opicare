@@ -21,6 +21,11 @@ import 'package:opicare/features/notifications/domain/usecases/get_sms_recus_use
 import 'package:opicare/features/notifications/presentation/bloc/sms_bloc.dart';
 import 'package:opicare/features/plan_abonnement/data/models/formule_model.dart';
 import 'package:opicare/features/plan_abonnement/data/repositories/formule_repository.dart';
+import 'package:opicare/features/sante_infos/data/datasources/sante_info_remote_datasource.dart';
+import 'package:opicare/features/sante_infos/data/repositories/sante_info_repository_impl.dart';
+import 'package:opicare/features/sante_infos/domain/repositories/sante_info_repository.dart';
+import 'package:opicare/features/sante_infos/domain/usecases/get_sante_info_usecase.dart';
+import 'package:opicare/features/sante_infos/presentation/bloc/sante_info_bloc.dart';
 import 'package:opicare/features/souscribtion/data/models/formule.dart';
 import 'package:opicare/features/souscribtion/data/models/type_abo_model.dart';
 import 'package:opicare/features/souscribtion/data/repositories/subscription_repository.dart';
@@ -237,6 +242,30 @@ class Di {
     // Responsable Model Repository - Gestion des responsables
     _getIt.registerLazySingleton<HopitauxRepository>(
       () => HopitauxRepositoryImpl(),
+    );
+
+    // Santé Info Data Source - Source de données pour les informations de santé
+    _getIt.registerLazySingleton<SanteInfoRemoteDataSource>(
+      () => SanteInfoRemoteDataSourceImpl(
+        apiService: _getIt<ApiService<dynamic>>(),
+      ),
+    );
+
+    // Santé Info Repository - Gestion des informations de santé
+    _getIt.registerLazySingleton<SanteInfoRepository>(
+      () => SanteInfoRepositoryImpl(
+        remoteDataSource: _getIt<SanteInfoRemoteDataSource>(),
+      ),
+    );
+
+    // Santé Info Use Cases
+    _getIt.registerLazySingleton<GetSanteInfo>(
+      () => GetSanteInfo(_getIt<SanteInfoRepository>()),
+    );
+
+    // Santé Info Bloc
+    _getIt.registerFactory<SanteInfoBloc>(
+      () => SanteInfoBloc(getSanteInfo: _getIt<GetSanteInfo>()),
     );
   }
 

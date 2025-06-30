@@ -11,9 +11,10 @@ import '../constants/api_url.dart';
 class ApiService<T> {
   final String baseUrl;
   final String baseUrlAgent;
+  final String baseUrlOrange;
   final T Function(Map<String, dynamic>) fromJson;
 
-  ApiService({this.baseUrl = ApiUrl.prod, this.baseUrlAgent = ApiUrl.prodAgent, required this.fromJson});
+  ApiService({this.baseUrl = ApiUrl.prod, this.baseUrlAgent = ApiUrl.prodAgent, this.baseUrlOrange = ApiUrl.prodOrange, required this.fromJson});
 
 
   Future<CustomResponse<T>> get(String endpoint) async {
@@ -26,9 +27,19 @@ class ApiService<T> {
     }
   }
 
-  Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true, bool likeAgent = false}) async {
+  Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true, bool likeAgent = false, bool likeOrange = false}) async {
     print("START API SERVICE POST");
-    final url = Uri.parse(likeAgent ? '$baseUrlAgent$endpoint' : '$baseUrl$endpoint');
+    //  final url = Uri.parse(likeAgent ? '$baseUrlAgent$endpoint' : '$baseUrl$endpoint');
+    late Uri url;
+
+    if (likeAgent) {
+      url = Uri.parse('$baseUrlAgent$endpoint');
+    } else if (likeOrange) {
+      url = Uri.parse('$baseUrlOrange$endpoint');
+    } else {
+      url = Uri.parse('$baseUrl$endpoint');
+    }
+
 
     print("${url.toString()} ${data.toString()}");
 

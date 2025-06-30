@@ -290,13 +290,14 @@ class MonProfilScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           // Image du carnet (peut être base64 ou URL)
-                          // FlexibleImageWidget(
-                          //   imageSource: user.carnetPhoto,
-                          //   height: 300,
-                          //   isBase64: true,
-                          // ),
-                          // const SizedBox(height: 8),
-                          // const Text('Photo du carnet', style: TextStyles.bodyBold),
+                          FlexibleImageWidget(
+                            imageSource: user.carnetPhoto,
+                            height: 300,
+                            isBase64: true,
+                          ),
+                          const SizedBox(height: 8),
+
+                          const Text('Photo du carnet', style: TextStyles.bodyBold),
                           const SizedBox(height: 16),
 
                           // Image de profil (si disponible)

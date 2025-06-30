@@ -2,7 +2,7 @@
 
 
 🚨 Nouvelles fonctionnalités
-- Liste des vaccins du client
+- Modification de la recherche des centres
 
 ✏️ Corrections
 - N/A

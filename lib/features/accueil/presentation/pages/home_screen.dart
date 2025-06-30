@@ -1,8 +1,7 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/di.dart';
 import 'package:opicare/core/helpers/subscription_helper.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
@@ -18,21 +17,18 @@ import 'package:opicare/features/carnet_sante/presentation/pages/carnet_sante_sc
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
 import 'package:opicare/features/profile/presentation/pages/profile_screen.dart';
+import 'package:opicare/features/sante_infos/presentation/bloc/sante_info_bloc.dart';
+import 'package:opicare/features/sante_infos/presentation/widgets/sante_info_card.dart';
 import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_screen.dart';
 
 import '../../../disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-
-
   static const path = '/home';
-
 
   HomeScreen({super.key});
 
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
 
   void _showSubscriptionExpiredDialog(BuildContext context) {
     showDialog(
@@ -61,7 +57,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-
   void _showCarnetAccessDeniedDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -88,7 +83,6 @@ class HomeScreen extends StatelessWidget {
       },
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -165,24 +159,9 @@ class HomeScreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       children: [
-                        HomeCard(
-                          title: 'OPISMS,\nMon e-carnet',
-                          subtitle: 'Se vacciner, c\'est prévenir',
-                          buttonText: 'Voir carnet',
-                          backgroundColor: Colours.homeCardSecondaryButtonBlue,
-                          buttonColor: Colours.accentYellow,
-                          imageAsset: Media.vaccination,
-                          onTap: () {
-                            if (isSubscriptionExpired) {
-                              _showSubscriptionExpiredDialog(context);
-                              return;
-                            }
-                            if (SubscriptionHelper.canAccessCarnet(user)) {
-                              context.go(CarnetSanteScreen.path);
-                            } else {
-                              _showCarnetAccessDeniedDialog(context);
-                            }
-                          },
+                        BlocProvider(
+                          create: (context) => Di.get<SanteInfoBloc>()..add(const GetSanteInfoEvent()),
+                          child: const SanteInfoCard(),
                         ),
                         const SizedBox(width: 16),
                         HomeCard(
