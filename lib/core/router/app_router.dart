@@ -29,6 +29,7 @@ import 'package:opicare/features/souscribtion/presentation/bloc/souscription/sou
 import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_screen.dart';
 import 'package:opicare/features/welcome/app_wrapper.dart';
 import 'package:opicare/features/welcome/welcome.dart';
+import 'package:opicare/features/api_test/presentation/pages/api_test_page.dart';
 
 import '../../features/accueil/presentation/pages/home_screen.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
@@ -43,6 +44,10 @@ import '../../features/souscribtion/data/repositories/subscription_repository.da
 final appRouter = GoRouter(
   initialLocation: AppWrapper.path,
   routes: [
+    GoRoute(
+      path: ApiTestPage.path,
+      builder: (context, state) => const ApiTestPage(),
+    ),
     GoRoute(
       path: AppWrapper.path,
       builder: (context, state) => const AppWrapper(),

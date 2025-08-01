@@ -12,7 +12,9 @@ import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_v
 import 'package:opicare/features/famille/data/models/family_member.dart';
 import 'package:opicare/features/famille/data/repositories/family_repository.dart';
 import 'package:opicare/features/hopitaux/data/models/responsable_model.dart';
+import 'package:opicare/features/hopitaux/data/models/type_visite_model.dart';
 import 'package:opicare/features/hopitaux/data/repositories/hopitaux_repository.dart';
+import 'package:opicare/features/hopitaux/data/repositories/type_visite_repository.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
 import 'package:opicare/features/notifications/data/models/sms_model.dart';
 import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
@@ -32,6 +34,17 @@ import 'package:opicare/features/souscribtion/data/repositories/subscription_rep
 import 'package:opicare/features/user/data/models/user_model.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
+import 'package:opicare/features/vaccin_info/data/datasources/vaccin_info_remote_datasource.dart';
+import 'package:opicare/features/vaccin_info/data/datasources/vaccin_list_remote_datasource.dart';
+import 'package:opicare/features/vaccin_info/data/models/vaccin_detail_model.dart';
+import 'package:opicare/features/vaccin_info/data/models/vaccin_list_model.dart';
+import 'package:opicare/features/vaccin_info/data/repositories/vaccin_info_repository_impl.dart';
+import 'package:opicare/features/vaccin_info/data/repositories/vaccin_list_repository_impl.dart';
+import 'package:opicare/features/vaccin_info/domain/repositories/vaccin_info_repository.dart';
+import 'package:opicare/features/vaccin_info/domain/repositories/vaccin_list_repository.dart';
+import 'package:opicare/features/vaccin_info/domain/usecases/get_vaccin_info_usecase.dart';
+import 'package:opicare/features/vaccin_info/domain/usecases/get_vaccin_list_usecase.dart';
+import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.dart';
 
 /// * Jun, 2025
 /// * Created by didierboka on 18/06/2025.
@@ -169,6 +182,21 @@ class Di {
       () => ApiService<ResponsableModel>(fromJson: ResponsableModel.fromJson),
     );
 
+    // API Service pour VaccinListModel - Liste des vaccins
+    _getIt.registerLazySingleton<ApiService<VaccinListModel>>(
+      () => ApiService<VaccinListModel>(fromJson: VaccinListModel.fromJson),
+    );
+
+    // API Service pour VaccinDetailModel - Détails d'un vaccin
+    _getIt.registerLazySingleton<ApiService<VaccinDetailModel>>(
+      () => ApiService<VaccinDetailModel>(fromJson: VaccinDetailModel.fromJson),
+    );
+
+    // API Service pour TypeVisiteModel - Types de visite
+    _getIt.registerLazySingleton<ApiService<TypeVisiteModel>>(
+      () => ApiService<TypeVisiteModel>(fromJson: TypeVisiteModel.fromJson),
+    );
+
     // API Service générique pour les réponses dynamiques
     _getIt.registerFactory<ApiService<dynamic>>(
       () => ApiService<dynamic>(fromJson: (json) => true),
@@ -244,6 +272,11 @@ class Di {
       () => HopitauxRepositoryImpl(),
     );
 
+    // Type Visite Repository - Gestion des types de visite
+    _getIt.registerLazySingleton<TypeVisiteRepository>(
+      () => TypeVisiteRepositoryImpl(),
+    );
+
     // Santé Info Data Source - Source de données pour les informations de santé
     _getIt.registerLazySingleton<SanteInfoRemoteDataSource>(
       () => SanteInfoRemoteDataSourceImpl(
@@ -266,6 +299,52 @@ class Di {
     // Santé Info Bloc
     _getIt.registerFactory<SanteInfoBloc>(
       () => SanteInfoBloc(getSanteInfo: _getIt<GetSanteInfo>()),
+    );
+
+    // Vaccin List Data Source
+    _getIt.registerLazySingleton<VaccinListRemoteDataSource>(
+      () => VaccinListRemoteDataSourceImpl(
+        apiService: _getIt<ApiService<VaccinListModel>>(),
+      ),
+    );
+
+    // Vaccin List Repository
+    _getIt.registerLazySingleton<VaccinListRepository>(
+      () => VaccinListRepositoryImpl(
+        remoteDataSource: _getIt<VaccinListRemoteDataSource>(),
+      ),
+    );
+
+    // Vaccin List Use Cases
+    _getIt.registerLazySingleton<GetVaccinListUseCase>(
+      () => GetVaccinListUseCase(_getIt<VaccinListRepository>()),
+    );
+
+    // Vaccin Info Data Source
+    _getIt.registerLazySingleton<VaccinInfoRemoteDataSource>(
+      () => VaccinInfoRemoteDataSourceImpl(
+        apiService: _getIt<ApiService<VaccinDetailModel>>(),
+      ),
+    );
+
+    // Vaccin Info Repository
+    _getIt.registerLazySingleton<VaccinInfoRepository>(
+      () => VaccinInfoRepositoryImpl(
+        remoteDataSource: _getIt<VaccinInfoRemoteDataSource>(),
+      ),
+    );
+
+    // Vaccin Info Use Cases
+    _getIt.registerLazySingleton<GetVaccinInfo>(
+      () => GetVaccinInfo(_getIt<VaccinInfoRepository>()),
+    );
+
+    // Vaccin Info Bloc
+    _getIt.registerFactory<VaccinInfoBloc>(
+      () => VaccinInfoBloc(
+        getVaccinListUseCase: _getIt<GetVaccinListUseCase>(),
+        getVaccinInfo: _getIt<GetVaccinInfo>(),
+      ),
     );
   }
 

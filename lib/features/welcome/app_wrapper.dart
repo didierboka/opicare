@@ -12,14 +12,17 @@ class AppWrapper extends StatelessWidget {
   static const path = '/';
 
   @override
-  @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
         logger.i("AppWrapper state: ${state.runtimeType}");
 
         if (state is AuthLoading) {
-          return const WelcomeScreen(); // Or loading screen
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
 
         if (state is AuthAuthenticated) {
@@ -35,7 +38,8 @@ class AppWrapper extends StatelessWidget {
           }
         }
 
-        return const LoginPage();
+        // Si non authentifié, afficher la page de bienvenue
+        return const WelcomeScreen();
       },
     );
   }

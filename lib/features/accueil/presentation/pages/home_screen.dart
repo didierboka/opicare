@@ -20,6 +20,8 @@ import 'package:opicare/features/profile/presentation/pages/profile_screen.dart'
 import 'package:opicare/features/sante_infos/presentation/bloc/sante_info_bloc.dart';
 import 'package:opicare/features/sante_infos/presentation/widgets/sante_info_card.dart';
 import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_screen.dart';
+import 'package:opicare/features/vaccin_info/presentation/pages/vaccin_info_screen.dart';
+import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.dart';
 
 import '../../../disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
 
@@ -218,6 +220,9 @@ class HomeScreen extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Fonctionnalité en cours de développement')),
                             );
+
+
+
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Vaccins voyage', isSubscriptionExpired),
                           onDisabledTap: () => _showSubscriptionExpiredDialog(context),
@@ -226,9 +231,14 @@ class HomeScreen extends StatelessWidget {
                           title: 'Informations sur les vaccins',
                           imageAsset: Media.infosIconGif,
                           onTap: () {
-                            // TODO: Implémenter la page informations vaccins
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider(
+                                  create: (context) => Di.get<VaccinInfoBloc>(),
+                                  child: const VaccinInfoScreen(),
+                                ),
+                              ),
                             );
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Informations sur les vaccins', isSubscriptionExpired),
