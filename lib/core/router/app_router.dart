@@ -30,6 +30,9 @@ import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_sc
 import 'package:opicare/features/welcome/app_wrapper.dart';
 import 'package:opicare/features/welcome/welcome.dart';
 import 'package:opicare/features/api_test/presentation/pages/api_test_page.dart';
+import 'package:opicare/features/vaccins_conseils/presentation/pages/vaccins_conseils_screen.dart';
+import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
+import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_conseil_usecase.dart';
 
 import '../../features/accueil/presentation/pages/home_screen.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
@@ -175,6 +178,15 @@ final appRouter = GoRouter(
           souscriptionRepository: Di.get<SouscriptionRepository>(),
         ),
         child: SouscriptionScreen(),
+      ),
+    ),
+    GoRoute(
+      path: VaccinsConseilsScreen.path,
+      builder: (context, state) => BlocProvider(
+        create: (context) => VaccinConseilBloc(
+          getVaccinConseil: Di.get<GetVaccinConseil>(),
+        ),
+        child: VaccinsConseilsScreen(),
       ),
     ),
   ],

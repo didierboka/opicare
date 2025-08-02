@@ -22,6 +22,8 @@ import 'package:opicare/features/sante_infos/presentation/widgets/sante_info_car
 import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_screen.dart';
 import 'package:opicare/features/vaccin_info/presentation/pages/vaccin_info_screen.dart';
 import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.dart';
+import 'package:opicare/features/vaccins_conseils/presentation/pages/vaccins_conseils_screen.dart';
+import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
 
 import '../../../disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
 
@@ -262,9 +264,14 @@ class HomeScreen extends StatelessWidget {
                           title: 'Vaccin conseillé',
                           imageAsset: Media.vaccination,
                           onTap: () {
-                            // TODO: Implémenter la page vaccin conseillé
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Fonctionnalité en cours de développement')),
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BlocProvider(
+                                  create: (context) => Di.get<VaccinConseilBloc>(),
+                                  child: const VaccinsConseilsScreen(),
+                                ),
+                              ),
                             );
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Vaccin conseillé', isSubscriptionExpired),

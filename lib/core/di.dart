@@ -45,6 +45,11 @@ import 'package:opicare/features/vaccin_info/domain/repositories/vaccin_list_rep
 import 'package:opicare/features/vaccin_info/domain/usecases/get_vaccin_info_usecase.dart';
 import 'package:opicare/features/vaccin_info/domain/usecases/get_vaccin_list_usecase.dart';
 import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.dart';
+import 'package:opicare/features/vaccins_conseils/data/datasources/vaccin_conseil_remote_datasource.dart';
+import 'package:opicare/features/vaccins_conseils/data/repositories/vaccin_conseil_repository_impl.dart';
+import 'package:opicare/features/vaccins_conseils/domain/repositories/vaccin_conseil_repository.dart';
+import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_conseil_usecase.dart';
+import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
 
 /// * Jun, 2025
 /// * Created by didierboka on 18/06/2025.
@@ -342,6 +347,30 @@ class Di {
       () => VaccinInfoBloc(
         getVaccinListUseCase: _getIt<GetVaccinListUseCase>(),
         getVaccinInfo: _getIt<GetVaccinInfo>(),
+      ),
+    );
+
+    // Vaccin Conseil Data Source
+    _getIt.registerLazySingleton<VaccinConseilRemoteDataSource>(
+      () => VaccinConseilRemoteDataSourceImpl(),
+    );
+
+    // Vaccin Conseil Repository
+    _getIt.registerLazySingleton<VaccinConseilRepository>(
+      () => VaccinConseilRepositoryImpl(
+        remoteDataSource: _getIt<VaccinConseilRemoteDataSource>(),
+      ),
+    );
+
+    // Vaccin Conseil Use Cases
+    _getIt.registerLazySingleton<GetVaccinConseil>(
+      () => GetVaccinConseil(_getIt<VaccinConseilRepository>()),
+    );
+
+    // Vaccin Conseil Bloc
+    _getIt.registerFactory<VaccinConseilBloc>(
+      () => VaccinConseilBloc(
+        getVaccinConseil: _getIt<GetVaccinConseil>(),
       ),
     );
   }
