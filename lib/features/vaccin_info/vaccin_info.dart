@@ -9,3 +9,7 @@ export 'presentation/bloc/vaccin_info_state.dart';
 
 // Export des pages
 export 'presentation/pages/vaccin_info_screen.dart';
+
+// Export des widgets
+export 'presentation/widgets/vaccin_card.dart';
+export 'presentation/widgets/vaccin_details_widget.dart';

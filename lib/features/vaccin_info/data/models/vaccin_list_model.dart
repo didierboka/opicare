@@ -4,36 +4,49 @@ class VaccinListModel {
   final String id;
   final String nom;
   final String typeVac;
-  final String? description;
 
   const VaccinListModel({
     required this.id,
     required this.nom,
     required this.typeVac,
-    this.description,
   });
 
   factory VaccinListModel.fromJson(Map<String, dynamic> json) {
+    // Validation des champs requis
+    final String? idVac = json['IDVAC']?.toString();
+    final String? nomVac = json['NOMVAC']?.toString();
+    final String? typeVac = json['TYPEVAC']?.toString();
+
+    if (idVac == null || idVac.isEmpty) {
+      throw FormatException('Le champ "IDVAC" est requis et ne peut pas être vide');
+    }
+
+    if (nomVac == null || nomVac.isEmpty) {
+      throw FormatException('Le champ "NOMVAC" est requis et ne peut pas être vide');
+    }
+
+    if (typeVac == null || typeVac.isEmpty) {
+      throw FormatException('Le champ "TYPEVAC" est requis et ne peut pas être vide');
+    }
+
     return VaccinListModel(
-      id: json['id']?.toString() ?? '',
-      nom: json['nom']?.toString() ?? '',
-      typeVac: json['typeVac']?.toString() ?? '',
-      description: json['description']?.toString(),
+      id: idVac,
+      nom: nomVac,
+      typeVac: typeVac,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'nom': nom,
-      'typeVac': typeVac,
-      'description': description,
+      'IDVAC': id,
+      'NOMVAC': nom,
+      'TYPEVAC': typeVac,
     };
   }
 
   @override
   String toString() {
-    return 'VaccinListModel(id: $id, nom: $nom, typeVac: $typeVac, description: $description)';
+    return 'VaccinListModel(id: $id, nom: $nom, typeVac: $typeVac)';
   }
 
   @override
@@ -42,13 +55,12 @@ class VaccinListModel {
     return other is VaccinListModel &&
         other.id == id &&
         other.nom == nom &&
-        other.typeVac == typeVac &&
-        other.description == description;
+        other.typeVac == typeVac;
   }
 
   @override
   int get hashCode {
-    return id.hashCode ^ nom.hashCode ^ typeVac.hashCode ^ description.hashCode;
+    return id.hashCode ^ nom.hashCode ^ typeVac.hashCode;
   }
 
   VaccinList toDomain() {
@@ -56,7 +68,7 @@ class VaccinListModel {
       id: id,
       nom: nom,
       typeVac: typeVac,
-      description: description,
+      description: null, // Pas de description dans la nouvelle API
     );
   }
 } 

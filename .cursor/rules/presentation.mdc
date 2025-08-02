@@ -1,6 +1,4 @@
 ---
-description: 
-globs: 
 alwaysApply: true
 ---
 You are an expert Flutter developer specializing in Clean Architecture with Feature-first organization and flutter_bloc for state management.
@@ -184,19 +182,16 @@ extension EitherExtensions<L, R> on Either<L, R> {
 
 ## Implementation Examples
 
-### Use Case Implementation
+### UseCase Implementation
 ```
-abstract class UseCase<Type, Params> {
-  Future<Either<Failure, Type>> call(Params params);
-}
+class GetUserUseCase {
 
-class GetUser implements UseCase<User, String> {
   final UserRepository repository;
 
   GetUser(this.repository);
 
   @override
-  Future<Either<Failure, User>> call(String userId) async {
+  Future<Either<Failure, User>> execute(String userId) async {
     return await repository.getUser(userId);
   }
 }

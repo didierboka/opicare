@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/res/styles/colours.dart';
-import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.dart';
-import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_event.dart';
-import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_state.dart';
-import 'package:opicare/features/vaccin_info/presentation/widgets/vaccin_card.dart';
-import 'package:opicare/features/vaccin_info/presentation/widgets/vaccin_details_widget.dart';
+import 'package:opicare/features/vaccin_info/vaccin_info.dart';
 
 class VaccinInfoScreen extends StatefulWidget {
+
   const VaccinInfoScreen({Key? key}) : super(key: key);
 
   @override
@@ -15,7 +12,10 @@ class VaccinInfoScreen extends StatefulWidget {
 }
 
 class _VaccinInfoScreenState extends State<VaccinInfoScreen> {
+
+
   String? selectedType;
+
 
   final List<String> vaccinTypes = [
     'FEMME ENCEINTE',
@@ -23,12 +23,14 @@ class _VaccinInfoScreenState extends State<VaccinInfoScreen> {
     'ENFANT',
   ];
 
+
   @override
   void initState() {
     super.initState();
     // Charger la liste des vaccins au démarrage
     context.read<VaccinInfoBloc>().add(const LoadVaccinList());
   }
+
 
   @override
   Widget build(BuildContext context) {

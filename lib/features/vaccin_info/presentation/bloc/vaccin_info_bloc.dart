@@ -82,7 +82,7 @@ class VaccinInfoBloc extends Bloc<VaccinInfoEvent, VaccinInfoState> {
     }
 
     emit(VaccinInfoLoading());
-    final result = await getVaccinInfo(event.vaccinId);
+    final result = await getVaccinInfo.call(event.vaccinId);
 
     result.fold(
       (failure) => emit(VaccinInfoError(failure.message)),
