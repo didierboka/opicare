@@ -322,9 +322,7 @@ class Di {
 
     // Vaccin Info Data Source
     _getIt.registerLazySingleton<VaccinInfoRemoteDataSource>(
-      () => VaccinInfoRemoteDataSourceImpl(
-        apiService: _getIt<ApiService<VaccinDetailModel>>(),
-      ),
+      () => VaccinInfoRemoteDataSourceImpl(),
     );
 
     // Vaccin Info Repository

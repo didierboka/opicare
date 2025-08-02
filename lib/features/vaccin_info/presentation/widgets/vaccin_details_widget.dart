@@ -87,15 +87,45 @@ class VaccinDetailsWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: vaccinDetails.messages.map((message) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(
-                            message,
-                            style: Theme.of(context).textTheme.bodyMedium,
+                      children: [
+                        if (vaccinDetails.statut == 1 && vaccinDetails.messages.isNotEmpty)
+                          ...vaccinDetails.messages.map((message) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: Text(
+                                message,
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            );
+                          }).toList()
+                        else
+                          Column(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                size: 48,
+                                color: Colors.blue[300],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Aucune information détaillée disponible',
+                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[600],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Les informations détaillées pour ce vaccin ne sont pas encore disponibles dans notre base de données.',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: Colors.grey[500],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
                           ),
-                        );
-                      }).toList(),
+                      ],
                     ),
                   ),
                 ),

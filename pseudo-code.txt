@@ -1,9 +1,0 @@
-# INFORMATION SUR UN VACCIN
-- Comme la page "Retrouver les hopitaux"
-- on selectionne un type de vaccin (FEMME ENCEINTE, ADULTE, ENFANT)
-- on charge une liste de vaccins independamment du type de vaccin via cette api : /listedescodesvaccins, la base url est "prod" dans @ApiUrl
-- une fois la liste des vaccins chargee
-- on popule la liste de vaccins correspondant au type transformer en minuscule de vaccin selectionne
-- le filtre des vaccins a populer est base sur la propriete "TYPEVAC" de la liste des vaccins chargee
-- une fois le vaccin selectionne, on affiche le details des infos du vaccin via cette api : /vaccin/vaccinsInfos, la base url est "prodOrange" dans @ApiUrl
-- les infos a affichees se retrouvent dans la propriete "message" de la reponse de l'api comment "sante infos"

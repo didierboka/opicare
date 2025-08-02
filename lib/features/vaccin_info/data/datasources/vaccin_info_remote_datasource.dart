@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'dart:developer';
-
-import 'package:opicare/core/network/api_service.dart';
+import 'package:http/http.dart' as http;
 import 'package:opicare/features/vaccin_info/data/models/vaccin_detail_model.dart';
 
 abstract class VaccinInfoRemoteDataSource {
@@ -8,30 +8,34 @@ abstract class VaccinInfoRemoteDataSource {
 }
 
 class VaccinInfoRemoteDataSourceImpl implements VaccinInfoRemoteDataSource {
-  final ApiService apiService;
-
-  VaccinInfoRemoteDataSourceImpl({required this.apiService});
 
   @override
   Future<VaccinDetailModel> getVaccinInfo(String vaccinId) async {
     try {
-      final response = await apiService.post(
-        '/vaccin/vaccinsInfos',
-        likeOrange: true,
-        {
-          "transactionID": "12345",
-          "vaccinID": vaccinId,
+      const String baseUrl = 'https://e-sante.ci/api/orange/ussd';
+      const String endpoint = '/vaccin/vaccinsInfos';
+      const String url = '$baseUrl$endpoint';
+      
+      final Map<String, dynamic> requestData = {
+        "transactionID": "12345",
+        "vaccinID": vaccinId,
+      };
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: jsonEncode(requestData),
       );
 
-      final vaccinDetailModel = VaccinDetailModel.fromJson(response.response!);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        final vaccinDetailModel = VaccinDetailModel.fromJson(responseData);
 
-      log("VACCIN INFO EXTRAIT -> OKOK");
-
-      if (vaccinDetailModel.statut == 1 && vaccinDetailModel.messages.isNotEmpty) {
         return vaccinDetailModel;
       } else {
-        throw Exception('Aucune information disponible pour ce vaccin');
+        throw Exception('Erreur HTTP: ${response.statusCode}');
       }
 
     } catch (e) {

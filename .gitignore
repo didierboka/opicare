@@ -54,3 +54,9 @@ app.*.map.json
 pubspec.lock
 pseudo-code.txt
 temp.json
+
+*.md
+
+!/README.md
+!/RELEASE_NOTES.md
+!/CHANGELOG.md

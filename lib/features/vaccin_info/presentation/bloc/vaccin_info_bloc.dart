@@ -82,10 +82,13 @@ class VaccinInfoBloc extends Bloc<VaccinInfoEvent, VaccinInfoState> {
     }
 
     emit(VaccinInfoLoading());
+    
     final result = await getVaccinInfo.call(event.vaccinId);
 
     result.fold(
-      (failure) => emit(VaccinInfoError(failure.message)),
+      (failure) {
+        emit(VaccinInfoError(failure.message));
+      },
       (vaccinInfo) {
         if (previousState != null) {
           final selectedVaccin = previousState.allVaccins.firstWhere((vaccin) => vaccin.id == event.vaccinId);
