@@ -2,7 +2,8 @@
 
 
 🚨 Nouvelles fonctionnalités
-- Modification de la recherche des centres
+- Informations sur les vaccins
+- Vaccin Conseillé
 
 ✏️ Corrections
 - N/A

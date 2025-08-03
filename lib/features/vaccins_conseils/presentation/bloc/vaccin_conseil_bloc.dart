@@ -4,7 +4,7 @@ import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conse
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_state.dart';
 
 class VaccinConseilBloc extends Bloc<VaccinConseilEvent, VaccinConseilState> {
-  final GetVaccinConseil getVaccinConseil;
+  final GetVaccinConseilUseCase getVaccinConseil;
 
   VaccinConseilBloc({required this.getVaccinConseil}) : super(VaccinConseilInitial()) {
     on<GetVaccinConseilEvent>(_onGetVaccinConseil);

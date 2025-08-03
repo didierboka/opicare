@@ -176,6 +176,8 @@ extension EitherExtensions<L, R> on Either<L, R> {
 - Keep functions small and focused (under 30 lines)
 - Apply SOLID principles throughout the codebase
 - Use meaningful naming for classes, methods, and variables
+- Models class must write with pattern xxxxModel
+- Entities class must write with pattern xxxxEntity
 - Document public APIs and complex logic
 - Implement proper null safety
 - Use value objects for domain-specific types

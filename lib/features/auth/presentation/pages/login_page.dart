@@ -8,8 +8,11 @@ import 'package:opicare/features/auth/presentation/pages/register_page.dart';
 import 'package:opicare/features/auth/presentation/widgets/login_form.dart';
 
 class LoginPage extends StatelessWidget {
+
+
   const LoginPage({super.key});
   static const path = '/login';
+
 
   @override
   Widget build(BuildContext context) {

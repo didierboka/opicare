@@ -184,7 +184,7 @@ final appRouter = GoRouter(
       path: VaccinsConseilsScreen.path,
       builder: (context, state) => BlocProvider(
         create: (context) => VaccinConseilBloc(
-          getVaccinConseil: Di.get<GetVaccinConseil>(),
+          getVaccinConseil: Di.get<GetVaccinConseilUseCase>(),
         ),
         child: VaccinsConseilsScreen(),
       ),

@@ -363,14 +363,14 @@ class Di {
     );
 
     // Vaccin Conseil Use Cases
-    _getIt.registerLazySingleton<GetVaccinConseil>(
-      () => GetVaccinConseil(_getIt<VaccinConseilRepository>()),
+    _getIt.registerLazySingleton<GetVaccinConseilUseCase>(
+      () => GetVaccinConseilUseCase(_getIt<VaccinConseilRepository>()),
     );
 
     // Vaccin Conseil Bloc
     _getIt.registerFactory<VaccinConseilBloc>(
       () => VaccinConseilBloc(
-        getVaccinConseil: _getIt<GetVaccinConseil>(),
+        getVaccinConseil: _getIt<GetVaccinConseilUseCase>(),
       ),
     );
   }
