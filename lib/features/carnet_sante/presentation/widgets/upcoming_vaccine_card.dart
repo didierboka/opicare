@@ -15,7 +15,7 @@ class UpcomingVaccineCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       color: const Color(0xFFF0F8FF), // Couleur de fond bleu clair pour indiquer l'avenir
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -37,12 +37,12 @@ class UpcomingVaccineCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildDetailRow('Date prévue', formatDateFromString(upcomingVaccine.dueDate)),
             _buildDetailRow('Description', upcomingVaccine.description),
             if (upcomingVaccine.centerName.isNotEmpty)
               _buildDetailRow('Centre', upcomingVaccine.centerName),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -65,7 +65,7 @@ class UpcomingVaccineCard extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
           Text(

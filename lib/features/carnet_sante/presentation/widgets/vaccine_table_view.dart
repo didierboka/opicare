@@ -120,7 +120,7 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             itemCount: state.vaccines.length,
             itemBuilder: (context, index) {
               final vaccine = state.vaccines[index];
@@ -151,7 +151,7 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             itemCount: state.missedVaccines.length,
             itemBuilder: (context, index) {
               final missedVaccine = state.missedVaccines[index];
@@ -182,7 +182,7 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             itemCount: state.upcomingVaccines.length,
             itemBuilder: (context, index) {
               final upcomingVaccine = state.upcomingVaccines[index];

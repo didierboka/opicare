@@ -17,7 +17,7 @@ class MissedVaccineCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       color: const Color(0xFFFFF5F5), // Couleur de fond claire pour indiquer un problème
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -39,11 +39,11 @@ class MissedVaccineCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildDetailRow('Date de rappel prévue', formatDateFromString(missedVaccine.dueDate)),
             _buildDetailRow('Centre', missedVaccine.centreLabel),
             _buildDetailRow('Raison', missedVaccine.reason),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Row(
               children: [
                 Container(
@@ -84,7 +84,7 @@ class MissedVaccineCard extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
           Text(

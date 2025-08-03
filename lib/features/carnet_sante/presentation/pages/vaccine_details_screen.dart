@@ -31,6 +31,8 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
     _selectedImagePath = widget.vaccine.photoPath;
   }
 
+  bool get _hasUnsavedChanges => _selectedImagePath != widget.vaccine.photoPath;
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<CarnetBloc, CarnetState>(
@@ -48,14 +50,14 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
           scaffoldKey: GlobalKey<ScaffoldState>(),
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildVaccineInfo(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               _buildPhotoSection(),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
               _buildUpdateButton(),
             ],
           ),
@@ -67,7 +69,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
   Widget _buildVaccineInfo() {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -77,7 +79,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
                 color: Colours.primaryBlue,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _buildInfoRow('Date de rappel', formatDateFromString(widget.vaccine.recallDate)),
             _buildInfoRow('Date d\'administration', formatDateFromString(widget.vaccine.presenceDate)),
             _buildInfoRow('Numéro de lot', widget.vaccine.lotNumber),
@@ -90,7 +92,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -118,33 +120,46 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
   Widget _buildPhotoSection() {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Photo du vaccin',
-              style: TextStyles.titleMedium.copyWith(
-                color: Colours.primaryBlue,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Photo du vaccin',
+                  style: TextStyles.titleMedium.copyWith(
+                    color: Colours.primaryBlue,
+                  ),
+                ),
+                if (_selectedImagePath != null && _selectedImagePath != widget.vaccine.photoPath)
+                  IconButton(
+                    onPressed: () {
+                      _showRestoreConfirmation();
+                    },
+                    icon: const Icon(Icons.undo, color: Colours.primaryBlue),
+                    tooltip: 'Retour à la photo originale',
+                  ),
+              ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             if (_selectedImagePath != null) ...[
               _buildImagePreview(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
             Row(
               children: [
                 Expanded(
                   child: CustomButton(
-                    text: 'Prendre une photo',
+                    text: '📷 Photo',
                     onPressed: _takePhoto,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: CustomButton(
-                    text: 'Choisir depuis la galerie',
+                    text: '🎆 Galerie',
                     onPressed: _pickFromGallery,
                     backgroundColor: Colors.grey[200],
                     textColor: Colours.primaryText,
@@ -161,7 +176,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
   Widget _buildImagePreview() {
     return Container(
       width: double.infinity,
-      height: 200,
+      height: 180,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colours.inputBorder),
@@ -181,12 +196,28 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
       builder: (context, state) {
         final isLoading = state is UpdateVaccinePhotoLoading;
         
-        return SizedBox(
-          width: double.infinity,
-          child: CustomButton(
-            text: isLoading ? 'Mise à jour...' : 'Mise à jour',
-            onPressed: isLoading ? () {} : _updateVaccine,
-          ),
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: CustomButton(
+                    text: 'Retour',
+                    onPressed: () => _handleBackNavigation(),
+                    backgroundColor: Colors.grey[200],
+                    textColor: Colours.primaryText,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: CustomButton(
+                    text: isLoading ? 'Mise à jour...' : 'Mise à jour',
+                    onPressed: isLoading ? () {} : _updateVaccine,
+                  ),
+                ),
+              ],
+            ),
+          ],
         );
       },
     );
@@ -285,5 +316,61 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
         backgroundColor: Colors.green,
       ),
     );
+  }
+
+  void _showRestoreConfirmation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Restaurer la photo originale'),
+          content: const Text('Voulez-vous revenir à la photo originale ? Cette action ne peut pas être annulée.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _selectedImagePath = widget.vaccine.photoPath;
+                });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Restaurer'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleBackNavigation() {
+    if (_hasUnsavedChanges) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Modifications non sauvegardées'),
+            content: const Text('Vous avez des modifications non sauvegardées. Voulez-vous vraiment quitter sans sauvegarder ?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('Annuler'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.pop(context);
+                },
+                child: const Text('Quitter'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      Navigator.pop(context);
+    }
   }
 } 

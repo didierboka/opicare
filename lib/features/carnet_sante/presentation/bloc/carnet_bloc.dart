@@ -242,20 +242,16 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     emit(UpdateVaccinePhotoLoading());
 
     try {
-      // TODO: Implement update vaccine photo in repository
-      // final response = await repository.updateVaccinePhoto(
-      //   vaccineId: event.vaccineId,
-      //   photoPath: event.photoPath,
-      // );
+      final response = await repository.updateVaccinePhoto(
+        vaccineId: event.vaccineId,
+        photoPath: event.photoPath,
+      );
 
-      // if (response.status) {
-      //   emit(UpdateVaccinePhotoSuccess(response.message ?? 'Photo mise à jour avec succès'));
-      // } else {
-      //   emit(UpdateVaccinePhotoFailure(response.message ?? 'Erreur lors de la mise à jour'));
-      // }
-
-      // Temporary success for now
-      emit(UpdateVaccinePhotoSuccess('Photo mise à jour avec succès'));
+      if (response.status) {
+        emit(UpdateVaccinePhotoSuccess(response.message ?? 'Photo mise à jour avec succès'));
+      } else {
+        emit(UpdateVaccinePhotoFailure(response.message ?? 'Erreur lors de la mise à jour'));
+      }
     } catch (e) {
       emit(UpdateVaccinePhotoFailure('Erreur lors de la mise à jour: $e'));
     }

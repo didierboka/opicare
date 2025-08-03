@@ -41,6 +41,8 @@ import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart'
 import '../../features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
 import '../../features/carnet_sante/presentation/pages/vaccine_details_screen.dart';
 import '../../features/carnet_sante/data/models/vaccine.dart';
+import '../../features/carnet_sante/presentation/bloc/carnet_bloc.dart';
+import '../../features/carnet_sante/data/repositories/carnet_repository.dart';
 import '../../features/change_password/data/repositories/change_pwd_repository.dart';
 import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import '../../features/notifications/domain/repositories/sms_repository.dart';
@@ -113,7 +115,12 @@ final appRouter = GoRouter(
         if (vaccine == null) {
           return CarnetSanteScreen();
         }
-        return VaccineDetailsScreen(vaccine: vaccine);
+        return BlocProvider(
+          create: (context) => CarnetBloc(
+            repository: Di.get<CarnetRepository>(),
+          ),
+          child: VaccineDetailsScreen(vaccine: vaccine),
+        );
       },
     ),
     GoRoute(

@@ -20,7 +20,7 @@ class HealthCardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colours.homeCardSecondaryButtonBlue,
       ),
@@ -37,12 +37,12 @@ class HealthCardHeader extends StatelessWidget {
               children: [
                 Text(title,
                     style: TextStyles.bodyBold.copyWith(color: Colors.white)),
-                const SizedBox(height: 5),
+                const SizedBox(height: 4),
                 RichText(
                   text: TextSpan(
                     text: '$highlightText ',
                     style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         color: Colours.accentYellow,
                         fontWeight: FontWeight.bold),
                     children: [

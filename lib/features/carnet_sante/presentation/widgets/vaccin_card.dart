@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
@@ -16,7 +17,7 @@ class VaccineCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -26,12 +27,12 @@ class VaccineCard extends StatelessWidget {
                 color: Colours.primaryBlue,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             _buildDetailRow('Date de rappel', formatDateFromString(vaccine.recallDate)),
             _buildDetailRow('Date d\'administration', formatDateFromString(vaccine.presenceDate)),
             _buildDetailRow('Numéro de lot', vaccine.lotNumber),
             ///_buildDetailRow('Centre de vaccination', vaccine.centerName),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
             _buildPhotoSection(),
           ],
         ),
@@ -41,7 +42,7 @@ class VaccineCard extends StatelessWidget {
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         children: [
           Text(
@@ -91,18 +92,13 @@ class VaccineCard extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           CustomButton(
             text: 'Joindre une image',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VaccineDetailsScreen(vaccine: vaccine),
-                ),
-              );
+              context.push(VaccineDetailsScreen.path, extra: vaccine);
             },
-            height: 40,
+            height: 36,
             backgroundColor: Colors.grey[200],
             textColor: Colours.primaryText,
           ),

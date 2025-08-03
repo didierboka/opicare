@@ -19,6 +19,11 @@ abstract class CarnetRepository {
     required String districtId,
     required String regionId
   });
+
+  Future<CustomResponse<Map<String, dynamic>>> updateVaccinePhoto({
+    required String vaccineId,
+    required String photoPath,
+  });
 }
 
 class CarnetRepositoryImpl implements CarnetRepository {
@@ -83,6 +88,28 @@ class CarnetRepositoryImpl implements CarnetRepository {
         "patId": patientId,
         "vacId": vaccineId,
         "dtRap": newDate.toIso8601String().split('T')[0]
+      }
+    );
+
+    return response;
+  }
+
+  @override
+  Future<CustomResponse<Map<String, dynamic>>> updateVaccinePhoto({
+    required String vaccineId,
+    required String photoPath,
+  }) async {
+    final ApiService<Map<String, dynamic>> updatePhotoApiService = ApiService(
+      fromJson: (json) => json,
+    );
+
+    final response = await updatePhotoApiService.post(
+      '/vaccin/update-photo',
+      likeAgent: true,
+      useFormData: true,
+      {
+        "vaccineId": vaccineId,
+        "photoPath": photoPath,
       }
     );
 
