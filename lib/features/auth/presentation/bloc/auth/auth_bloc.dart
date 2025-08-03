@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
 import 'package:opicare/features/auth/domain/use_cases/delete_account_usecase.dart';
+import 'package:opicare/features/auth/domain/use_cases/update_profile_photo_usecase.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 
 part 'auth_event.dart';
@@ -18,17 +20,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LocalStorageService localStorage;
   final AuthRepository authRepository;
   late final DeleteAccountUseCase deleteAccountUseCase;
+  late final UpdateProfilePhotoUseCase updateProfilePhotoUseCase;
 
   AuthBloc({
     required this.localStorage,
     required this.authRepository,
   }) : super(AuthInitial()) {
     deleteAccountUseCase = DeleteAccountUseCase(authRepository: authRepository);
+    updateProfilePhotoUseCase = UpdateProfilePhotoUseCase(authRepository: authRepository);
 
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthUserChanged>(_onUserChanged);
     on<AuthLogoutRequested>(_onLogoutRequested);
     on<DeleteAccountRequested>(_onDeleteAccountRequested);
+    on<UpdateProfilePhotoRequested>(_onUpdateProfilePhotoRequested);
   }
 
   Future _onAuthCheckRequested(
@@ -101,6 +106,53 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e) {
       logger.e("DeleteAccount: Exception in BLoC - $e");
       emit(DeleteAccountFailure('Erreur lors de la suppression du compte: $e'));
+    }
+  }
+
+  Future<void> _onUpdateProfilePhotoRequested(
+    UpdateProfilePhotoRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    logger.i("UpdateProfilePhoto: Starting update process");
+    emit(UpdateProfilePhotoLoading());
+    
+    try {
+      // Récupérer l'utilisateur actuel
+      final currentUser = await localStorage.getSavedUser();
+      if (currentUser == null) {
+        logger.e("UpdateProfilePhoto: No current user found");
+        emit(UpdateProfilePhotoFailure('Utilisateur non connecté'));
+        return;
+      }
+
+      logger.i("UpdateProfilePhoto: Current user found - ${currentUser.name}");
+      logger.i("UpdateProfilePhoto: Image file path - ${event.imageFile.path}");
+
+      // Pour l'instant, on simule un succès sans appeler l'API
+      // On crée un utilisateur mis à jour avec la nouvelle photo
+      final updatedUser = UserModel(
+        id: currentUser.id,
+        patID: currentUser.patID,
+        name: currentUser.name,
+        surname: currentUser.surname,
+        email: currentUser.email,
+        phone: currentUser.phone,
+        sex: currentUser.sex,
+        birthdate: currentUser.birthdate,
+        carnetPhoto: currentUser.carnetPhoto,
+        userPic: event.imageFile.path, // Utiliser le chemin de l'image rognée
+        dateAbon: currentUser.dateAbon,
+        dateExpiration: currentUser.dateExpiration,
+        abonnementLabel: currentUser.abonnementLabel,
+      );
+
+      logger.i("UpdateProfilePhoto: Success - updating local user with cropped image");
+      await localStorage.saveUser(updatedUser);
+      emit(AuthAuthenticated(updatedUser));
+      
+    } catch (e) {
+      logger.e("UpdateProfilePhoto: Error - $e");
+      emit(UpdateProfilePhotoFailure('Erreur lors de la mise à jour de la photo: $e'));
     }
   }
 }

@@ -18,6 +18,11 @@ abstract class AuthRepository {
   });
 
   Future<CustomResponse<DeleteAccountResponse>> deleteAccount({required String userId});
+
+  Future<CustomResponse<UserModel>> updateProfilePhoto({
+    required String userId,
+    required String base64Image,
+  });
 }
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -121,6 +126,27 @@ class AuthRepositoryImpl implements AuthRepository {
       return CustomResponse<DeleteAccountResponse>(
         status: false, 
         message: 'Erreur lors de la suppression: $e'
+      );
+    }
+  }
+
+  @override
+  Future<CustomResponse<UserModel>> updateProfilePhoto({
+    required String userId,
+    required String base64Image,
+  }) async {
+    try {
+      final response = await apiService.post('/update_user', {
+        'd': 'PROD',
+        'id': userId,
+        'photo': base64Image,
+      });
+
+      return response;
+    } catch (e) {
+      return CustomResponse<UserModel>(
+        status: false,
+        message: 'Erreur lors de la mise à jour de la photo: $e',
       );
     }
   }

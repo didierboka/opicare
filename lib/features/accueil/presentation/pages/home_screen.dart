@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -113,9 +115,13 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: CircleAvatar(
                 radius: 20,
-                backgroundImage: user.userPic != null && user.userPic.isNotEmpty ? NetworkImage("${Media.photoBaseUrl}${user.userPic}") : null,
                 backgroundColor: Colours.accentYellow,
-                child: user.userPic == null || user.userPic.isEmpty
+                backgroundImage: user.userPic.startsWith('/')
+                    ? FileImage(File(user.userPic)) as ImageProvider
+                    : (user.userPic.isNotEmpty && user.userPic != 'null' && user.userPic != 'N/A'
+                        ? NetworkImage("https://opisms.net/ecarnet/upload/photo/${user.userPic}")
+                        : NetworkImage("https://opisms.net/ecarnet/upload/photo/default_profile.jpg")),
+                child: (user.userPic.isEmpty || user.userPic == 'null' || user.userPic == 'N/A')
                     ? Icon(
                         Icons.person,
                         color: Colours.homeCardSecondaryBlue,

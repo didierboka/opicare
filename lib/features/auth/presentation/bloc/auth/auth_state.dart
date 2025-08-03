@@ -20,6 +20,13 @@ class DeleteAccountSuccess extends AuthState {
   DeleteAccountSuccess(this.message);
 }
 
+class UpdateProfilePhotoLoading extends AuthState {}
+
+class UpdateProfilePhotoFailure extends AuthState {
+  final String message;
+  UpdateProfilePhotoFailure(this.message);
+}
+
 class DeleteAccountFailure extends AuthState {
   final String message;
   DeleteAccountFailure(this.message);

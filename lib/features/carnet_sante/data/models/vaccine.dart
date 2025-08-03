@@ -6,6 +6,7 @@ class Vaccine {
   final String lotNumber;
   final String centerName;
   final String patientId;
+  final String? photoPath;
 
   Vaccine({
     required this.id,
@@ -15,6 +16,7 @@ class Vaccine {
     required this.lotNumber,
     required this.centerName,
     required this.patientId,
+    this.photoPath,
   });
 
   factory Vaccine.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class Vaccine {
       lotNumber: json['LOVAC'] ?? '',
       centerName: json['NOMCENTR'] ?? '',
       patientId: json['IDPAT'] ?? '',
+      photoPath: json['PHOTO_PATH'],
     );
   }
 }

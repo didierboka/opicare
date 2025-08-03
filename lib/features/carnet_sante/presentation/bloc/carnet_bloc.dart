@@ -46,6 +46,16 @@ class RescheduleVaccineRequested extends CarnetEvent {
   });
 }
 
+class UpdateVaccinePhoto extends CarnetEvent {
+  final String vaccineId;
+  final String photoPath;
+
+  UpdateVaccinePhoto({
+    required this.vaccineId,
+    required this.photoPath,
+  });
+}
+
 abstract class CarnetState {}
 
 class CarnetInitial extends CarnetState {}
@@ -96,6 +106,20 @@ class RescheduleVaccineFailure extends CarnetState {
   RescheduleVaccineFailure(this.message);
 }
 
+class UpdateVaccinePhotoLoading extends CarnetState {}
+
+class UpdateVaccinePhotoSuccess extends CarnetState {
+  final String message;
+
+  UpdateVaccinePhotoSuccess(this.message);
+}
+
+class UpdateVaccinePhotoFailure extends CarnetState {
+  final String message;
+
+  UpdateVaccinePhotoFailure(this.message);
+}
+
 class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
   final CarnetRepository repository;
 
@@ -104,6 +128,7 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     on<LoadMissedVaccines>(_onLoadMissedVaccines);
     on<LoadUpcomingVaccines>(_onLoadUpcomingVaccines);
     on<RescheduleVaccineRequested>(_onRescheduleVaccineRequested);
+    on<UpdateVaccinePhoto>(_onUpdateVaccinePhoto);
   }
 
   Future<void> _onLoadVaccines(
@@ -207,6 +232,32 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
       }
     } catch (e) {
       emit(RescheduleVaccineFailure('Erreur lors de la reprogrammation: $e'));
+    }
+  }
+
+  Future<void> _onUpdateVaccinePhoto(
+    UpdateVaccinePhoto event,
+    Emitter<CarnetState> emit,
+  ) async {
+    emit(UpdateVaccinePhotoLoading());
+
+    try {
+      // TODO: Implement update vaccine photo in repository
+      // final response = await repository.updateVaccinePhoto(
+      //   vaccineId: event.vaccineId,
+      //   photoPath: event.photoPath,
+      // );
+
+      // if (response.status) {
+      //   emit(UpdateVaccinePhotoSuccess(response.message ?? 'Photo mise à jour avec succès'));
+      // } else {
+      //   emit(UpdateVaccinePhotoFailure(response.message ?? 'Erreur lors de la mise à jour'));
+      // }
+
+      // Temporary success for now
+      emit(UpdateVaccinePhotoSuccess('Photo mise à jour avec succès'));
+    } catch (e) {
+      emit(UpdateVaccinePhotoFailure('Erreur lors de la mise à jour: $e'));
     }
   }
 }

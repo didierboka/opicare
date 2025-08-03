@@ -1,17 +1,17 @@
 import 'dart:developer';
-
-import 'package:flutter/foundation.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'package:opicare/core/enums/app_enums.dart';
 import 'package:opicare/core/helpers/subscription_helper.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
-import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
-import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
@@ -27,7 +27,9 @@ class MonProfilScreen extends StatelessWidget {
   static const path = '/profile';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  var logger = Logger();
+  final Logger logger = Logger();
+  final ImagePicker _picker = ImagePicker();
+  final GlobalKey<ScaffoldMessengerState> _messengerKey = GlobalKey<ScaffoldMessengerState>();
 
   void _showSubscriptionExpiredDialog(BuildContext context) {
     showDialog(
@@ -142,6 +144,142 @@ class MonProfilScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _pickFromGallery(BuildContext context) async {
+    try {
+      // Vérifier la permission d'accès à la galerie
+      final status = await Permission.photos.status;
+      if (status.isDenied) {
+        final result = await Permission.photos.request();
+        if (result.isDenied) {
+          _showErrorSnackBar('Permission d\'accès à la galerie refusée');
+          return;
+        }
+      }
+      
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 80,
+      );
+      if (image != null) {
+        await _cropImage(image.path);
+      }
+    } catch (e) {
+      _showErrorSnackBar('Erreur lors de la sélection: $e');
+    }
+  }
+
+  Future<void> _takePhoto(BuildContext context) async {
+    try {
+      // Vérifier la permission d'accès à la caméra
+      final status = await Permission.camera.status;
+      if (status.isDenied) {
+        final result = await Permission.camera.request();
+        if (result.isDenied) {
+          _showErrorSnackBar('Permission d\'accès à la caméra refusée');
+          return;
+        }
+      }
+      
+      final XFile? image = await _picker.pickImage(
+        source: ImageSource.camera,
+        imageQuality: 80,
+      );
+      if (image != null) {
+        await _cropImage(image.path);
+      }
+    } catch (e) {
+      _showErrorSnackBar('Erreur lors de la prise de photo: $e');
+    }
+  }
+
+  Future<void> _cropImage(String imagePath) async {
+    try {
+      logger.i("CropImage: Starting crop process for image: $imagePath");
+      
+      final CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: imagePath,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Rogner la photo',
+            toolbarColor: Colours.primaryBlue,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+          ),
+          IOSUiSettings(
+            title: 'Rogner la photo',
+            aspectRatioLockEnabled: true,
+            aspectRatioPickerButtonHidden: true,
+          ),
+        ],
+      );
+      
+      if (croppedFile != null) {
+        logger.i("CropImage: Crop successful, file path: ${croppedFile.path}");
+        // Utiliser un callback pour déclencher l'événement BLoC
+        _onImageCropped(File(croppedFile.path));
+      } else {
+        logger.w("CropImage: Crop cancelled");
+      }
+    } catch (e) {
+      logger.e("CropImage: Error during crop - $e");
+      _showErrorSnackBar('Erreur lors du rognage: $e');
+    }
+  }
+
+  void _onImageCropped(File imageFile) {
+    // Cette méthode sera appelée après le rognage
+    // On utilise un callback pour éviter les problèmes de contexte
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Trouver le contexte via le GlobalKey
+      final context = _scaffoldKey.currentContext;
+      if (context != null) {
+        context.read<AuthBloc>().add(UpdateProfilePhotoRequested(imageFile));
+      }
+    });
+  }
+
+  void _showPhotoSourceActionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Galerie'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickFromGallery(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Appareil photo'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _takePhoto(context);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    final context = _scaffoldKey.currentContext;
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -177,6 +315,22 @@ class MonProfilScreen extends StatelessWidget {
             type: MessageType.error,
           );
         }
+
+        // Gestion des états de mise à jour de la photo de profil
+        if (state is UpdateProfilePhotoLoading) {
+          showLoader(context, true);
+        }
+
+        if (state is UpdateProfilePhotoFailure) {
+          showLoader(context, false);
+          // Utiliser le GlobalKey pour afficher le message d'erreur
+          _messengerKey.currentState?.showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       },
       builder: (context, state) {
         // Vérification sécurisée de l'état
@@ -203,228 +357,240 @@ class MonProfilScreen extends StatelessWidget {
         log("user.userPic isEmpty: ${user.userPic.isEmpty}");
         log("========================");
 
-        return Scaffold(
-          key: _scaffoldKey,
-          appBar: CustomAppBar(
-            title: 'Mon profil', 
-            scaffoldKey: _scaffoldKey,
-            isSubscriptionExpired: isSubscriptionExpired,
-            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
-          ),
-          drawer: CustomDrawer(),
-          body: BackButtonBlockerWidget(
-            message: 'Utilisez le menu pour naviguer',
-            child: SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Stack(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.all(16),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colours.background,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Formule', style: TextStyles.titleMedium),
-                              const SizedBox(height: 26),
-                              _infoRow('Nom', '${user.name} ${user.surname}', 'Date de naissance', formatDateFromString(user.birthdate)),
-                              _infoRow('Genre', user.sex, 'Contact', user.phone),
-                              _infoRow('Date d\'abonnement', formatDateFromString(user.dateAbon), 'Date d\'expiration', formatDateFromString(user.dateExpiration)),
-                              _infoRow('Email', user.email, 'Mot de passe', '[protected]', value2Color: Colours.primaryBlue),
-                            ],
-                          ),
-                        ),
-                        Positioned(
-                          top: 16,
-                          right: 16,
-                          child: GestureDetector(
-                            onTap: isSubscriptionExpired 
-                                ? () => _showSubscriptionExpiredDialog(context)
-                                : null,
-                            child: Opacity(
-                              opacity: isSubscriptionExpired ? 0.5 : 1.0,
-                              child: Container(
-                                height: 80,
-                                width: 90,
-                                decoration: BoxDecoration(
-                                  color: isSubscriptionExpired 
-                                      ? Colours.homeCardSecondaryButtonBlue.withOpacity(0.7)
-                                      : Colours.homeCardSecondaryButtonBlue,
-                                  borderRadius: const BorderRadius.only(
-                                    topRight: Radius.circular(20),
-                                    bottomLeft: Radius.circular(60),
-                                  ),
-                                ),
-                                child: Icon(
-                                  Icons.edit, 
-                                  color: isSubscriptionExpired 
-                                      ? Colors.grey 
-                                      : Colors.white
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
+        return ScaffoldMessenger(
+          key: _messengerKey,
+          child: Scaffold(
+            key: _scaffoldKey,
+            appBar: CustomAppBar(
+              title: 'Mon profil', 
+              scaffoldKey: _scaffoldKey,
+              isSubscriptionExpired: isSubscriptionExpired,
+              onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+            ),
+            drawer: CustomDrawer(),
+            body: BackButtonBlockerWidget(
+              message: 'Utilisez le menu pour naviguer',
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Stack(
                         children: [
-                          // Image du carnet (peut être base64 ou URL)
-                          FlexibleImageWidget(
-                            imageSource: user.carnetPhoto,
-                            height: 300,
-                            isBase64: true,
-                          ),
-                          const SizedBox(height: 8),
-
-                          const Text('Photo du carnet', style: TextStyles.bodyBold),
-                          const SizedBox(height: 16),
-
-                          // Image de profil (si disponible)
-                          if (user.userPic.isNotEmpty && user.userPic != 'null' && user.userPic != 'N/A')
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                FlexibleImageWidget(
-                                  imageSource: "https://opisms.net/ecarnet/upload/photo/${user.userPic}",
-                                  height: 200,
+                          Container(
+                            margin: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colours.background,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
                                 ),
-                                const SizedBox(height: 8),
-                                const Text('Photo de profil', style: TextStyles.bodyBold),
                               ],
                             ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-
-                    // Section de suppression de compte
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.red[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.red[200]!),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.warning, color: Colors.red[700], size: 20),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Zone dangereuse',
-                                style: TextStyle(
-                                  color: Colors.red[700],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'La suppression de votre compte est une action irréversible qui supprimera définitivement toutes vos données.',
-                            style: TextStyle(
-                              color: Colors.red[700],
-                              fontSize: 14,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Formule', style: TextStyles.titleMedium),
+                                const SizedBox(height: 26),
+                                _infoRow('Nom', '${user.name} ${user.surname}', 'Date de naissance', formatDateFromString(user.birthdate)),
+                                _infoRow('Genre', user.sex, 'Contact', user.phone),
+                                _infoRow('Date d\'abonnement', formatDateFromString(user.dateAbon), 'Date d\'expiration', formatDateFromString(user.dateExpiration)),
+                                _infoRow('Email', user.email, 'Mot de passe', '[protected]', value2Color: Colours.primaryBlue),
+                              ],
                             ),
                           ),
-
-                          const SizedBox(height: 16),
-                          
-                          // Bouton de test temporaire
-                          // if (kDebugMode)
-                          //   Padding(
-                          //     padding: const EdgeInsets.only(bottom: 12),
-                          //     child: SizedBox(
-                          //       width: double.infinity,
-                          //       child: ElevatedButton.icon(
-                          //         onPressed: () {
-                          //           print("DeleteAccount: Test button pressed");
-                          //           print("DeleteAccount: User patID: ${user.patID}");
-                          //           print("DeleteAccount: User ID: ${user.id}");
-                          //         },
-                          //         icon: const Icon(Icons.bug_report, size: 18),
-                          //         label: const Text('Test - Afficher les IDs'),
-                          //         style: ElevatedButton.styleFrom(
-                          //           backgroundColor: Colors.orange,
-                          //           foregroundColor: Colors.white,
-                          //           padding: const EdgeInsets.symmetric(vertical: 12),
-                          //           shape: RoundedRectangleBorder(
-                          //             borderRadius: BorderRadius.circular(8),
-                          //           ),
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ),
-                          
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: isSubscriptionExpired 
+                          Positioned(
+                            top: 16,
+                            right: 16,
+                            child: GestureDetector(
+                              onTap: isSubscriptionExpired 
                                   ? () => _showSubscriptionExpiredDialog(context)
-                                  : () => _showDeleteAccountDialog(context, user.patID),
-                              icon: Icon(
-                                Icons.delete_forever, 
-                                size: 18,
-                                color: isSubscriptionExpired ? Colors.grey : Colors.white,
+                                  : null,
+                              child: Opacity(
+                                opacity: isSubscriptionExpired ? 0.5 : 1.0,
+                                child: Container(
+                                  height: 80,
+                                  width: 90,
+                                  decoration: BoxDecoration(
+                                    color: isSubscriptionExpired 
+                                        ? Colours.homeCardSecondaryButtonBlue.withOpacity(0.7)
+                                        : Colours.homeCardSecondaryButtonBlue,
+                                    borderRadius: const BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      bottomLeft: Radius.circular(60),
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.edit, 
+                                    color: isSubscriptionExpired 
+                                        ? Colors.grey 
+                                        : Colors.white
+                                  ),
+                                ),
                               ),
-                              label: Text(
-                                'Supprimer mon compte',
-                                style: TextStyle(
+                            ),
+                          )
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Image du carnet (peut être base64 ou URL)
+                            FlexibleImageWidget(
+                              imageSource: user.carnetPhoto,
+                              height: 300,
+                              isBase64: true,
+                            ),
+                            const SizedBox(height: 8),
+
+                            const Text('Photo du carnet', style: TextStyles.bodyBold),
+                            const SizedBox(height: 16),
+
+                            // Image de profil (si disponible)
+                            Stack(
+                              alignment: Alignment.bottomRight,
+                              children: [
+                                _buildProfileImage(user.userPic),
+                                Positioned(
+                                  bottom: 8,
+                                  right: 8,
+                                  child: GestureDetector(
+                                    onTap: () => _showPhotoSourceActionSheet(context),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colours.primaryBlue,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      padding: const EdgeInsets.all(8),
+                                      child: const Icon(Icons.edit, color: Colors.white, size: 24),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Section de suppression de compte
+                      Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.red[200]!),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.warning, color: Colors.red[700], size: 20),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Zone dangereuse',
+                                  style: TextStyle(
+                                    color: Colors.red[700],
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'La suppression de votre compte est une action irréversible qui supprimera définitivement toutes vos données.',
+                              style: TextStyle(
+                                color: Colors.red[700],
+                                fontSize: 14,
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+                            
+                            // Bouton de test temporaire
+                            // if (kDebugMode)
+                            //   Padding(
+                            //     padding: const EdgeInsets.only(bottom: 12),
+                            //     child: SizedBox(
+                            //       width: double.infinity,
+                            //       child: ElevatedButton.icon(
+                            //         onPressed: () {
+                            //           print("DeleteAccount: Test button pressed");
+                            //           print("DeleteAccount: User patID: ${user.patID}");
+                            //           print("DeleteAccount: User ID: ${user.id}");
+                            //         },
+                            //         icon: const Icon(Icons.bug_report, size: 18),
+                            //         label: const Text('Test - Afficher les IDs'),
+                            //         style: ElevatedButton.styleFrom(
+                            //           backgroundColor: Colors.orange,
+                            //           foregroundColor: Colors.white,
+                            //           padding: const EdgeInsets.symmetric(vertical: 12),
+                            //           shape: RoundedRectangleBorder(
+                            //             borderRadius: BorderRadius.circular(8),
+                            //           ),
+                            //         ),
+                            //       ),
+                            //     ),
+                            //   ),
+                            
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: isSubscriptionExpired 
+                                    ? () => _showSubscriptionExpiredDialog(context)
+                                    : () => _showDeleteAccountDialog(context, user.patID),
+                                icon: Icon(
+                                  Icons.delete_forever, 
+                                  size: 18,
                                   color: isSubscriptionExpired ? Colors.grey : Colors.white,
                                 ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isSubscriptionExpired 
-                                    ? Colors.red.withOpacity(0.5)
-                                    : Colors.red,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                                label: Text(
+                                  'Supprimer mon compte',
+                                  style: TextStyle(
+                                    color: isSubscriptionExpired ? Colors.grey : Colors.white,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isSubscriptionExpired 
+                                      ? Colors.red.withOpacity(0.5)
+                                      : Colors.red,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 32),
-                  ],
+                      const SizedBox(height: 32),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          bottomNavigationBar: CustomBottomNavBar(
-            isSubscriptionExpired: isSubscriptionExpired,
-            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
-            onCarnetAccessDenied: () => _showCarnetAccessDeniedDialog(context),
-            user: user,
+            bottomNavigationBar: CustomBottomNavBar(
+              isSubscriptionExpired: isSubscriptionExpired,
+              onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+              onCarnetAccessDenied: () => _showCarnetAccessDeniedDialog(context),
+              user: user,
+            ),
           ),
         );
       },
@@ -461,5 +627,67 @@ class MonProfilScreen extends StatelessWidget {
         Text(value, style: TextStyles.bodyBold.copyWith(fontSize: 13, color: valueColor)),
       ],
     );
+  }
+
+  Widget _buildProfileImage(String imageSource) {
+    // Si l'image source commence par "/", c'est un chemin local (File)
+    if (imageSource.startsWith('/')) {
+      return Container(
+        height: 200,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.file(
+            File(imageSource),
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.image_not_supported,
+                      size: 48,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Erreur d\'affichage',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    } else if (imageSource.isNotEmpty && imageSource != 'null' && imageSource != 'N/A') {
+      // Image distante (URL) - construire l'URL complète
+      String fullUrl = imageSource.startsWith('http') 
+        ? imageSource 
+        : "https://opisms.net/ecarnet/upload/photo/$imageSource";
+      
+      return FlexibleImageWidget(
+        imageSource: fullUrl,
+        height: 200,
+      );
+    } else {
+      // Image par défaut
+      return FlexibleImageWidget(
+        imageSource: "https://opisms.net/ecarnet/upload/photo/default_profile.jpg",
+        height: 200,
+      );
+    }
   }
 }

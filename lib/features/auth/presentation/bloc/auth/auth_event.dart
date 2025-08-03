@@ -17,3 +17,8 @@ class DeleteAccountRequested extends AuthEvent {
 
   DeleteAccountRequested(this.userId);
 }
+
+class UpdateProfilePhotoRequested extends AuthEvent {
+  final File imageFile;
+  UpdateProfilePhotoRequested(this.imageFile);
+}

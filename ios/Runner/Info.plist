@@ -49,5 +49,12 @@
 	<array>
 		<string>tel</string>
 	</array>
+	<!-- Permissions pour l'accès à la caméra et à la galerie photos -->
+	<key>NSCameraUsageDescription</key>
+	<string>Cette application nécessite l'accès à la caméra pour prendre des photos de profil.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Cette application nécessite l'accès à la galerie photos pour sélectionner des images de profil.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Cette application nécessite l'accès à la galerie photos pour sauvegarder les images modifiées.</string>
 </dict>
 </plist>

@@ -38,6 +38,8 @@ import '../../features/accueil/presentation/pages/home_screen.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import '../../features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
+import '../../features/carnet_sante/presentation/pages/vaccine_details_screen.dart';
+import '../../features/carnet_sante/data/models/vaccine.dart';
 import '../../features/change_password/data/repositories/change_pwd_repository.dart';
 import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import '../../features/notifications/domain/repositories/sms_repository.dart';
@@ -102,6 +104,16 @@ final appRouter = GoRouter(
     GoRoute(
       path: CarnetSanteScreen.path,
       builder: (context, state) => CarnetSanteScreen(),
+    ),
+    GoRoute(
+      path: VaccineDetailsScreen.path,
+      builder: (context, state) {
+        final vaccine = state.extra as Vaccine?;
+        if (vaccine == null) {
+          return CarnetSanteScreen();
+        }
+        return VaccineDetailsScreen(vaccine: vaccine);
+      },
     ),
     GoRoute(
       path: RescheduleVaccineScreen.path,
