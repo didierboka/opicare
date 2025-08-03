@@ -40,6 +40,7 @@ import '../../features/auth/data/repositories/auth_repository.dart';
 import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import '../../features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
 import '../../features/carnet_sante/presentation/pages/vaccine_details_screen.dart';
+import '../../features/carnet_sante/presentation/pages/add_vaccine_screen.dart';
 import '../../features/carnet_sante/data/models/vaccine.dart';
 import '../../features/carnet_sante/presentation/bloc/carnet_bloc.dart';
 import '../../features/carnet_sante/data/repositories/carnet_repository.dart';
@@ -137,6 +138,15 @@ final appRouter = GoRouter(
 
         return RescheduleVaccineScreen(missedVaccine: missedVaccine);
       },
+    ),
+    GoRoute(
+      path: AddVaccineScreen.path,
+      builder: (context, state) => BlocProvider(
+        create: (context) => CarnetBloc(
+          repository: Di.get<CarnetRepository>(),
+        ),
+        child: const AddVaccineScreen(),
+      ),
     ),
     GoRoute(
       path: FamilleScreen.path,

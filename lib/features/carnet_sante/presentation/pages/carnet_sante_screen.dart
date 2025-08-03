@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opicare/core/di.dart';
+import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
@@ -8,6 +10,7 @@ import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/carnet_sante/data/repositories/carnet_repository.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
+import 'package:opicare/features/carnet_sante/presentation/pages/add_vaccine_screen.dart';
 import 'package:opicare/features/carnet_sante/presentation/widgets/health_card_header.dart';
 import 'package:opicare/features/carnet_sante/presentation/widgets/vaccine_table_view.dart';
 
@@ -49,6 +52,17 @@ class CarnetSanteScreen extends StatelessWidget {
                   const Expanded(child: VaccineTabView()),
                 ],
               ),
+            ),
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              context.go(AddVaccineScreen.path);
+            },
+            backgroundColor: Colours.primaryBlue,
+            child: const Icon(
+              Icons.add,
+              color: Colors.white,
+              size: 28,
             ),
           ),
           bottomNavigationBar: CustomBottomNavBar(),

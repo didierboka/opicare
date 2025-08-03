@@ -56,6 +56,28 @@ class UpdateVaccinePhoto extends CarnetEvent {
   });
 }
 
+class AddVaccine extends CarnetEvent {
+  final String userId;
+  final String name;
+  final DateTime administrationDate;
+  final DateTime? recallDate;
+  final String? lotNumber;
+  final String? centerName;
+  final String? comment;
+  final String? photoPath;
+
+  AddVaccine({
+    required this.userId,
+    required this.name,
+    required this.administrationDate,
+    this.recallDate,
+    this.lotNumber,
+    this.centerName,
+    this.comment,
+    this.photoPath,
+  });
+}
+
 abstract class CarnetState {}
 
 class CarnetInitial extends CarnetState {}
@@ -120,6 +142,20 @@ class UpdateVaccinePhotoFailure extends CarnetState {
   UpdateVaccinePhotoFailure(this.message);
 }
 
+class AddVaccineLoading extends CarnetState {}
+
+class AddVaccineSuccess extends CarnetState {
+  final String message;
+
+  AddVaccineSuccess(this.message);
+}
+
+class AddVaccineFailure extends CarnetState {
+  final String message;
+
+  AddVaccineFailure(this.message);
+}
+
 class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
   final CarnetRepository repository;
 
@@ -129,6 +165,7 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     on<LoadUpcomingVaccines>(_onLoadUpcomingVaccines);
     on<RescheduleVaccineRequested>(_onRescheduleVaccineRequested);
     on<UpdateVaccinePhoto>(_onUpdateVaccinePhoto);
+    on<AddVaccine>(_onAddVaccine);
   }
 
   Future<void> _onLoadVaccines(
@@ -254,6 +291,22 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
       }
     } catch (e) {
       emit(UpdateVaccinePhotoFailure('Erreur lors de la mise à jour: $e'));
+    }
+  }
+
+  Future<void> _onAddVaccine(
+    AddVaccine event,
+    Emitter<CarnetState> emit,
+  ) async {
+    emit(AddVaccineLoading());
+
+    try {
+      // TODO: Implémenter l'ajout de vaccin dans le repository
+      // Pour l'instant, on simule un succès
+      await Future.delayed(const Duration(seconds: 1));
+      emit(AddVaccineSuccess('Vaccin ajouté avec succès'));
+    } catch (e) {
+      emit(AddVaccineFailure('Erreur lors de l\'ajout du vaccin: $e'));
     }
   }
 }
