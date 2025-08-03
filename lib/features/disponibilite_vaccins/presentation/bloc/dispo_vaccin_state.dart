@@ -9,37 +9,37 @@ class DispoVaccinLoading extends DispoVaccinState {}
 class DispoVaccinLoaded extends DispoVaccinState {
   final List<DistrictModel> districts;
   final List<CentreModel> centres;
-  final List<VaccinModel> vaccins;
+  final List<VaccinDisponibleModel> vaccinsDisponibles;
   final String? selectedDistrict;
   final String? selectedCentre;
-  final String? selectedVaccin;
   final String? errorMessage;
+  final bool isLoadingVaccins;
 
   DispoVaccinLoaded(
       {required this.districts,
       required this.centres,
-      required this.vaccins,
+      required this.vaccinsDisponibles,
       this.selectedCentre,
       this.selectedDistrict,
-      this.selectedVaccin,
-        this.errorMessage
-      });
+      this.errorMessage,
+      this.isLoadingVaccins = false});
 
   DispoVaccinLoaded copyWith(
       {List<DistrictModel>? districts,
       List<CentreModel>? centres,
-      List<VaccinModel>? vaccins,
+      List<VaccinDisponibleModel>? vaccinsDisponibles,
       String? selectedDistrict,
-      String? selectedCentre,
-      String? selectedVaccin, String? errorMessage}) {
+      String? selectedCentre, 
+      String? errorMessage,
+      bool? isLoadingVaccins}) {
     return DispoVaccinLoaded(
       districts: districts ?? this.districts,
       centres: centres ?? this.centres,
-      vaccins: vaccins ?? this.vaccins,
+      vaccinsDisponibles: vaccinsDisponibles ?? this.vaccinsDisponibles,
       selectedDistrict: selectedDistrict ?? this.selectedDistrict,
       selectedCentre: selectedCentre ?? this.selectedCentre,
-      selectedVaccin: selectedVaccin ?? this.selectedVaccin,
-      errorMessage: errorMessage ?? this.errorMessage
+      errorMessage: errorMessage ?? this.errorMessage,
+      isLoadingVaccins: isLoadingVaccins ?? this.isLoadingVaccins
     );
   }
 }

@@ -5,10 +5,6 @@ class LoadCentres extends DispoVaccinEvent{
   final String districtId;
   LoadCentres({required this.districtId});
 }
-class LoadVaccinCentre extends DispoVaccinEvent{
-  final String idCentre;
-  LoadVaccinCentre({required this.idCentre});
-}
 
 class SelectDistrict extends DispoVaccinEvent{
   final String districtId;
@@ -18,9 +14,10 @@ class SelectCentre extends DispoVaccinEvent{
   final String centretId;
   SelectCentre({required this.centretId});
 }
-class SelectVaccin extends DispoVaccinEvent{
-  final String vaccinId;
-  SelectVaccin({required this.vaccinId});
+
+class LoadVaccinsDisponibles extends DispoVaccinEvent{
+  final String centreId;
+  LoadVaccinsDisponibles({required this.centreId});
 }
 
 class ClearErrorMessage extends DispoVaccinEvent {}

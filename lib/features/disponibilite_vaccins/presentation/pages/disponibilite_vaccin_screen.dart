@@ -10,6 +10,7 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_select_field.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/bloc/dispo_vaccin_bloc.dart';
+import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_disponible_model.dart';
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
 
 class DisponibiliteVaccinScreen extends StatefulWidget {
@@ -53,7 +54,7 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
 
               if (state.previousState != null) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  context.read<DispoVaccinBloc>().emit(state.previousState!);
+                  context.read<DispoVaccinBloc>().add(ClearErrorMessage());
                 });
               }
             }
@@ -91,28 +92,33 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
                       onSelected: (value) {
                         if (value != null) {
                           bloc.add(SelectCentre(centretId: value));
+                          // Charger les vaccins disponibles pour ce centre
+                          bloc.add(LoadVaccinsDisponibles(centreId: value));
                         }
                       },
                       isEnabled: state is DispoVaccinLoaded && state.selectedDistrict != null,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Menu Vaccin
-                    CustomSelectField(
-                      label: 'Liste des vaccins',
-                      selectedValue: state is DispoVaccinLoaded ? state.selectedVaccin : null,
-                      hint: 'Sélectionner un vaccin',
-                      options: state is DispoVaccinLoaded ? state.vaccins.map((v) => {'libelle': v.nom, 'valeur': v.id}).toList() : [],
-                      onSelected: (value) => bloc.add(SelectVaccin(vaccinId: value)),
-                      isEnabled: state is DispoVaccinLoaded && state.centres.isNotEmpty && state.selectedCentre != null,
                     ),
                     const SizedBox(height: 30),
 
                     // Section Résultats
                     Text('Résultat', style: TextStyles.titleMedium),
                     const SizedBox(height: 10),
-                    Text('(Aucun vaccin trouvé)', style: TextStyles.bodyRegular)
-                    //_buildResults(context, state),
+                    
+                    // Affichage des vaccins disponibles
+                    if (state is DispoVaccinLoaded) ...[
+                      if (state.isLoadingVaccins)
+                        const Center(child: CircularProgressIndicator())
+                      else if (state.vaccinsDisponibles.isNotEmpty)
+                        Expanded(child: _buildVaccinsList(state.vaccinsDisponibles))
+                      else if (state.selectedCentre != null)
+                        Text(
+                          state.errorMessage ?? 'Aucun vaccin disponible pour ce centre',
+                          style: TextStyles.bodyRegular.copyWith(color: Colors.grey),
+                        )
+                      else
+                        Text('(Aucun vaccin trouvé)', style: TextStyles.bodyRegular)
+                    ] else
+                      Text('(Aucun vaccin trouvé)', style: TextStyles.bodyRegular)
                   ],
                 ),
               ),
@@ -120,6 +126,73 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildVaccinsList(List<VaccinDisponibleModel> vaccins) {
+    return ListView.builder(
+      itemCount: vaccins.length,
+      itemBuilder: (context, index) {
+        final vaccin = vaccins[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        vaccin.nomVaccin,
+                        style: TextStyles.titleMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: vaccin.libelle.toLowerCase() == 'disponible' 
+                          ? Colors.green 
+                          : Colors.red,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                                              child: Text(
+                          vaccin.libelle,
+                          style: TextStyles.caption.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Centre: ${vaccin.nomCentre}',
+                  style: TextStyles.bodyRegular,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Âge: ${vaccin.age}',
+                  style: TextStyles.bodyRegular,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Prix: ${vaccin.tarif} FCFA',
+                  style: TextStyles.bodyRegular.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -116,11 +116,7 @@ class HomeScreen extends StatelessWidget {
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Colours.accentYellow,
-                backgroundImage: user.userPic.startsWith('/')
-                    ? FileImage(File(user.userPic)) as ImageProvider
-                    : (user.userPic.isNotEmpty && user.userPic != 'null' && user.userPic != 'N/A'
-                        ? NetworkImage("https://opisms.net/ecarnet/upload/photo/${user.userPic}")
-                        : NetworkImage("https://opisms.net/ecarnet/upload/photo/default_profile.jpg")),
+                backgroundImage: user.userPic.startsWith('/') ? FileImage(File(user.userPic)) as ImageProvider : (user.userPic.isNotEmpty && user.userPic != 'null' && user.userPic != 'N/A' ? NetworkImage("https://opisms.net/ecarnet/upload/photo/${user.userPic}") : NetworkImage("https://opisms.net/ecarnet/upload/photo/default_profile.jpg")),
                 child: (user.userPic.isEmpty || user.userPic == 'null' || user.userPic == 'N/A')
                     ? Icon(
                         Icons.person,
@@ -228,9 +224,6 @@ class HomeScreen extends StatelessWidget {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(content: Text('Fonctionnalité en cours de développement')),
                             );
-
-
-
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Vaccins voyage', isSubscriptionExpired),
                           onDisabledTap: () => _showSubscriptionExpiredDialog(context),

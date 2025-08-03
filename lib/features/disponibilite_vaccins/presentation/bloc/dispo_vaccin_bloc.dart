@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/centre_model.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/district_model.dart';
-import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_model.dart';
+import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_disponible_model.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 
 part 'dispo_vaccin_event.dart';
@@ -14,10 +14,9 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
       : super(DispoVaccinInitial()) {
     on<LoadDistricts>(_onLoadDistricts);
     on<LoadCentres>(_onLoadCentre);
-    on<LoadVaccinCentre>(_onLoadVaccinCentres);
     on<SelectDistrict>(_onSelectDistrict);
     on<SelectCentre>(_onSelectCentre);
-    on<SelectVaccin>(_onSelectVaccin);
+    on<LoadVaccinsDisponibles>(_onLoadVaccinsDisponibles);
     on<ClearErrorMessage>((event, emit) {
       if (state is! DispoVaccinLoaded) return;
       final currentState = state as DispoVaccinLoaded;
@@ -37,10 +36,9 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
       emit(DispoVaccinLoaded(
         districts: districts.datas!,
         centres: [],
-        vaccins: [],
+        vaccinsDisponibles: [],
         selectedDistrict: null,
         selectedCentre: null,
-        selectedVaccin: null,
       ));
     } catch (e) {
       emit(DispoVaccinFailure(message: e.toString()));
@@ -59,6 +57,7 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
         emit(DispoVaccinFailure(message: centres.message!, previousState: currentState.copyWith(
           centres: [],
           selectedCentre: null,
+          vaccinsDisponibles: [],
           errorMessage: centres.message,
         )));
         print("Error handler : ${centres.message}");
@@ -68,40 +67,7 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
         centres: centres.datas ?? [],
         selectedDistrict: event.districtId,
         selectedCentre: null,
-        vaccins: [],
-        selectedVaccin: null,
-        errorMessage: null
-      ));
-    } catch (e) {
-      emit(DispoVaccinFailure(message: e.toString()));
-    }
-  }
-
-  Future<void> _onLoadVaccinCentres(
-      LoadVaccinCentre event, Emitter<DispoVaccinState> emit) async {
-    if (state is! DispoVaccinLoaded) return;
-    final currentState = state as DispoVaccinLoaded;
-
-    emit(DispoVaccinLoading());
-    try {
-      final response = await dispoVaccinRepository.getVaccinsCentre(event.idCentre);
-      if(!response.status){
-        emit(DispoVaccinFailure(message: response.message!, previousState: currentState.copyWith(
-          vaccins: [],
-          selectedVaccin: null,
-          errorMessage: response.message,
-        )));
-
-        // emit(currentState.copyWith(
-        //   vaccins: [],
-        //   selectedVaccin: null,
-        //   errorMessage: response.message,
-        // ));
-        return;
-      }
-      emit(currentState.copyWith(
-        vaccins: response.datas ?? [],
-        selectedCentre: event.idCentre,
+        vaccinsDisponibles: [],
         errorMessage: null
       ));
     } catch (e) {
@@ -118,8 +84,7 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
       selectedDistrict: event.districtId,
       selectedCentre: null, // <-- Réinitialisé
       centres: [],         // <-- Vidé
-      vaccins: [],         // <-- Vidé
-      selectedVaccin: null,// <-- Réinitialisé
+      vaccinsDisponibles: [], // <-- Vidé
     ));
     add(LoadCentres(districtId: event.districtId));
   }
@@ -131,21 +96,68 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
 
     emit(currentState.copyWith(
       selectedCentre: event.centretId,
-      vaccins: [],
+      vaccinsDisponibles: [], // <-- Vidé quand on change de centre
     ));
-    add(LoadVaccinCentre(idCentre: event.centretId));
   }
 
-  void _onSelectVaccin(
-      SelectVaccin event, Emitter<DispoVaccinState> emit) {
+  Future<void> _onLoadVaccinsDisponibles(
+      LoadVaccinsDisponibles event, Emitter<DispoVaccinState> emit) async {
     if (state is! DispoVaccinLoaded) return;
     final currentState = state as DispoVaccinLoaded;
-    logger.i("Vaccin selected: ${event.vaccinId}");
-    emit(currentState.copyWith(
-      selectedDistrict: currentState.selectedDistrict,
-      selectedCentre: currentState.selectedCentre,
-      selectedVaccin: event.vaccinId,
-    ));
-  }
 
+    emit(currentState.copyWith(isLoadingVaccins: true));
+    
+    try {
+      logger.d("Chargement des vaccins pour le centre: ${event.centreId}");
+      final vaccinsResponse = await dispoVaccinRepository.getVaccinsDisponibles(event.centreId);
+      
+      logger.d("Réponse API vaccins: ${vaccinsResponse.status} - ${vaccinsResponse.message}");
+      
+      if (!vaccinsResponse.status) {
+        logger.e("Erreur API vaccins: ${vaccinsResponse.message}");
+        emit(currentState.copyWith(
+          errorMessage: vaccinsResponse.message,
+          isLoadingVaccins: false,
+        ));
+        return;
+      }
+
+      final vaccinsData = vaccinsResponse.data!;
+      logger.d("Données vaccins reçues: code=${vaccinsData.code}, message=${vaccinsData.message}, data.length=${vaccinsData.data.length}");
+      
+      // Si le code est 1, cela signifie qu'il n'y a pas de vaccins disponibles
+      if (vaccinsData.code == 1) {
+        logger.w("Aucun vaccin disponible pour le centre ${event.centreId}: ${vaccinsData.message}");
+        emit(currentState.copyWith(
+          vaccinsDisponibles: [],
+          isLoadingVaccins: false,
+          errorMessage: vaccinsData.message,
+        ));
+        return;
+      }
+
+      // Si le code est 0 et qu'il y a des données
+      if (vaccinsData.code == 0 && vaccinsData.data.isNotEmpty) {
+        logger.i("Vaccins trouvés: ${vaccinsData.data.length} vaccins");
+        emit(currentState.copyWith(
+          vaccinsDisponibles: vaccinsData.data,
+          isLoadingVaccins: false,
+          errorMessage: null,
+        ));
+      } else {
+        logger.w("Aucun vaccin disponible ou données vides");
+        emit(currentState.copyWith(
+          vaccinsDisponibles: [],
+          isLoadingVaccins: false,
+          errorMessage: vaccinsData.message.isNotEmpty ? vaccinsData.message : "Aucun vaccin disponible pour ce centre",
+        ));
+      }
+    } catch (e) {
+      logger.e("Exception lors du chargement des vaccins: $e");
+      emit(currentState.copyWith(
+        errorMessage: e.toString(),
+        isLoadingVaccins: false,
+      ));
+    }
+  }
 }
