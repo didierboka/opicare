@@ -33,6 +33,7 @@ import 'package:opicare/features/api_test/presentation/pages/api_test_page.dart'
 import 'package:opicare/features/vaccins_conseils/presentation/pages/vaccins_conseils_screen.dart';
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
 import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_conseil_usecase.dart';
+import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
 
 import '../../features/accueil/presentation/pages/home_screen.dart';
 import '../../features/auth/data/repositories/auth_repository.dart';
@@ -170,6 +171,7 @@ final appRouter = GoRouter(
         create: (_) => JoursVaccinBloc(
           joursVaccinRepository: Di.get<JoursVaccinRepository>(),
           dispoVaccinRepository: Di.get<DispoVaccinRepository>(),
+          getVaccinsByCentreUseCase: Di.get<GetVaccinsByCentreUseCase>(),
         ),
         child: JoursVaccinScreen(),
       ),

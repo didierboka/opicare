@@ -16,7 +16,7 @@ class SelectCentre extends JoursVaccinEvent{
   SelectCentre({required this.centretId});
 }
 
-class SelectJour extends JoursVaccinEvent{
-  final String jourId;
-  SelectJour({required this.jourId});
+class LoadVaccinsByCentre extends JoursVaccinEvent{
+  final String centreId;
+  LoadVaccinsByCentre({required this.centreId});
 }

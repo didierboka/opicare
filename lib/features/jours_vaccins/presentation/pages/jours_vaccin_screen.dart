@@ -9,9 +9,8 @@ import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_select_field.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/enums/app_enums.dart';
-import 'package:opicare/features/jours_vaccins/data/models/jour_model.dart';
-import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
+import 'package:opicare/features/jours_vaccins/presentation/widgets/week_calendar_widget.dart';
 
 class JoursVaccinScreen extends StatefulWidget {
   JoursVaccinScreen({super.key});
@@ -33,13 +32,11 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final joursRepo = JoursVaccinRepositoryImpl();
-    List<JourModel> jours = joursRepo.getJours();
     return Scaffold(
       backgroundColor: Colours.background,
       key: _scaffoldKey,
       appBar: CustomAppBar(
-        title: "Jour de vaccin",
+        title: "Jours de vaccins",
         scaffoldKey: _scaffoldKey,
       ),
       drawer: const CustomDrawer(),
@@ -64,12 +61,12 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
             builder: (context, state) {
               final bloc = context.read<JoursVaccinBloc>();
 
-              return Padding(
+              return SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Faire une recherche', style: TextStyles.titleMedium),
+                    Text('Sélectionner un centre', style: TextStyles.titleMedium),
                     const SizedBox(height: 20),
                     CustomSelectField(
                       label: 'Liste des districts',
@@ -91,19 +88,12 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
                       },
                       isEnabled: state is JoursVaccinLoaded && state.selectedDistrict != null,
                     ),
-                    const SizedBox(height: 16),
-                    CustomSelectField(
-                      label: 'Jours de vaccins',
-                      selectedValue: state is JoursVaccinLoaded ? state.selectedJour : null,
-                      hint: 'Sélectionner un jour',
-                      options: jours.map((j) => {'libelle': j.libelle, 'valeur': j.valeur}).toList(),
-                      onSelected: (value) => bloc.add(SelectJour(jourId: value!)),
-                      isEnabled: state is JoursVaccinLoaded && state.selectedCentre != null,
-                    ),
                     const SizedBox(height: 30),
-                    Text('Résultat', style: TextStyles.titleMedium),
-                    const SizedBox(height: 10),
-                    Text('(Aucun résultat trouvé!)', style: TextStyles.bodyRegular),
+                    if (state is JoursVaccinLoaded && state.selectedCentre != null)
+                      WeekCalendarWidget(
+                        vaccins: state.vaccins,
+                        errorMessage: state.errorMessage,
+                      ),
                   ],
                 ),
               );

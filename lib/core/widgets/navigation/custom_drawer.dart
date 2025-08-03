@@ -13,8 +13,7 @@ import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_sc
 import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_screen.dart';
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
-import 'package:opicare/features/vaccins_conseils/presentation/pages/vaccins_conseils_screen.dart';
-import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
+
 import 'package:opicare/core/di.dart';
 import 'package:opicare/features/welcome/welcome.dart';
 
@@ -118,20 +117,7 @@ class CustomDrawer extends StatelessWidget {
                       onTap: () {
                         context.go(DisponibiliteVaccinScreen.path);
                       }),
-                  _buildDrawerItem(
-                      icon: Icons.medical_services,
-                      text: 'Vaccins conseillés',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => BlocProvider(
-                              create: (context) => Di.get<VaccinConseilBloc>(),
-                              child: const VaccinsConseilsScreen(),
-                            ),
-                          ),
-                        );
-                      }),
+
                 ],
               ),
             ),

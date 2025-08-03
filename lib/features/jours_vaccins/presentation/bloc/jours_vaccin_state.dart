@@ -11,7 +11,7 @@ class JoursVaccinLoaded extends JoursVaccinState {
   final List<CentreModel> centres;
   final String? selectedDistrict;
   final String? selectedCentre;
-  final String? selectedJour;
+  final List<VaccinCentreEntity>? vaccins;
   final String? errorMessage;
 
   JoursVaccinLoaded(
@@ -19,14 +19,14 @@ class JoursVaccinLoaded extends JoursVaccinState {
         required this.centres,
         this.selectedCentre,
         this.selectedDistrict,
-        this.selectedJour,
+        this.vaccins,
         this.errorMessage
       });
 
   JoursVaccinLoaded copyWith(
       {List<DistrictModel>? districts,
         List<CentreModel>? centres,
-        String? selectedJour,
+        List<VaccinCentreEntity>? vaccins,
         String? selectedDistrict,
         String? selectedCentre,
          String? errorMessage}) {
@@ -35,7 +35,7 @@ class JoursVaccinLoaded extends JoursVaccinState {
         centres: centres ?? this.centres,
         selectedDistrict: selectedDistrict ?? this.selectedDistrict,
         selectedCentre: selectedCentre ?? this.selectedCentre,
-        selectedJour: selectedJour ?? this.selectedJour,
+        vaccins: vaccins ?? this.vaccins,
         errorMessage: errorMessage ?? this.errorMessage
     );
   }

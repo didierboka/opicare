@@ -3,6 +3,8 @@ import 'package:opicare/features/disponibilite_vaccins/data/models/centre_model.
 import 'package:opicare/features/disponibilite_vaccins/data/models/district_model.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
+import 'package:opicare/features/jours_vaccins/domain/entities/vaccin_centre_entity.dart';
+import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
 
 part 'jours_vaccin_event.dart';
 part 'jours_vaccin_state.dart';
@@ -10,17 +12,18 @@ part 'jours_vaccin_state.dart';
 class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
   final JoursVaccinRepository joursVaccinRepository;
   final DispoVaccinRepository dispoVaccinRepository;
+  final GetVaccinsByCentreUseCase getVaccinsByCentreUseCase;
 
-  JoursVaccinBloc(
-      {required this.joursVaccinRepository,
-      required this.dispoVaccinRepository})
-      : super(JoursVaccinInitial()) {
+  JoursVaccinBloc({
+    required this.joursVaccinRepository,
+    required this.dispoVaccinRepository,
+    required this.getVaccinsByCentreUseCase,
+  }) : super(JoursVaccinInitial()) {
     on<LoadDistricts>(_onLoadDistricts);
     on<LoadCentres>(_onLoadCentres);
-    //on<LoadJours>(_onLoadJours);
     on<SelectDistrict>(_onSelectDistrict);
     on<SelectCentre>(_onSelectCentre);
-    on<SelectJour>(_onSelectJour);
+    on<LoadVaccinsByCentre>(_onLoadVaccinsByCentre);
   }
 
   Future<void> _onLoadDistricts(
@@ -37,7 +40,7 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
         centres: [],
         selectedDistrict: null,
         selectedCentre: null,
-        selectedJour: null,
+        vaccins: null,
       ));
     } catch (e) {
       emit(JoursVaccinFailure(message: e.toString()));
@@ -63,7 +66,7 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
         centres: centres.datas ?? [],
         selectedDistrict: event.districtId,
         selectedCentre: null,
-        selectedJour: null,
+        vaccins: null,
         errorMessage: null,
       ));
     } catch (e) {
@@ -71,28 +74,30 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
     }
   }
 
-  // Future<void> _onLoadJours(LoadJours event, Emitter<JoursVaccinState> emit) async {
-  //   if (state is! JoursVaccinLoaded) return;
-  //   final currentState = state as JoursVaccinLoaded;
-  //   emit(JoursVaccinLoading());
-  //   try {
-  //     final jours = await joursVaccinRepository.getJours(event.centreId);
-  //     if (!jours.status) {
-  //       emit(JoursVaccinFailure(
-  //         message: jours.message!,
-  //         previousState: currentState.copyWith(jours: [], selectedJour: null, errorMessage: jours.message),
-  //       ));
-  //       return;
-  //     }
-  //     emit(currentState.copyWith(
-  //       jours: jours.datas ?? [],
-  //       selectedCentre: event.centreId,
-  //       errorMessage: null,
-  //     ));
-  //   } catch (e) {
-  //     emit(JoursVaccinFailure(message: e.toString()));
-  //   }
-  // }
+  Future<void> _onLoadVaccinsByCentre(
+      LoadVaccinsByCentre event, Emitter<JoursVaccinState> emit) async {
+    if (state is! JoursVaccinLoaded) return;
+    final currentState = state as JoursVaccinLoaded;
+    emit(JoursVaccinLoading());
+    try {
+      final result = await getVaccinsByCentreUseCase.execute(event.centreId);
+      result.fold(
+        (failure) => emit(JoursVaccinFailure(
+          message: failure.message,
+          previousState: currentState.copyWith(vaccins: null, errorMessage: failure.message),
+        )),
+        (vaccins) {
+          emit(currentState.copyWith(
+            vaccins: vaccins,
+            selectedCentre: event.centreId,
+            errorMessage: null,
+          ));
+        },
+      );
+    } catch (e) {
+      emit(JoursVaccinFailure(message: e.toString()));
+    }
+  }
 
   void _onSelectDistrict(SelectDistrict event, Emitter<JoursVaccinState> emit) {
     if (state is! JoursVaccinLoaded) return;
@@ -101,8 +106,7 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
       selectedDistrict: event.districtId,
       selectedCentre: null,
       centres: [],
-      //jours: [],
-      selectedJour: null,
+      vaccins: null,
     ));
     add(LoadCentres(districtId: event.districtId));
   }
@@ -112,14 +116,8 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
     final currentState = state as JoursVaccinLoaded;
     emit(currentState.copyWith(
       selectedCentre: event.centretId,
-      //jours: [],
+      vaccins: null,
     ));
-    //add(LoadJours(centreId: event.centretId));
-  }
-
-  void _onSelectJour(SelectJour event, Emitter<JoursVaccinState> emit) {
-    if (state is! JoursVaccinLoaded) return;
-    final currentState = state as JoursVaccinLoaded;
-    emit(currentState.copyWith(selectedJour: event.jourId));
+    add(LoadVaccinsByCentre(centreId: event.centretId));
   }
 }

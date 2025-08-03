@@ -50,6 +50,11 @@ import 'package:opicare/features/vaccins_conseils/data/repositories/vaccin_conse
 import 'package:opicare/features/vaccins_conseils/domain/repositories/vaccin_conseil_repository.dart';
 import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_conseil_usecase.dart';
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
+import 'package:opicare/features/jours_vaccins/data/models/vaccin_centre_response.dart';
+import 'package:opicare/features/jours_vaccins/data/repositories/vaccin_centre_repository.dart';
+import 'package:opicare/features/jours_vaccins/domain/repositories/vaccin_centre_repository.dart' as domain;
+import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
+import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 
 /// * Jun, 2025
 /// * Created by didierboka on 18/06/2025.
@@ -200,6 +205,11 @@ class Di {
     // API Service pour TypeVisiteModel - Types de visite
     _getIt.registerLazySingleton<ApiService<TypeVisiteModel>>(
       () => ApiService<TypeVisiteModel>(fromJson: TypeVisiteModel.fromJson),
+    );
+
+    // API Service pour VaccinCentreResponse - Vaccins d'un centre
+    _getIt.registerLazySingleton<ApiService<VaccinCentreResponse>>(
+      () => ApiService<VaccinCentreResponse>(fromJson: VaccinCentreResponse.fromJson),
     );
 
     // API Service générique pour les réponses dynamiques
@@ -371,6 +381,29 @@ class Di {
     _getIt.registerFactory<VaccinConseilBloc>(
       () => VaccinConseilBloc(
         getVaccinConseil: _getIt<GetVaccinConseilUseCase>(),
+      ),
+    );
+
+    // Vaccin Centre Repository - Vaccins d'un centre
+    _getIt.registerLazySingleton<domain.VaccinCentreRepository>(
+      () => VaccinCentreRepositoryImpl(
+        apiService: _getIt<ApiService<VaccinCentreResponse>>(),
+      ),
+    );
+
+    // Vaccin Centre Use Cases
+    _getIt.registerLazySingleton<GetVaccinsByCentreUseCase>(
+      () => GetVaccinsByCentreUseCase(
+        repository: _getIt<domain.VaccinCentreRepository>(),
+      ),
+    );
+
+    // Jours Vaccin Bloc
+    _getIt.registerFactory<JoursVaccinBloc>(
+      () => JoursVaccinBloc(
+        joursVaccinRepository: _getIt<JoursVaccinRepository>(),
+        dispoVaccinRepository: _getIt<DispoVaccinRepository>(),
+        getVaccinsByCentreUseCase: _getIt<GetVaccinsByCentreUseCase>(),
       ),
     );
   }
