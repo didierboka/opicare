@@ -1,11 +1,9 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
-import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
+import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 import 'package:opicare/features/auth/domain/use_cases/delete_account_usecase.dart';
 import 'package:opicare/features/auth/domain/use_cases/update_profile_photo_usecase.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
@@ -46,7 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await localStorage.getSavedUser();
       if (user != null) {
         // Validate user has essential data
-        if (user.patID != null && user.patID.isNotEmpty) {
+        if (user.patID.isNotEmpty) {
           logger.i("Valid user foundoo: ${user.name}");
           emit(AuthAuthenticated(user));
           return;

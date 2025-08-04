@@ -1,9 +1,9 @@
 //part of 'souscription_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:opicare/features/souscribtion/data/models/formule.dart';
-import 'package:opicare/features/souscribtion/data/models/type_abo_model.dart';
-import 'package:opicare/features/souscribtion/data/repositories/subscription_repository.dart';
+import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
+import 'package:opicare/features/souscribtion/domain/entities/type_abo_entity.dart';
+import 'package:opicare/features/souscribtion/domain/repositories/souscription_repository.dart';
 import 'package:opicare/features/souscribtion/domain/usecases/get_formules_usecase.dart';
 import 'package:opicare/features/souscribtion/domain/usecases/get_type_abos_usecase.dart';
 
@@ -70,8 +70,8 @@ class SouscriptionInitial extends SouscriptionState {}
 class SouscriptionLoading extends SouscriptionState {}
 
 class SouscriptionLoaded extends SouscriptionState {
-  final List<TypeAboModel> typeAbos;
-  final List<FormuleModel> formules;
+  final List<TypeAboEntity> typeAbos;
+  final List<FormuleEntity> formules;
   final String? selectedTypeAbo;
   final String? selectedFormule;
   final int years;
@@ -87,8 +87,8 @@ class SouscriptionLoaded extends SouscriptionState {
   });
 
   SouscriptionLoaded copyWith({
-    List<TypeAboModel>? typeAbos,
-    List<FormuleModel>? formules,
+    List<TypeAboEntity>? typeAbos,
+    List<FormuleEntity>? formules,
     String? selectedTypeAbo,
     String? selectedFormule,
     int? years,
@@ -204,14 +204,14 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     final formule = currentState.formules.firstWhere(
       (f) => f.id == event.formuleId,
-      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
+      orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
     );
 
     // Initialiser les années avec la valeur bonus de la formule
     final years = formule.bonus > 0 ? formule.bonus : 1;
     
     // Prix initial (pas de pas d'incrément au début)
-    final prixInitial = double.tryParse(formule.prix) ?? 0.0;
+    final prixInitial = formule.prix;
     final total = prixInitial;
 
     emit(currentState.copyWith(
@@ -233,14 +233,14 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     final years = int.tryParse(event.years) ?? 1;
     final formule = currentState.formules.firstWhere(
       (f) => f.id == currentState.selectedFormule,
-      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
+      orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
     );
 
     // Calculer le nombre de pas depuis la valeur initiale (bonus)
     final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
     
     // Prix initial + (nombre de pas × prix initial)
-    final prixInitial = double.tryParse(formule.prix) ?? 0.0;
+    final prixInitial = formule.prix;
     final total = prixInitial + (pasIncrement * prixInitial);
 
     emit(currentState.copyWith(
@@ -260,7 +260,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     final formule = currentState.formules.firstWhere(
       (f) => f.id == currentState.selectedFormule,
-      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
+      orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
     );
 
     // Incrémenter par la valeur du bonus
@@ -270,7 +270,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
     
     // Prix initial + (nombre de pas × prix initial)
-    final prixInitial = double.tryParse(formule.prix) ?? 0.0;
+    final prixInitial = formule.prix;
     final total = prixInitial + (pasIncrement * prixInitial);
 
     emit(currentState.copyWith(
@@ -290,7 +290,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     final formule = currentState.formules.firstWhere(
       (f) => f.id == currentState.selectedFormule,
-      orElse: () => FormuleModel(id: '', formuleLibelle: '', prix: '0', bonus: 0),
+      orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
     );
 
     // Décrémenter par la valeur du bonus, mais ne pas aller en dessous du bonus
@@ -300,7 +300,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
     
     // Prix initial + (nombre de pas × prix initial)
-    final prixInitial = double.tryParse(formule.prix) ?? 0.0;
+    final prixInitial = formule.prix;
     final total = prixInitial + (pasIncrement * prixInitial);
 
     emit(currentState.copyWith(

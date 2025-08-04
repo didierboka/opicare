@@ -6,8 +6,9 @@ import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
-import 'package:opicare/features/carnet_sante/data/repositories/carnet_repository.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
+import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
+import 'package:opicare/features/carnet_sante/domain/repositories/carnet_repository.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_date_picker_field.dart';
 
@@ -37,7 +38,10 @@ class _RescheduleVaccineScreenState extends State<RescheduleVaccineScreen> {
   @override
   void initState() {
     super.initState();
-    _carnetBloc = CarnetBloc(repository: Di.get<CarnetRepository>());
+    _carnetBloc = CarnetBloc(
+      repository: Di.get<CarnetRepository>(),
+      getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
+    );
   }
 
   @override

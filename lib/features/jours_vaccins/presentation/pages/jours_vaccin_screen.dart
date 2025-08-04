@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
@@ -27,11 +28,14 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
   @override
   void initState() {
     super.initState();
+    DebugLogger.navigation('JoursVaccinScreen: Initialisation de l\'écran');
     context.read<JoursVaccinBloc>().add(LoadDistricts());
   }
 
   @override
   Widget build(BuildContext context) {
+    DebugLogger.navigation('JoursVaccinScreen: Construction de l\'écran');
+    
     return Scaffold(
       backgroundColor: Colours.background,
       key: _scaffoldKey,
@@ -46,12 +50,16 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
         child: SafeArea(
           child: BlocConsumer<JoursVaccinBloc, JoursVaccinState>(
             listener: (context, state) {
+              DebugLogger.bloc('JoursVaccinScreen: État reçu - ${state.runtimeType}');
+              
               showLoader(context, state is JoursVaccinLoading);
 
               if (state is JoursVaccinFailure) {
+                DebugLogger.error('JoursVaccinScreen: État d\'échec - ${state.message}');
                 showSnackbar(context, message: state.message, type: MessageType.error);
 
                 if (state.previousState != null) {
+                  DebugLogger.info('JoursVaccinScreen: Restauration de l\'état précédent');
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     context.read<JoursVaccinBloc>().emit(state.previousState!);
                   });
@@ -60,6 +68,7 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
             },
             builder: (context, state) {
               final bloc = context.read<JoursVaccinBloc>();
+              DebugLogger.bloc('JoursVaccinScreen: Construction avec état - ${state.runtimeType}');
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
@@ -73,7 +82,10 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
                       selectedValue: state is JoursVaccinLoaded ? state.selectedDistrict : null,
                       hint: 'Sélectionner un district',
                       options: state is JoursVaccinLoaded ? state.districts.map((d) => {'libelle': d.nom, 'valeur': d.id}).toList() : [],
-                      onSelected: (value) => bloc.add(SelectDistrict(districtId: value!)),
+                      onSelected: (value) {
+                        DebugLogger.info('JoursVaccinScreen: District sélectionné - $value');
+                        bloc.add(SelectDistrict(districtId: value!));
+                      },
                     ),
                     const SizedBox(height: 16),
                     CustomSelectField(
@@ -82,6 +94,7 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
                       hint: 'Sélectionner un centre',
                       options: state is JoursVaccinLoaded ? state.centres.map((c) => {'libelle': c.nom, 'valeur': c.id}).toList() : [],
                       onSelected: (value) {
+                        DebugLogger.info('JoursVaccinScreen: Centre sélectionné - $value');
                         if (value != null) {
                           bloc.add(SelectCentre(centretId: value));
                         }

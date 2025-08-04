@@ -1,30 +1,15 @@
+import 'package:dartz/dartz.dart';
+import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/network/custom_response.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
+import 'package:opicare/features/carnet_sante/data/models/visit_type.dart';
 
-abstract class CarnetRepository {
-  Future<CustomResponse<Vaccine>> getVaccines(String id);
+import 'package:opicare/features/carnet_sante/domain/entities/visit_type_entity.dart';
+import 'package:opicare/features/carnet_sante/domain/repositories/carnet_repository.dart';
 
-  Future<CustomResponse<MissedVaccine>> getMissedVaccines(String id);
-
-  Future<CustomResponse<UpcomingVaccine>> getUpcomingVaccines(String id);
-
-  Future<CustomResponse<Map<String, dynamic>>> rescheduleVaccine({
-    required String vaccineId,
-    required String patientId,
-    required DateTime newDate,
-    required String centreId,
-    required String districtId,
-    required String regionId
-  });
-
-  Future<CustomResponse<Map<String, dynamic>>> updateVaccinePhoto({
-    required String vaccineId,
-    required String photoPath,
-  });
-}
 
 class CarnetRepositoryImpl implements CarnetRepository {
   final ApiService<Vaccine> apiService;
@@ -114,5 +99,28 @@ class CarnetRepositoryImpl implements CarnetRepository {
     );
 
     return response;
+  }
+
+  @override
+  Future<Either<Failure, List<VisitTypeEntity>>> getVisitTypes() async {
+    try {
+      final ApiService<VisitTypeModel> visitTypesApiService = ApiService(
+        fromJson: (json) => VisitTypeModel.fromJson(json),
+      );
+
+      final response = await visitTypesApiService.post('/typevisite', {}, likeAgent: true);
+      
+      if (response.status && response.datas != null) {
+        final entities = response.datas!.map((model) => VisitTypeEntity(
+          id: model.id,
+          typeVisite: model.typeVisite,
+        )).toList();
+        return Right(entities);
+      } else {
+        return Left(ServerFailure(response.message ?? 'Erreur lors du chargement des types de visite'));
+      }
+    } catch (e) {
+      return Left(ServerFailure('Erreur lors du chargement des types de visite: $e'));
+    }
   }
 }

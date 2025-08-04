@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/di.dart';
@@ -17,10 +16,8 @@ import 'package:opicare/features/famille/presentation/pages/famille_screen.dart'
 import 'package:opicare/features/hopitaux/presentation/bloc/hopitaux_bloc.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
 import 'package:opicare/features/hopitaux/data/repositories/hopitaux_repository.dart';
-import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_screen.dart';
-import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
 import 'package:opicare/features/notifications/domain/usecases/get_sms_recus_usecase.dart';
 import 'package:opicare/features/notifications/presentation/bloc/sms_bloc.dart';
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
@@ -36,19 +33,20 @@ import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_con
 import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
 
 import '../../features/accueil/presentation/pages/home_screen.dart';
-import '../../features/auth/data/repositories/auth_repository.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/carnet_sante/domain/repositories/carnet_repository.dart';
 import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import '../../features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
 import '../../features/carnet_sante/presentation/pages/vaccine_details_screen.dart';
 import '../../features/carnet_sante/presentation/pages/add_vaccine_screen.dart';
 import '../../features/carnet_sante/data/models/vaccine.dart';
 import '../../features/carnet_sante/presentation/bloc/carnet_bloc.dart';
-import '../../features/carnet_sante/data/repositories/carnet_repository.dart';
-import '../../features/change_password/data/repositories/change_pwd_repository.dart';
+import '../../features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
+import '../../features/change_password/domain/repositories/change_pwd_repository.dart';
 import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
-import '../../features/notifications/domain/repositories/sms_repository.dart';
 import '../../features/profile/presentation/pages/profile_screen.dart';
-import '../../features/souscribtion/data/repositories/subscription_repository.dart';
+import '../../features/souscribtion/domain/repositories/souscription_repository.dart';
+import '../../features/jours_vaccins/domain/repositories/jour_vaccin_repository.dart';
 
 final appRouter = GoRouter(
   initialLocation: AppWrapper.path,
@@ -119,6 +117,7 @@ final appRouter = GoRouter(
         return BlocProvider(
           create: (context) => CarnetBloc(
             repository: Di.get<CarnetRepository>(),
+            getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
           ),
           child: VaccineDetailsScreen(vaccine: vaccine),
         );
@@ -144,6 +143,7 @@ final appRouter = GoRouter(
       builder: (context, state) => BlocProvider(
         create: (context) => CarnetBloc(
           repository: Di.get<CarnetRepository>(),
+          getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
         ),
         child: const AddVaccineScreen(),
       ),

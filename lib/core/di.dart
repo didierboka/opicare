@@ -2,9 +2,12 @@ import 'package:get_it/get_it.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
+import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/repositories/carnet_repository.dart';
+import 'package:opicare/features/carnet_sante/domain/repositories/carnet_repository.dart';
 import 'package:opicare/features/change_password/data/repositories/change_pwd_repository.dart';
+import 'package:opicare/features/change_password/domain/repositories/change_pwd_repository.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/centre_model.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/district_model.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_model.dart';
@@ -16,9 +19,10 @@ import 'package:opicare/features/hopitaux/data/models/type_visite_model.dart';
 import 'package:opicare/features/hopitaux/data/repositories/hopitaux_repository.dart';
 import 'package:opicare/features/hopitaux/data/repositories/type_visite_repository.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/jour_vaccin_repository.dart';
+import 'package:opicare/features/jours_vaccins/domain/repositories/jour_vaccin_repository.dart';
 import 'package:opicare/features/notifications/data/models/sms_model.dart';
 import 'package:opicare/features/notifications/data/repositories/sms_repository.dart';
-import 'package:opicare/features/notifications/domain/repositories/sms_repository.dart' as domain;
+import 'package:opicare/features/notifications/domain/repositories/sms_repository.dart';
 import 'package:opicare/features/notifications/domain/usecases/get_sms_recus_usecase.dart';
 import 'package:opicare/features/notifications/presentation/bloc/sms_bloc.dart';
 import 'package:opicare/features/plan_abonnement/data/models/formule_model.dart';
@@ -31,6 +35,7 @@ import 'package:opicare/features/sante_infos/presentation/bloc/sante_info_bloc.d
 import 'package:opicare/features/souscribtion/data/models/formule.dart';
 import 'package:opicare/features/souscribtion/data/models/type_abo_model.dart';
 import 'package:opicare/features/souscribtion/data/repositories/subscription_repository.dart';
+import 'package:opicare/features/souscribtion/domain/repositories/souscription_repository.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
@@ -52,9 +57,10 @@ import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_con
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
 import 'package:opicare/features/jours_vaccins/data/models/vaccin_centre_response.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/vaccin_centre_repository.dart';
-import 'package:opicare/features/jours_vaccins/domain/repositories/vaccin_centre_repository.dart' as domain;
+import 'package:opicare/features/jours_vaccins/domain/repositories/vaccin_centre_repository.dart';
 import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
+import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
 
 /// * Jun, 2025
 /// * Created by didierboka on 18/06/2025.
@@ -263,13 +269,13 @@ class Di {
     );
 
     // SMS Repository - Gestion des SMS reçus
-    _getIt.registerLazySingleton<domain.SmsRepository>(
+    _getIt.registerLazySingleton<SmsRepository>(
       () => SmsRepositoryImpl(_getIt<ApiService<SmsModel>>()),
     );
 
     // SMS Use Cases
     _getIt.registerLazySingleton<GetSmsRecus>(
-      () => GetSmsRecus(_getIt<domain.SmsRepository>()),
+      () => GetSmsRecus(_getIt<SmsRepository>()),
     );
 
     // SMS Bloc
@@ -385,7 +391,7 @@ class Di {
     );
 
     // Vaccin Centre Repository - Vaccins d'un centre
-    _getIt.registerLazySingleton<domain.VaccinCentreRepository>(
+    _getIt.registerLazySingleton<VaccinCentreRepository>(
       () => VaccinCentreRepositoryImpl(
         apiService: _getIt<ApiService<VaccinCentreResponse>>(),
       ),
@@ -394,7 +400,7 @@ class Di {
     // Vaccin Centre Use Cases
     _getIt.registerLazySingleton<GetVaccinsByCentreUseCase>(
       () => GetVaccinsByCentreUseCase(
-        repository: _getIt<domain.VaccinCentreRepository>(),
+        repository: _getIt<VaccinCentreRepository>(),
       ),
     );
 
@@ -405,6 +411,11 @@ class Di {
         dispoVaccinRepository: _getIt<DispoVaccinRepository>(),
         getVaccinsByCentreUseCase: _getIt<GetVaccinsByCentreUseCase>(),
       ),
+    );
+
+    // Visit Types Use Cases
+    _getIt.registerLazySingleton<GetVisitTypesUseCase>(
+      () => GetVisitTypesUseCase(_getIt<CarnetRepository>()),
     );
   }
 

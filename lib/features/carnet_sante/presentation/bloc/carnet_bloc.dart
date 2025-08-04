@@ -4,7 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
-import 'package:opicare/features/carnet_sante/data/repositories/carnet_repository.dart';
+import 'package:opicare/features/carnet_sante/domain/entities/visit_type_entity.dart';
+import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
+
+import '../../domain/repositories/carnet_repository.dart';
 
 abstract class CarnetEvent {}
 
@@ -77,6 +80,8 @@ class AddVaccine extends CarnetEvent {
     this.photoPath,
   });
 }
+
+class LoadVisitTypes extends CarnetEvent {}
 
 abstract class CarnetState {}
 
@@ -156,16 +161,35 @@ class AddVaccineFailure extends CarnetState {
   AddVaccineFailure(this.message);
 }
 
+class VisitTypesLoading extends CarnetState {}
+
+class VisitTypesLoaded extends CarnetState {
+  final List<VisitTypeEntity> visitTypes;
+
+  VisitTypesLoaded(this.visitTypes);
+}
+
+class VisitTypesError extends CarnetState {
+  final String message;
+
+  VisitTypesError(this.message);
+}
+
 class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
   final CarnetRepository repository;
+  final GetVisitTypesUseCase getVisitTypesUseCase;
 
-  CarnetBloc({required this.repository}) : super(CarnetInitial()) {
+  CarnetBloc({
+    required this.repository,
+    required this.getVisitTypesUseCase,
+  }) : super(CarnetInitial()) {
     on<LoadVaccines>(_onLoadVaccines);
     on<LoadMissedVaccines>(_onLoadMissedVaccines);
     on<LoadUpcomingVaccines>(_onLoadUpcomingVaccines);
     on<RescheduleVaccineRequested>(_onRescheduleVaccineRequested);
     on<UpdateVaccinePhoto>(_onUpdateVaccinePhoto);
     on<AddVaccine>(_onAddVaccine);
+    on<LoadVisitTypes>(_onLoadVisitTypes);
   }
 
   Future<void> _onLoadVaccines(
@@ -308,5 +332,18 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     } catch (e) {
       emit(AddVaccineFailure('Erreur lors de l\'ajout du vaccin: $e'));
     }
+  }
+
+  Future<void> _onLoadVisitTypes(
+    LoadVisitTypes event,
+    Emitter<CarnetState> emit,
+  ) async {
+    emit(VisitTypesLoading());
+
+    final result = await getVisitTypesUseCase.execute();
+    result.fold(
+      (failure) => emit(VisitTypesError(failure.message)),
+      (visitTypes) => emit(VisitTypesLoaded(visitTypes)),
+    );
   }
 }

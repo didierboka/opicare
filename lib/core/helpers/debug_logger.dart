@@ -17,7 +17,7 @@ class DebugLogger {
   static void log(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? _defaultEmoji;
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -25,7 +25,7 @@ class DebugLogger {
   static void error(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '❌';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -33,7 +33,7 @@ class DebugLogger {
   static void info(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? 'ℹ️';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -41,7 +41,7 @@ class DebugLogger {
   static void success(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '✅';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -49,7 +49,7 @@ class DebugLogger {
   static void warning(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '⚠️';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -57,7 +57,7 @@ class DebugLogger {
   static void debug(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '🔍';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -65,7 +65,7 @@ class DebugLogger {
   static void performance(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '⚡';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -73,7 +73,7 @@ class DebugLogger {
   static void network(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '🌐';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -81,7 +81,7 @@ class DebugLogger {
   static void database(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '💾';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -89,7 +89,7 @@ class DebugLogger {
   static void navigation(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '🧭';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -97,7 +97,7 @@ class DebugLogger {
   static void bloc(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '🔄';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -105,7 +105,7 @@ class DebugLogger {
   static void validation(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '✅';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 
@@ -113,7 +113,7 @@ class DebugLogger {
   static void security(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '🔒';
-      log('$emojiToUse $message');
+      print('$emojiToUse $message');
     }
   }
 } 

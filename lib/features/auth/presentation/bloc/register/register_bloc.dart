@@ -1,8 +1,8 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
+import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 import 'package:equatable/equatable.dart';
-import 'package:opicare/features/user/data/models/user_model.dart';
+
 
 part 'register_event.dart';
 part 'register_state.dart';

@@ -7,9 +7,9 @@ import 'package:opicare/core/router/app_router.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
+import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 
 import 'core/helpers/local_storage_service.dart';
-import 'features/auth/data/repositories/auth_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
-import '../../../data/repositories/auth_repository.dart'; // à créer
+import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';

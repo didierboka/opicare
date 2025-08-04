@@ -1,13 +1,6 @@
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/network/custom_response.dart';
-
-abstract class ChangePwdRepository{
-  Future<CustomResponse<dynamic>> changePassword({
-    required String id,
-    required String opassword,
-    required String password,
-  });
-}
+import 'package:opicare/features/change_password/domain/repositories/change_pwd_repository.dart';
 
 class ChangePwdRepositoryImpl extends ChangePwdRepository{
   @override

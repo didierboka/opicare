@@ -1,3 +1,5 @@
+import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
+
 class FormuleModel {
 
   final String id;
@@ -23,6 +25,15 @@ class FormuleModel {
       formuleLibelle: json['LIBELLE']?.toString() ?? '', 
       prix: json['TARIF']?.toString() ?? '0', 
       bonus: bonusValue
+    );
+  }
+
+  FormuleEntity toEntity() {
+    return FormuleEntity(
+      id: id,
+      libelle: formuleLibelle,
+      prix: double.tryParse(prix) ?? 0.0,
+      bonus: bonus,
     );
   }
 }

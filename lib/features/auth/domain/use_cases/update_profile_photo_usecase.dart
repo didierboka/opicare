@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:opicare/core/network/custom_response.dart';
-import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
+import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 
 class UpdateProfilePhotoUseCase {

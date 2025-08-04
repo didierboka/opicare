@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:opicare/features/change_password/data/repositories/change_pwd_repository.dart';
+import 'package:opicare/features/change_password/domain/repositories/change_pwd_repository.dart';
 
 part 'change_pwd_event.dart';
 part 'change_pwd_state.dart';

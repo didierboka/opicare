@@ -1,0 +1,28 @@
+
+————————————————————————————————— MISE A JOUR ———————————————————————————————-
+- [ ] POUR L AJOUT DE VISITE
+    - [OK] APPELER L API : https://opisms.net/opisms-aws/typevisite
+    - [OK] LE CLIENT SELECTIONNE LA LISTE AFFICHEE
+    - [ ] APPELER API : https://opisms.net/opisms-aws/listevisite
+    - [ ] AVEC L ID DU TYPE DE VISITE SELECTIONNEE PAR LE CLIENT.
+    - [ ] AFFICHER LA LISTE DES VISITES RESULTANTES
+    - [ ] SELECTIONNE DE LA DATE DE VISITE
+    - [ ] Selectionne le centre de santé
+    - [ ] LE CLIENT RENSEIGNE LE NUMERO DE LOT
+    - [ ] LE CLIENT MET UN COMMENTAIRE
+    - [ ] LE CLIENT AJOUTE LA PHOTO DE LA VISITE
+    - [ ] APPELER L API : https://opisms.net/opisms-aws/vaccin/ajout
+    - [ ] EN TRANSMETTANT LES INFOS FOURNIES PAR LE CLIENT
+
+- [ ] Dans mon carnet, ajouter un onglet «PROGRAMMER»
+    - [ ] Ce menu permet de programmer un vaccin quelconque
+    - [ ] La liste des vaccins qui doit s’afficher est fonction des types de vaccins (API voir M. NDRIN)
+    - [ ] Apres la selection du type les vaccins de ce type s’affichent automatiquement.
+    - [ ] Les vaccins doivent etre selectionnables
+    - [ ] Si une seule date est saisie, cette dernière s’applique a tous les autres vaccins.
+    - [ ] Un disclaimer est affiche pour la 1ere fois lorsqu il rentre dans cette fonctionnalité de programmation
+
+- [ ] Dans las section «Vaccins voyages»
+    - [ ] Le client doit selectionne la destination ou il veut aller (API: https://e-sante.ci/api/orange/ussd/vaccin/)
+    - [ ] Une fois la destination sélectionnée, les vaccins a faire s’affichent
+

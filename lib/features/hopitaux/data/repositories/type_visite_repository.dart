@@ -14,7 +14,7 @@ class TypeVisiteRepositoryImpl implements TypeVisiteRepository {
         fromJson: (json) => TypeVisiteModel.fromJson(json),
       );
       
-      final response = await apiService.get('/typevisite');
+      final response = await apiService.post('/typevisite', {}, likeAgent: true);
       return response;
     } catch (e) {
       return CustomResponse<TypeVisiteModel>(
