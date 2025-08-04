@@ -3,11 +3,11 @@
 - [ ] POUR L AJOUT DE VISITE
     - [OK] APPELER L API : https://opisms.net/opisms-aws/typevisite
     - [OK] LE CLIENT SELECTIONNE LA LISTE AFFICHEE
-    - [ ] APPELER API : https://opisms.net/opisms-aws/listevisite
-    - [ ] AVEC L ID DU TYPE DE VISITE SELECTIONNEE PAR LE CLIENT.
-    - [ ] AFFICHER LA LISTE DES VISITES RESULTANTES
-    - [ ] SELECTIONNE DE LA DATE DE VISITE
-    - [ ] Selectionne le centre de santé
+    - [OK] APPELER API : https://opisms.net/opisms-aws/listevisite
+    - [OK] AVEC L ID DU TYPE DE VISITE SELECTIONNEE PAR LE CLIENT.
+    - [OK] AFFICHER LA LISTE DES VISITES RESULTANTES
+    - [OK] SELECTIONNE DE LA DATE DE VISITE
+    - [] Selectionne le centre de santé
     - [ ] LE CLIENT RENSEIGNE LE NUMERO DE LOT
     - [ ] LE CLIENT MET UN COMMENTAIRE
     - [ ] LE CLIENT AJOUTE LA PHOTO DE LA VISITE
