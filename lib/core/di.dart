@@ -61,6 +61,7 @@ import 'package:opicare/features/jours_vaccins/domain/repositories/vaccin_centre
 import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
+import 'package:opicare/features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart';
 
 /// * Jun, 2025
 /// * Created by didierboka on 18/06/2025.
@@ -416,6 +417,11 @@ class Di {
     // Visit Types Use Cases
     _getIt.registerLazySingleton<GetVisitTypesUseCase>(
       () => GetVisitTypesUseCase(_getIt<CarnetRepository>()),
+    );
+
+    // Submit Vaccine Use Cases
+    _getIt.registerLazySingleton<SubmitVaccineUseCase>(
+      () => SubmitVaccineUseCase(_getIt<CarnetRepository>()),
     );
   }
 

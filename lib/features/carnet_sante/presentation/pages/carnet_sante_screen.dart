@@ -10,6 +10,7 @@ import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
+import 'package:opicare/features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart';
 import 'package:opicare/features/carnet_sante/presentation/pages/add_vaccine_screen.dart';
 import 'package:opicare/features/carnet_sante/presentation/widgets/health_card_header.dart';
 import 'package:opicare/features/carnet_sante/presentation/widgets/vaccine_table_view.dart';
@@ -30,6 +31,7 @@ class CarnetSanteScreen extends StatelessWidget {
       create: (context) => CarnetBloc(
         repository: Di.get<CarnetRepository>(),
         getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
+        submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
       )..add(LoadVaccines(id: user.patID)),
       child: BackButtonBlockerWidget(
         message: 'Utilisez le menu pour naviguer',

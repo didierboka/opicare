@@ -688,29 +688,15 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
 
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
-      final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
-      
-      // Parse date from controller
-      DateTime? administrationDate;
-      
-      if (_administrationDateController.text.isNotEmpty) {
-        try {
-          administrationDate = DateTime.parse(_administrationDateController.text);
-        } catch (e) {
-          // Date already validated by form
-        }
-      }
-      
-      context.read<CarnetBloc>().add(AddVaccine(
-        userId: user.patID,
-        name: _nameController.text.trim(),
-        administrationDate: administrationDate!,
-        recallDate: null, // Calculé automatiquement par le serveur
-        lotNumber: _lotNumberController.text.trim(),
-        centerName: _centerNameController.text.trim(),
-        comment: _commentController.text.trim(),
-        photoPath: _selectedImagePath,
-      ));
+      // Naviguer vers la page de récapitulatif avec toutes les données
+      context.push('/vaccine_summary', extra: {
+        'selectedVaccin': _selectedNomVaccin,
+        'selectedTypeVisite': _selectedTypeVisite,
+        'administrationDate': _administrationDateController.text,
+        'lotNumber': _lotNumberController.text.trim(),
+        'comment': _commentController.text.trim(),
+        'photoPath': _selectedImagePath,
+      });
     }
   }
 

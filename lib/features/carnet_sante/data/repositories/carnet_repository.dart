@@ -6,6 +6,8 @@ import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/visit_type.dart';
+import 'package:opicare/features/carnet_sante/data/models/vaccine_submission_model.dart';
+import 'package:opicare/features/carnet_sante/domain/entities/vaccine_submission_entity.dart';
 
 import 'package:opicare/features/carnet_sante/domain/entities/visit_type_entity.dart';
 import 'package:opicare/features/carnet_sante/domain/repositories/carnet_repository.dart';
@@ -122,5 +124,36 @@ class CarnetRepositoryImpl implements CarnetRepository {
     } catch (e) {
       return Left(ServerFailure('Erreur lors du chargement des types de visite: $e'));
     }
+  }
+
+  @override
+  Future<CustomResponse<Map<String, dynamic>>> submitVaccineData(VaccineSubmissionEntity vaccineSubmission) async {
+    final ApiService<Map<String, dynamic>> submitVaccineApiService = ApiService(
+      fromJson: (json) => json,
+    );
+
+    // Convertir l'entité en modèle pour la couche Data
+    final vaccineSubmissionModel = VaccineSubmissionModel(
+      usrId: vaccineSubmission.usrId,
+      ctrregion: vaccineSubmission.ctrregion,
+      ctrdist: vaccineSubmission.ctrdist,
+      ctrId: vaccineSubmission.ctrId,
+      dtPre: vaccineSubmission.dtPre,
+      lot: vaccineSubmission.lot,
+      imgCarnet: vaccineSubmission.imgCarnet,
+      typeAbnt: vaccineSubmission.typeAbnt,
+      patId: vaccineSubmission.patId,
+      vacId: vaccineSubmission.vacId,
+      dtRap: vaccineSubmission.dtRap,
+    );
+
+    final response = await submitVaccineApiService.post(
+      '/vaccin/ajout',
+      likeAgent: true,
+      useFormData: false,
+      vaccineSubmissionModel.toJson(),
+    );
+
+    return response;
   }
 }

@@ -5,7 +5,9 @@ import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
 import 'package:opicare/features/carnet_sante/domain/entities/visit_type_entity.dart';
+import 'package:opicare/features/carnet_sante/domain/entities/vaccine_submission_entity.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
+import 'package:opicare/features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart';
 
 import '../../domain/repositories/carnet_repository.dart';
 
@@ -78,6 +80,14 @@ class AddVaccine extends CarnetEvent {
     this.centerName,
     this.comment,
     this.photoPath,
+  });
+}
+
+class SubmitVaccineData extends CarnetEvent {
+  final VaccineSubmissionEntity vaccineSubmission;
+
+  SubmitVaccineData({
+    required this.vaccineSubmission,
   });
 }
 
@@ -178,10 +188,12 @@ class VisitTypesError extends CarnetState {
 class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
   final CarnetRepository repository;
   final GetVisitTypesUseCase getVisitTypesUseCase;
+  final SubmitVaccineUseCase submitVaccineUseCase;
 
   CarnetBloc({
     required this.repository,
     required this.getVisitTypesUseCase,
+    required this.submitVaccineUseCase,
   }) : super(CarnetInitial()) {
     on<LoadVaccines>(_onLoadVaccines);
     on<LoadMissedVaccines>(_onLoadMissedVaccines);
@@ -189,6 +201,7 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     on<RescheduleVaccineRequested>(_onRescheduleVaccineRequested);
     on<UpdateVaccinePhoto>(_onUpdateVaccinePhoto);
     on<AddVaccine>(_onAddVaccine);
+    on<SubmitVaccineData>(_onSubmitVaccineData);
     on<LoadVisitTypes>(_onLoadVisitTypes);
   }
 
@@ -329,6 +342,24 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
       // Pour l'instant, on simule un succès
       await Future.delayed(const Duration(seconds: 1));
       emit(AddVaccineSuccess('Vaccin ajouté avec succès'));
+    } catch (e) {
+      emit(AddVaccineFailure('Erreur lors de l\'ajout du vaccin: $e'));
+    }
+  }
+
+  Future<void> _onSubmitVaccineData(
+    SubmitVaccineData event,
+    Emitter<CarnetState> emit,
+  ) async {
+    emit(AddVaccineLoading());
+
+    try {
+      final result = await submitVaccineUseCase.execute(event.vaccineSubmission);
+      
+      result.fold(
+        (failure) => emit(AddVaccineFailure(failure.message)),
+        (success) => emit(AddVaccineSuccess('Vaccin ajouté avec succès')),
+      );
     } catch (e) {
       emit(AddVaccineFailure('Erreur lors de l\'ajout du vaccin: $e'));
     }

@@ -39,9 +39,11 @@ import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart'
 import '../../features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
 import '../../features/carnet_sante/presentation/pages/vaccine_details_screen.dart';
 import '../../features/carnet_sante/presentation/pages/add_vaccine_screen.dart';
+import '../../features/carnet_sante/presentation/pages/vaccine_summary_screen.dart';
 import '../../features/carnet_sante/data/models/vaccine.dart';
 import '../../features/carnet_sante/presentation/bloc/carnet_bloc.dart';
 import '../../features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
+import '../../features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart';
 import '../../features/change_password/domain/repositories/change_pwd_repository.dart';
 import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import '../../features/profile/presentation/pages/profile_screen.dart';
@@ -118,6 +120,7 @@ final appRouter = GoRouter(
           create: (context) => CarnetBloc(
             repository: Di.get<CarnetRepository>(),
             getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
+            submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
           ),
           child: VaccineDetailsScreen(vaccine: vaccine),
         );
@@ -144,8 +147,20 @@ final appRouter = GoRouter(
         create: (context) => CarnetBloc(
           repository: Di.get<CarnetRepository>(),
           getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
+          submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
         ),
         child: const AddVaccineScreen(),
+      ),
+    ),
+    GoRoute(
+      path: VaccineSummaryScreen.path,
+      builder: (context, state) => BlocProvider(
+        create: (context) => CarnetBloc(
+          repository: Di.get<CarnetRepository>(),
+          getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
+          submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
+        ),
+        child: const VaccineSummaryScreen(),
       ),
     ),
     GoRoute(

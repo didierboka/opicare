@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/features/carnet_sante/domain/entities/visit_type_entity.dart';
+import 'package:opicare/features/carnet_sante/domain/entities/vaccine_submission_entity.dart';
 import 'package:opicare/core/network/custom_response.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/models/missed_vaccine.dart';
@@ -23,4 +24,5 @@ abstract class CarnetRepository {
     required String photoPath,
   });
   Future<Either<Failure, List<VisitTypeEntity>>> getVisitTypes();
+  Future<CustomResponse<Map<String, dynamic>>> submitVaccineData(VaccineSubmissionEntity vaccineSubmission);
 } 
