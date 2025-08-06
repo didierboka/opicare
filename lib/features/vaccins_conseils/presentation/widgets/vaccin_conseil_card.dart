@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:opicare/features/vaccins_conseils/domain/entities/vaccin_conseil.dart';
+import 'package:opicare/features/vaccins_conseils/domain/entities/vaccin_conseil_entity.dart';
 
 class VaccinConseilCard extends StatelessWidget {
   final VaccinConseilEntity vaccinConseil;
@@ -27,9 +27,9 @@ class VaccinConseilCard extends StatelessWidget {
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  'Conseils de Vaccins',
-                  style: TextStyle(
+                Text(
+                  vaccinConseil.label,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
@@ -38,37 +38,30 @@ class VaccinConseilCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
-            if (vaccinConseil.statut == 1)
-              ...vaccinConseil.messages.map((message) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Text(
-                  message,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    height: 1.4,
-                  ),
-                ),
-              )).toList()
-            else
-              const Text(
-                'Aucun conseil disponible pour cette catégorie.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                  fontStyle: FontStyle.italic,
-                ),
+            Text(
+              'Prix: ${vaccinConseil.prix}',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
-            if (vaccinConseil.transactionID != null) ...[
-              const SizedBox(height: 16),
-              const Divider(),
-              Text(
-                'ID Transaction: ${vaccinConseil.transactionID}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              vaccinConseil.details,
+              style: const TextStyle(
+                fontSize: 16,
+                height: 1.4,
               ),
-            ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Cible: ${vaccinConseil.cible}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: Colors.grey,
+              ),
+            ),
           ],
         ),
       ),

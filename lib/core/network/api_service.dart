@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:opicare/core/constants/log.dart';
 import 'package:opicare/core/constants/messages.dart';
 import 'package:opicare/core/network/custom_response.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 
 import '../constants/api_url.dart';
 
@@ -28,7 +29,7 @@ class ApiService<T> {
     }
   }
 
-  Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true, bool likeAgent = false, bool likeOrange = false}) async {
+  Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true, bool likeAgent = false, bool likeOrange = false, String? overrideD}) async {
     print("START API SERVICE POST");
     //  final url = Uri.parse(likeAgent ? '$baseUrlAgent$endpoint' : '$baseUrl$endpoint');
     late Uri url;
@@ -43,10 +44,15 @@ class ApiService<T> {
 
     CustomResponse<T> res = CustomResponse<T>(isLoading: true);
 
-    data['d'] = 'PROD';
+    if (overrideD != null) {
+      data['d'] = overrideD;
+    } else {
+      data['d'] = 'PROD';
+    }
 
-    MyLogger.writeLog(url.toString());
-    MyLogger.writeLog(jsonEncode(data));
+    DebugLogger.network('URL: ${url.toString()}');
+    DebugLogger.network('Data being sent: ${jsonEncode(data)}');
+    DebugLogger.network('overrideD value: $overrideD');
 
     try {
       final response = await http.post(

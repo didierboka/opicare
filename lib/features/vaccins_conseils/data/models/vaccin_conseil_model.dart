@@ -1,31 +1,46 @@
-import 'package:opicare/features/vaccins_conseils/domain/entities/vaccin_conseil.dart';
+import 'package:equatable/equatable.dart';
+import 'package:opicare/features/vaccins_conseils/domain/entities/vaccin_conseil_entity.dart';
 
-class VaccinConseilModel {
-  final int statut;
-  final List<String> messages;
-  final String? transactionID;
+class VaccinConseilModel extends Equatable {
+  final String label;
+  final String prix;
+  final String details;
+  final String cible;
 
   const VaccinConseilModel({
-    required this.statut,
-    required this.messages,
-    this.transactionID,
+    required this.label,
+    required this.prix,
+    required this.details,
+    required this.cible,
   });
 
   factory VaccinConseilModel.fromJson(Map<String, dynamic> json) {
     return VaccinConseilModel(
-      statut: json['statut'] as int,
-      messages: json['messages'] != null 
-          ? List<String>.from(json['messages'] as List)
-          : (json['message'] != null ? [json['message'] as String] : []),
-      transactionID: json['transactionID'] as String?,
+      label: json['label'] ?? '',
+      prix: json['prix'] ?? '',
+      details: json['details'] ?? '',
+      cible: json['cible'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'label': label,
+      'prix': prix,
+      'details': details,
+      'cible': cible,
+    };
   }
 
   VaccinConseilEntity toDomain() {
     return VaccinConseilEntity(
-      statut: statut,
-      messages: messages,
-      transactionID: transactionID,
+      label: label,
+      prix: prix,
+      details: details,
+      cible: cible,
     );
   }
+
+  @override
+  List<Object?> get props => [label, prix, details, cible];
 } 

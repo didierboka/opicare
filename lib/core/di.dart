@@ -51,10 +51,16 @@ import 'package:opicare/features/vaccin_info/domain/usecases/get_vaccin_info_use
 import 'package:opicare/features/vaccin_info/domain/usecases/get_vaccin_list_usecase.dart';
 import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.dart';
 import 'package:opicare/features/vaccins_conseils/data/datasources/vaccin_conseil_remote_datasource.dart';
+import 'package:opicare/features/vaccins_conseils/data/datasources/vaccins_conseils_remote_data_source.dart';
 import 'package:opicare/features/vaccins_conseils/data/repositories/vaccin_conseil_repository_impl.dart';
+import 'package:opicare/features/vaccins_conseils/data/repositories/vaccins_conseils_repository_impl.dart';
 import 'package:opicare/features/vaccins_conseils/domain/repositories/vaccin_conseil_repository.dart';
+import 'package:opicare/features/vaccins_conseils/domain/repositories/vaccins_conseils_repository.dart';
+import 'package:opicare/features/vaccins_conseils/domain/usecases/get_cibles_vaccin_usecase.dart';
 import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_conseil_usecase.dart';
+import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccins_conseils_usecase.dart';
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
+import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccins_conseils_bloc.dart';
 import 'package:opicare/features/jours_vaccins/data/models/vaccin_centre_response.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/vaccin_centre_repository.dart';
 import 'package:opicare/features/jours_vaccins/domain/repositories/vaccin_centre_repository.dart';
@@ -388,6 +394,37 @@ class Di {
     _getIt.registerFactory<VaccinConseilBloc>(
       () => VaccinConseilBloc(
         getVaccinConseil: _getIt<GetVaccinConseilUseCase>(),
+      ),
+    );
+
+    // Vaccins Conseils Data Source
+    _getIt.registerLazySingleton<VaccinsConseilsRemoteDataSource>(
+      () => VaccinsConseilsRemoteDataSourceImpl(
+        apiService: _getIt<ApiService<dynamic>>(),
+      ),
+    );
+
+    // Vaccins Conseils Repository
+    _getIt.registerLazySingleton<VaccinsConseilsRepository>(
+      () => VaccinsConseilsRepositoryImpl(
+        remoteDataSource: _getIt<VaccinsConseilsRemoteDataSource>(),
+      ),
+    );
+
+    // Vaccins Conseils Use Cases
+    _getIt.registerLazySingleton<GetCiblesVaccinUseCase>(
+      () => GetCiblesVaccinUseCase(repository: _getIt<VaccinsConseilsRepository>()),
+    );
+
+    _getIt.registerLazySingleton<GetVaccinsConseilsUseCase>(
+      () => GetVaccinsConseilsUseCase(repository: _getIt<VaccinsConseilsRepository>()),
+    );
+
+    // Vaccins Conseils Bloc
+    _getIt.registerFactory<VaccinsConseilsBloc>(
+      () => VaccinsConseilsBloc(
+        getCiblesVaccin: _getIt<GetCiblesVaccinUseCase>(),
+        getVaccinsConseils: _getIt<GetVaccinsConseilsUseCase>(),
       ),
     );
 

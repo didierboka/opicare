@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:opicare/core/error/failures.dart';
-import 'package:opicare/features/vaccins_conseils/domain/entities/vaccin_conseil.dart';
+import 'package:opicare/features/vaccins_conseils/domain/entities/vaccin_conseil_entity.dart';
 import 'package:opicare/features/vaccins_conseils/domain/repositories/vaccin_conseil_repository.dart';
 
 class GetVaccinConseilUseCase {
