@@ -1,12 +1,8 @@
-🚀 Version 1.0.7 version 7
+🚀 Version 1.0.8 version 8
 
 
 🚨 Nouvelles fonctionnalités
-- Informations sur les vaccins
-- Vaccin Conseillé
-- Calendrier des vaccins
-- Jours des vaccins
-- Informations sur les centres de vaccination
+- Ajout de visite
 
 ✏️ Corrections
 - N/A
