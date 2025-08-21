@@ -32,7 +32,7 @@ class CarnetSanteScreen extends StatelessWidget {
         repository: Di.get<CarnetRepository>(),
         getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
         submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
-      )..add(LoadVaccines(id: user.patID)),
+      ),
       child: BackButtonBlockerWidget(
         message: 'Utilisez le menu pour naviguer',
         child: Scaffold(
