@@ -27,7 +27,7 @@ class SanteInfoCard extends StatelessWidget {
 
   Widget _buildLoadingCard() {
     return Container(
-      width: 280,
+      width: 300,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colours.homeCardSecondaryButtonBlue,
@@ -115,7 +115,7 @@ class SanteInfoCard extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           SizedBox(
-            width: 100,
+            width: 70,
             child: Image.asset('assets/images/vaccination.png'),
           ),
         ],
@@ -125,7 +125,7 @@ class SanteInfoCard extends StatelessWidget {
 
   Widget _buildErrorCard(BuildContext context, SanteInfoError state) {
     return Container(
-      width: 280,
+      width: 300,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colours.homeCardSecondaryButtonBlue,
@@ -174,7 +174,7 @@ class SanteInfoCard extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           SizedBox(
-            width: 100,
+            width: 70,
             child: Image.asset('assets/images/vaccination.png'),
           ),
         ],
@@ -230,7 +230,7 @@ class SanteInfoCard extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           SizedBox(
-            width: 100,
+            width: 70,
             child: Image.asset('assets/images/vaccination.png'),
           ),
         ],
