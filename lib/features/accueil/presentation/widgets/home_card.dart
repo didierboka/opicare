@@ -27,7 +27,7 @@ class HomeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 280,
+      width: 300,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -44,13 +44,13 @@ class HomeCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(title, style: TextStyles.titleMedium.copyWith(color: Colors.white)),
-                const SizedBox(height: 5),
+                // const SizedBox(height: 5),
                 Text(subtitle, style: TextStyles.bodyRegular.copyWith(color: Colors.white)),
-                const SizedBox(height: 10),
+                // const SizedBox(height: 5),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: buttonColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                   onPressed: () {
@@ -63,8 +63,8 @@ class HomeCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(buttonText, style: TextStyles.bodyBold.copyWith(color: Colours.background)),
-                      const SizedBox(width: 5),
+                      Text(buttonText, style: TextStyles.bodyBold.copyWith(color: Colours.background, fontSize: 10)),
+                      // const SizedBox(width: 5),
                       Icon(Icons.arrow_right_alt, color: Colours.background),
                     ],
                   ),
@@ -72,13 +72,13 @@ class HomeCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 5),
           // Expanded(
           //   flex: 1,
           //   child: Image.asset(imageAsset, height: 500,)
           // ),
           SizedBox(
-            width: 100, // 👈 contrôle réel de la taille
+            width: 75, // 👈 contrôle réel de la taille
             child: Image.asset(imageAsset),
           ),
         ],

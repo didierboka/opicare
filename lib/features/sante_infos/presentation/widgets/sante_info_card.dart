@@ -59,7 +59,7 @@ class SanteInfoCard extends StatelessWidget {
 
   Widget _buildLoadedCard(BuildContext context, SanteInfoLoaded state) {
     return Container(
-      width: 280,
+      width: 300,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colours.homeCardSecondaryButtonBlue,
@@ -77,22 +77,22 @@ class SanteInfoCard extends StatelessWidget {
               children: [
                 Text(
                   state.santeInfo.titre,
-                  style: TextStyles.titleMedium.copyWith(color: Colors.white),
+                  style: TextStyles.titleMedium.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 5),
+                // const SizedBox(height: 5),
                 Text(
                   state.santeInfo.details,
                   style: TextStyles.bodyRegular.copyWith(color: Colors.white),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 2),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colours.accentYellow,
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                   onPressed: () {
@@ -104,7 +104,7 @@ class SanteInfoCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Voir plus...', style: TextStyles.bodyBold.copyWith(color: Colours.background)),
+                      Text('Voir plus...', style: TextStyles.bodyBold.copyWith(color: Colours.background, fontSize: 10)),
                       const SizedBox(width: 5),
                       Icon(Icons.arrow_right_alt, color: Colours.background),
                     ],
@@ -184,7 +184,7 @@ class SanteInfoCard extends StatelessWidget {
 
   Widget _buildInitialCard() {
     return Container(
-      width: 280,
+      width: 300,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colours.homeCardSecondaryButtonBlue,
@@ -209,7 +209,7 @@ class SanteInfoCard extends StatelessWidget {
                   'Chargement des informations...',
                   style: TextStyles.bodyRegular.copyWith(color: Colors.white),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 5),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colours.accentYellow,
@@ -220,8 +220,7 @@ class SanteInfoCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Voir plus...', style: TextStyles.bodyBold.copyWith(color: Colours.background)),
-                      const SizedBox(width: 5),
+                      Text('Voir plus ', style: TextStyles.bodyBold.copyWith(color: Colours.background)),
                       Icon(Icons.arrow_right_alt, color: Colours.background),
                     ],
                   ),
