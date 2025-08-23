@@ -82,9 +82,9 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   children: [
                     HomeCard(
-                      title: 'OPISMS,\nMon e-carnet',
+                      title: 'Infos Santé',
                       subtitle: 'Se vacciner, c\'est prévenir',
-                      buttonText: 'Voir carnet',
+                      buttonText: 'Suite',
                       backgroundColor: Colours.homeCardSecondaryButtonBlue,
                       buttonColor: Colours.accentYellow,
                       imageAsset: Media.vaccination,
