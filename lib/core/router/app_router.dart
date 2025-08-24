@@ -31,6 +31,7 @@ import 'package:opicare/features/vaccins_conseils/presentation/pages/vaccins_con
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
 import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_conseil_usecase.dart';
 import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
+import 'package:opicare/features/destinations/destinations.dart';
 
 import '../../features/accueil/presentation/pages/home_screen.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -96,7 +97,6 @@ final appRouter = GoRouter(
     GoRoute(
       path: NotificationScreen.path,
       builder: (context, state) {
-
         final patientId = state.extra as String;
 
         return BlocProvider(
@@ -208,6 +208,39 @@ final appRouter = GoRouter(
         child: JoursVaccinScreen(),
       ),
     ),
+    // Routes pour la fonctionnalité Destinations
+    GoRoute(
+      path: DestinationsScreen.routeName,
+      builder: (context, state) => BlocProvider(
+        create: (_) => DestinationBloc(
+          getDestinationsUseCase: GetDestinationsUseCase(
+            Di.get<DestinationRepository>(),
+          ),
+          getDestinationDetailsUseCase: GetDestinationDetailsUseCase(
+            Di.get<DestinationRepository>(),
+          ),
+        ),
+        child: const DestinationsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '${DestinationDetailsScreen.routeName}/:id',
+      builder: (context, state) {
+        final destinationId = state.pathParameters['id']!;
+        return BlocProvider(
+          create: (_) => DestinationBloc(
+            getDestinationsUseCase: GetDestinationsUseCase(
+              Di.get<DestinationRepository>(),
+            ),
+            getDestinationDetailsUseCase: GetDestinationDetailsUseCase(
+              Di.get<DestinationRepository>(),
+            ),
+          ),
+          child: DestinationDetailsScreen(destinationId: destinationId),
+        );
+      },
+    ),
+
     GoRoute(
       path: TrouverHopitauxScreen.path,
       builder: (context, state) => BlocProvider(

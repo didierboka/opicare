@@ -4,17 +4,12 @@ import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/features/vaccin_info/domain/entities/vaccin_info.dart';
 import 'package:opicare/features/vaccin_info/domain/repositories/vaccin_info_repository.dart';
 
-class GetVaccinInfo implements UseCase<VaccinInfo, String> {
+class GetVaccinInfoUsecase {
   final VaccinInfoRepository repository;
 
-  GetVaccinInfo(this.repository);
+  GetVaccinInfoUsecase(this.repository);
 
-  @override
-  Future<Either<Failure, VaccinInfo>> call(String vaccinId) async {
+  Future<Either<Failure, VaccinInfo>> execute(String vaccinId) async {
     return await repository.getVaccinInfo(vaccinId);
   }
 }
-
-abstract class UseCase<Type, Params> {
-  Future<Either<Failure, Type>> call(Params params);
-} 

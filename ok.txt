@@ -8,11 +8,11 @@
     - [OK] AFFICHER LA LISTE DES VISITES RESULTANTES
     - [OK] SELECTIONNE DE LA DATE DE VISITE
     - [] Selectionne le centre de santé
-    - [ ] LE CLIENT RENSEIGNE LE NUMERO DE LOT
-    - [ ] LE CLIENT MET UN COMMENTAIRE
-    - [ ] LE CLIENT AJOUTE LA PHOTO DE LA VISITE
-    - [ ] APPELER L API : https://opisms.net/opisms-aws/vaccin/ajout
-    - [ ] EN TRANSMETTANT LES INFOS FOURNIES PAR LE CLIENT
+    - [OK] LE CLIENT RENSEIGNE LE NUMERO DE LOT
+    - [OK] LE CLIENT MET UN COMMENTAIRE
+    - [OK] LE CLIENT AJOUTE LA PHOTO DE LA VISITE
+    - [OK] APPELER L API : https://opisms.net/opisms-aws/vaccin/ajout
+    - [OK] EN TRANSMETTANT LES INFOS FOURNIES PAR LE CLIENT
 
 - [ ] Dans mon carnet, ajouter un onglet «PROGRAMMER»
     - [ ] Ce menu permet de programmer un vaccin quelconque
@@ -25,4 +25,3 @@
 - [ ] Dans las section «Vaccins voyages»
     - [ ] Le client doit selectionne la destination ou il veut aller (API: https://e-sante.ci/api/orange/ussd/vaccin/)
     - [ ] Une fois la destination sélectionnée, les vaccins a faire s’affichent
-

@@ -50,8 +50,10 @@ import 'package:opicare/features/vaccin_info/domain/repositories/vaccin_list_rep
 import 'package:opicare/features/vaccin_info/domain/usecases/get_vaccin_info_usecase.dart';
 import 'package:opicare/features/vaccin_info/domain/usecases/get_vaccin_list_usecase.dart';
 import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.dart';
-import 'package:opicare/features/vaccins_conseils/data/datasources/vaccin_conseil_remote_datasource.dart';
+
+// Vaccins Conseils
 import 'package:opicare/features/vaccins_conseils/data/datasources/vaccins_conseils_remote_data_source.dart';
+import 'package:opicare/features/vaccins_conseils/data/models/vaccin_conseil_model.dart';
 import 'package:opicare/features/vaccins_conseils/data/repositories/vaccin_conseil_repository_impl.dart';
 import 'package:opicare/features/vaccins_conseils/data/repositories/vaccins_conseils_repository_impl.dart';
 import 'package:opicare/features/vaccins_conseils/domain/repositories/vaccin_conseil_repository.dart';
@@ -61,6 +63,16 @@ import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_con
 import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccins_conseils_usecase.dart';
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccins_conseils_bloc.dart';
+
+// Destinations
+import 'package:opicare/features/destinations/data/datasources/destination_remote_data_source.dart';
+import 'package:opicare/features/destinations/data/models/destination_model.dart';
+import 'package:opicare/features/destinations/data/repositories/destination_repository_impl.dart';
+import 'package:opicare/features/destinations/domain/repositories/destination_repository.dart';
+import 'package:opicare/features/destinations/domain/usecases/get_destinations_usecase.dart';
+import 'package:opicare/features/destinations/domain/usecases/get_destination_details_usecase.dart';
+import 'package:opicare/features/destinations/data/datasources/destination_remote_data_source_impl.dart';
+import 'package:opicare/features/destinations/presentation/bloc/destination_bloc.dart'; // Add this import
 import 'package:opicare/features/jours_vaccins/data/models/vaccin_centre_response.dart';
 import 'package:opicare/features/jours_vaccins/data/repositories/vaccin_centre_repository.dart';
 import 'package:opicare/features/jours_vaccins/domain/repositories/vaccin_centre_repository.dart';
@@ -68,6 +80,9 @@ import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_ce
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart';
+
+import '../features/vaccins_conseils/data/datasources/vaccin_conseil_remote_datasource.dart';
+import '../features/vaccins_conseils/data/models/cible_vaccin_model.dart';
 
 /// * Jun, 2025
 /// * Created by didierboka on 18/06/2025.
@@ -198,6 +213,11 @@ class Di {
     // API Service pour SmsModel - SMS reçus
     _getIt.registerFactory<ApiService<SmsModel>>(
       () => ApiService<SmsModel>(fromJson: SmsModel.fromJson),
+    );
+
+    // API Service pour DestinationModel - Destinations
+    _getIt.registerLazySingleton<ApiService<DestinationModel>>(
+      () => ApiService<DestinationModel>(fromJson: DestinationModel.fromJson),
     );
 
     // API Service pour ResponsableModel - Responsables d'hôpitaux
@@ -343,16 +363,6 @@ class Di {
       ),
     );
 
-    // Vaccin List Use Cases
-    _getIt.registerLazySingleton<GetVaccinListUseCase>(
-      () => GetVaccinListUseCase(_getIt<VaccinListRepository>()),
-    );
-
-    // Vaccin Info Data Source
-    _getIt.registerLazySingleton<VaccinInfoRemoteDataSource>(
-      () => VaccinInfoRemoteDataSourceImpl(),
-    );
-
     // Vaccin Info Repository
     _getIt.registerLazySingleton<VaccinInfoRepository>(
       () => VaccinInfoRepositoryImpl(
@@ -361,15 +371,15 @@ class Di {
     );
 
     // Vaccin Info Use Cases
-    _getIt.registerLazySingleton<GetVaccinInfo>(
-      () => GetVaccinInfo(_getIt<VaccinInfoRepository>()),
+    _getIt.registerLazySingleton<GetVaccinInfoUsecase>(
+      () => GetVaccinInfoUsecase(_getIt<VaccinInfoRepository>()),
     );
 
     // Vaccin Info Bloc
     _getIt.registerFactory<VaccinInfoBloc>(
       () => VaccinInfoBloc(
         getVaccinListUseCase: _getIt<GetVaccinListUseCase>(),
-        getVaccinInfo: _getIt<GetVaccinInfo>(),
+        getVaccinInfoUseCase: _getIt<GetVaccinInfoUsecase>(),
       ),
     );
 
@@ -382,6 +392,37 @@ class Di {
     _getIt.registerLazySingleton<VaccinConseilRepository>(
       () => VaccinConseilRepositoryImpl(
         remoteDataSource: _getIt<VaccinConseilRemoteDataSource>(),
+      ),
+    );
+
+    // Destination Remote Data Source
+    _getIt.registerLazySingleton<DestinationRemoteDataSource>(
+      () => DestinationRemoteDataSourceImpl(
+        apiService: _getIt<ApiService<dynamic>>(),
+      ),
+    );
+
+    // Destination Repository
+    _getIt.registerLazySingleton<DestinationRepository>(
+      () => DestinationRepositoryImpl(
+        remoteDataSource: _getIt<DestinationRemoteDataSource>(),
+      ),
+    );
+
+    // Destinations Use Cases
+    _getIt.registerLazySingleton<GetDestinationsUseCase>(
+      () => GetDestinationsUseCase(_getIt<DestinationRepository>()),
+    );
+
+    _getIt.registerLazySingleton<GetDestinationDetailsUseCase>(
+      () => GetDestinationDetailsUseCase(_getIt<DestinationRepository>()),
+    );
+
+    // Destination Bloc
+    _getIt.registerFactory<DestinationBloc>(
+      () => DestinationBloc(
+        getDestinationsUseCase: _getIt<GetDestinationsUseCase>(),
+        getDestinationDetailsUseCase: _getIt<GetDestinationDetailsUseCase>(),
       ),
     );
 
@@ -400,7 +441,7 @@ class Di {
     // Vaccins Conseils Data Source
     _getIt.registerLazySingleton<VaccinsConseilsRemoteDataSource>(
       () => VaccinsConseilsRemoteDataSourceImpl(
-        apiService: _getIt<ApiService<dynamic>>(),
+        apiService: _getIt<ApiService<CibleVaccinModel>>(),
       ),
     );
 
@@ -412,23 +453,32 @@ class Di {
     );
 
     // Vaccins Conseils Use Cases
-    _getIt.registerLazySingleton<GetCiblesVaccinUseCase>(
-      () => GetCiblesVaccinUseCase(repository: _getIt<VaccinsConseilsRepository>()),
-    );
-
     _getIt.registerLazySingleton<GetVaccinsConseilsUseCase>(
       () => GetVaccinsConseilsUseCase(repository: _getIt<VaccinsConseilsRepository>()),
+    );
+
+    _getIt.registerLazySingleton<GetCiblesVaccinUseCase>(
+      () => GetCiblesVaccinUseCase(repository: _getIt<VaccinsConseilsRepository>()),
     );
 
     // Vaccins Conseils Bloc
     _getIt.registerFactory<VaccinsConseilsBloc>(
       () => VaccinsConseilsBloc(
-        getCiblesVaccin: _getIt<GetCiblesVaccinUseCase>(),
         getVaccinsConseils: _getIt<GetVaccinsConseilsUseCase>(),
+        getCiblesVaccin: _getIt<GetCiblesVaccinUseCase>(),
       ),
     );
 
-    // Vaccin Centre Repository - Vaccins d'un centre
+    // Vaccin List Use Cases
+    _getIt.registerLazySingleton<GetVaccinListUseCase>(
+      () => GetVaccinListUseCase(_getIt<VaccinListRepository>()),
+    );
+
+    // Vaccin Info Data Source
+    _getIt.registerLazySingleton<VaccinInfoRemoteDataSource>(
+      () => VaccinInfoRemoteDataSourceImpl(),
+    );
+
     _getIt.registerLazySingleton<VaccinCentreRepository>(
       () => VaccinCentreRepositoryImpl(
         apiService: _getIt<ApiService<VaccinCentreResponse>>(),

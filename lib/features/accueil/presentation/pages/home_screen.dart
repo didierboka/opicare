@@ -26,6 +26,8 @@ import 'package:opicare/features/vaccin_info/presentation/pages/vaccin_info_scre
 import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.dart';
 import 'package:opicare/features/vaccins_conseils/presentation/pages/vaccins_conseils_screen.dart';
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
+import 'package:opicare/features/destinations/presentation/pages/destinations_screen.dart';
+import 'package:opicare/features/destinations/presentation/bloc/destination_bloc.dart';
 
 import '../../../disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
 
@@ -220,10 +222,7 @@ class HomeScreen extends StatelessWidget {
                           title: 'Vaccins voyage',
                           imageAsset: Media.travelIconGif,
                           onTap: () {
-                            // TODO: Implémenter la page vaccins voyage
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Fonctionnalité en cours de développement')),
-                            );
+                            context.push(DestinationsScreen.routeName);
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Vaccins voyage', isSubscriptionExpired),
                           onDisabledTap: () => _showSubscriptionExpiredDialog(context),

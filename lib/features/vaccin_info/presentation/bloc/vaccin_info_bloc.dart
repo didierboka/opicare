@@ -6,11 +6,11 @@ import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_state
 
 class VaccinInfoBloc extends Bloc<VaccinInfoEvent, VaccinInfoState> {
   final GetVaccinListUseCase getVaccinListUseCase;
-  final GetVaccinInfo getVaccinInfo;
+  final GetVaccinInfoUsecase getVaccinInfoUseCase;
 
   VaccinInfoBloc({
     required this.getVaccinListUseCase,
-    required this.getVaccinInfo,
+    required this.getVaccinInfoUseCase,
   }) : super(VaccinInfoInitial()) {
     on<LoadVaccinList>(_onLoadVaccinList);
     on<SelectVaccinType>(_onSelectVaccinType);
@@ -83,7 +83,7 @@ class VaccinInfoBloc extends Bloc<VaccinInfoEvent, VaccinInfoState> {
 
     emit(VaccinInfoLoading());
     
-    final result = await getVaccinInfo.call(event.vaccinId);
+    final result = await getVaccinInfoUseCase.execute(event.vaccinId);
 
     result.fold(
       (failure) {
