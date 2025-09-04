@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
+
+import '../../features/souscribtion/presentation/pages/souscribtion_screen.dart';
 
 class SubscriptionHelper {
   /// Vérifie si l'abonnement de l'utilisateur a expiré
@@ -26,6 +30,12 @@ class SubscriptionHelper {
 
   /// Vérifie si l'utilisateur peut accéder au carnet de santé
   static bool canAccessCarnet(UserModel user) {
+    final allowedFormulas = ['BUSINESS', 'SERENITY'];
+    return allowedFormulas.contains(user.abonnementLabel.toUpperCase());
+  }
+
+  /// Vérifie si l'utilisateur peut accéder à
+  static bool canAccessFamily(UserModel user) {
     final allowedFormulas = ['BUSINESS', 'SERENITY'];
     return allowedFormulas.contains(user.abonnementLabel.toUpperCase());
   }
@@ -67,5 +77,61 @@ class SubscriptionHelper {
     if (isSubscriptionExpired) return true;
     if (user == null) return true;
     return !canAccessCarnet(user);
+  }
+
+
+  static void showSubscriptionExpiredDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Abonnement expiré'),
+          content: const Text(
+            "Votre abonnement n'est pas actif, veuillez vous abonner à la formule \"BUSINESS\" ou \"SERENITY\" pour accéder à l'ensemble des fonctionnalités",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.go(SouscriptionScreen.path);
+              },
+              child: const Text('Renouveler'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  static showCarnetAccessDeniedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Accès refusé'),
+          content: const Text(
+            'Votre formule d\'abonnement ne permet pas de consulter le carnet de santé. Veuillez souscrire à une formule BUSINESS ou SERENITY.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.go(SouscriptionScreen.path);
+              },
+              child: const Text('Souscrire'),
+            ),
+          ],
+        );
+      },
+    );
   }
 } 
