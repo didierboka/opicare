@@ -402,7 +402,7 @@ class MonProfilScreen extends StatelessWidget {
                                 const SizedBox(height: 26),
                                 _infoRow('Nom', '${user.name} ${user.surname}', 'Date de naissance', formatDateFromString(user.birthdate)),
                                 _infoRow('Genre', user.sex, 'Contact', user.phone),
-                                _infoRow('Date d\'abonnement', formatDateFromString(user.dateAbon), 'Date d\'expiration', formatDateFromString(user.dateExpiration)),
+                                _infoRow('Date d\'abonnement', formatDateFromString(user.dateAbon), 'Date d\'expiration', formatDateFromString(user.dateExpiration), value2Color: SubscriptionHelper.isSubscriptionExpired(user) ? Colours.errorRed : null),
                                 _infoRow('Email', user.email, 'Mot de passe', '[protected]', value2Color: Colours.primaryBlue),
                               ],
                             ),
@@ -525,32 +525,6 @@ class MonProfilScreen extends StatelessWidget {
                             ),
 
                             const SizedBox(height: 16),
-                            
-                            // Bouton de test temporaire
-                            // if (kDebugMode)
-                            //   Padding(
-                            //     padding: const EdgeInsets.only(bottom: 12),
-                            //     child: SizedBox(
-                            //       width: double.infinity,
-                            //       child: ElevatedButton.icon(
-                            //         onPressed: () {
-                            //           print("DeleteAccount: Test button pressed");
-                            //           print("DeleteAccount: User patID: ${user.patID}");
-                            //           print("DeleteAccount: User ID: ${user.id}");
-                            //         },
-                            //         icon: const Icon(Icons.bug_report, size: 18),
-                            //         label: const Text('Test - Afficher les IDs'),
-                            //         style: ElevatedButton.styleFrom(
-                            //           backgroundColor: Colors.orange,
-                            //           foregroundColor: Colors.white,
-                            //           padding: const EdgeInsets.symmetric(vertical: 12),
-                            //           shape: RoundedRectangleBorder(
-                            //             borderRadius: BorderRadius.circular(8),
-                            //           ),
-                            //         ),
-                            //       ),
-                            //     ),
-                            //   ),
                             
                             SizedBox(
                               width: double.infinity,

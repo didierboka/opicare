@@ -1,15 +1,15 @@
 
 ✅ Rien ne s affiche dans le details de "Vaccins Voyages" (Bugs)
 ✅ Redirige le user sur la map lorsque le centre est geolocalise (Update)
-- La selection d un plan d abonnement doit rediriger le user vers l ecran d abonnement pour lui permettre de s abonner (Update)
-- Integrer l api de cinetpay (voir dans l ancien projet) (Update)
 ✅ Retrait de "se souvenir de moi" dans la creation de compte (Update)
-- Rajouter la fonctionalite "Mot de passe oublie" (Feature)
 ✅ Les menus "FAMILLE" & "CARNET" ne doivent etre visible qu a partir de la formule "BUSINESS" (Feature)
 ✅ Quand pas de formule (apres une inscription) permettre de se deconnecter ou de supprimer le compte (Bugs)
 ✅ Changer le message de demande d abonnement par : Votre abonnement n'est pas actif, veuillez vous abonner à la formule "BUSINESS" ou "SERENITY" pour accéder à l'ensemble des fonctionnalités (Update)
 ✅ Afficher la formule du user connecte (Update)
-- Afficher la date d expiration de l abonnement en rouge lorsqu elle a expiree (Update)
+✅ Afficher la date d expiration de l abonnement en rouge lorsqu elle a expiree (Update)
+- Integrer l api de cinetpay (voir dans l ancien projet) (Update)
+- Rajouter la fonctionalite "Mot de passe oublie" (Feature)
+- La selection d un plan d abonnement doit rediriger le user vers l ecran d abonnement pour lui permettre de s abonner (Update)
 - Dans carnet le bouton "+" doit reagir differamment en fonction de l ecran ou on se trouve soit: (Update)
     - "Effectue": Ajouter une visite
     - "Prochain": Programmer une visite
