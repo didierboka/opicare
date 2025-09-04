@@ -27,70 +27,18 @@ import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.
 import 'package:opicare/features/vaccins_conseils/presentation/pages/vaccins_conseils_screen.dart';
 import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conseil_bloc.dart';
 import 'package:opicare/features/destinations/presentation/pages/destinations_screen.dart';
-import 'package:opicare/features/destinations/presentation/bloc/destination_bloc.dart';
 
 import '../../../disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
 
 class HomeScreen extends StatelessWidget {
+
+
   static const path = '/home';
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
 
   HomeScreen({super.key});
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  void _showSubscriptionExpiredDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Abonnement expiré'),
-          content: const Text(
-            'Votre abonnement a expiré. Veuillez renouveler votre abonnement pour accéder à toutes les fonctionnalités.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Annuler'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.go(SouscriptionScreen.path);
-              },
-              child: const Text('Renouveler'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showCarnetAccessDeniedDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Accès refusé'),
-          content: const Text(
-            'Votre formule d\'abonnement ne permet pas de consulter le carnet de santé. Veuillez souscrire à une formule BUSINESS ou SERENITY.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Annuler'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.go(SouscriptionScreen.path);
-              },
-              child: const Text('Souscrire'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +97,7 @@ class HomeScreen extends StatelessWidget {
               AppBarActions(
                 scaffoldKey: _scaffoldKey,
                 isSubscriptionExpired: isSubscriptionExpired,
-                onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+                onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
               )
             ],
           ),
@@ -200,21 +148,21 @@ class HomeScreen extends StatelessWidget {
                           imageAsset: Media.carnetSante,
                           onTap: () {
                             if (isSubscriptionExpired) {
-                              _showSubscriptionExpiredDialog(context);
+                              SubscriptionHelper.showSubscriptionExpiredDialog(context);
                               return;
                             }
                             if (SubscriptionHelper.canAccessCarnet(user)) {
                               context.go(CarnetSanteScreen.path);
                             } else {
-                              _showCarnetAccessDeniedDialog(context);
+                              SubscriptionHelper.showCarnetAccessDeniedDialog(context);
                             }
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Carnet de santé', isSubscriptionExpired) || !SubscriptionHelper.canAccessCarnet(user),
                           onDisabledTap: () {
                             if (isSubscriptionExpired) {
-                              _showSubscriptionExpiredDialog(context);
+                              SubscriptionHelper.showSubscriptionExpiredDialog(context);
                             } else if (!SubscriptionHelper.canAccessCarnet(user)) {
-                              _showCarnetAccessDeniedDialog(context);
+                              SubscriptionHelper.showCarnetAccessDeniedDialog(context);
                             }
                           },
                         ),
@@ -225,7 +173,7 @@ class HomeScreen extends StatelessWidget {
                             context.push(DestinationsScreen.routeName);
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Vaccins voyage', isSubscriptionExpired),
-                          onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+                          onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
                         ),
                         OptionCard(
                           title: 'Informations sur les vaccins',
@@ -242,21 +190,38 @@ class HomeScreen extends StatelessWidget {
                             );
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Informations sur les vaccins', isSubscriptionExpired),
-                          onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+                          onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
                         ),
                         OptionCard(
                           title: 'Mon abonnement',
                           imageAsset: Media.subscriptionIconGif,
                           onTap: () => context.go(SouscriptionScreen.path),
                           isDisabled: SubscriptionHelper.shouldDisableOption('Mon abonnement', isSubscriptionExpired),
-                          onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+                          onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
                         ),
                         OptionCard(
                           title: 'Ma famille',
                           imageAsset: Media.familyIconGif,
-                          onTap: () => context.go(FamilleScreen.path),
-                          isDisabled: SubscriptionHelper.shouldDisableOption('Ma famille', isSubscriptionExpired),
-                          onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+                          onTap: () {
+                            if (isSubscriptionExpired) {
+                              SubscriptionHelper.showSubscriptionExpiredDialog(context);
+                              return;
+                            }
+                            if (SubscriptionHelper.canAccessCarnet(user)) {
+                              context.go(FamilleScreen.path);
+                            } else {
+                              SubscriptionHelper.showCarnetAccessDeniedDialog(context);
+                            }
+                          },
+                          isDisabled: SubscriptionHelper.shouldDisableOption('Ma famille', isSubscriptionExpired) || !SubscriptionHelper.canAccessFamily(user),
+                          onDisabledTap: () {
+                            if (isSubscriptionExpired) {
+                              SubscriptionHelper.showSubscriptionExpiredDialog(context);
+                            } else if (!SubscriptionHelper.canAccessFamily(user)) {
+                              SubscriptionHelper.showCarnetAccessDeniedDialog(context);
+                            }
+                          },
+
                         ),
                         OptionCard(
                           title: 'Vaccin conseillé',
@@ -273,21 +238,21 @@ class HomeScreen extends StatelessWidget {
                             );
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Vaccin conseillé', isSubscriptionExpired),
-                          onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+                          onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
                         ),
                         OptionCard(
                           title: 'Disponibilité vaccins',
                           imageAsset: Media.availableIconGif,
                           onTap: () => context.go(DisponibiliteVaccinScreen.path),
                           isDisabled: SubscriptionHelper.shouldDisableOption('Disponibilité vaccins', isSubscriptionExpired),
-                          onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+                          onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
                         ),
                         OptionCard(
                           title: 'Mon profil',
                           imageAsset: Media.monGrandProfil,
                           onTap: () => context.go(MonProfilScreen.path),
                           isDisabled: SubscriptionHelper.shouldDisableOption('Mon profil', isSubscriptionExpired),
-                          onDisabledTap: () => _showSubscriptionExpiredDialog(context),
+                          onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
                         ),
                       ],
                     ),
@@ -299,8 +264,8 @@ class HomeScreen extends StatelessWidget {
           ),
           bottomNavigationBar: CustomBottomNavBar(
             isSubscriptionExpired: isSubscriptionExpired,
-            onDisabledTap: () => _showSubscriptionExpiredDialog(context),
-            onCarnetAccessDenied: () => _showCarnetAccessDeniedDialog(context),
+            onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
+            onCarnetAccessDenied: () => SubscriptionHelper.showCarnetAccessDeniedDialog(context),
             user: user,
           ),
         ),
