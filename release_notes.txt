@@ -1,8 +1,11 @@
-🚀 Version 1.0.8 version 8
+🚀 Version 1.0.9 version 9
 
 
-🚨 Nouvelles fonctionnalités
-- Ajout de visite
+🚨 Nouvelles fonctionnalités a tester
+-   Ajout de vaccin
+-   Vaccins voyages
+-   Disponibilité des vaccins
+-   Ajout de photo des vaccins
 
 ✏️ Corrections
 - N/A

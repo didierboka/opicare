@@ -245,6 +245,11 @@ class Di {
       () => ApiService<VaccinCentreResponse>(fromJson: VaccinCentreResponse.fromJson),
     );
 
+    // API Service pour CibleVaccinModel - Vaccins conseil
+    _getIt.registerLazySingleton<ApiService<CibleVaccinModel>>(
+      () => ApiService<CibleVaccinModel>(fromJson: CibleVaccinModel.fromJson),
+    );
+
     // API Service générique pour les réponses dynamiques
     _getIt.registerFactory<ApiService<dynamic>>(
       () => ApiService<dynamic>(fromJson: (json) => true),
@@ -426,7 +431,9 @@ class Di {
       ),
     );
 
-    // Vaccin Conseil Use Cases
+
+    // region Vaccins Conseils
+    // Use Cases
     _getIt.registerLazySingleton<GetVaccinConseilUseCase>(
       () => GetVaccinConseilUseCase(_getIt<VaccinConseilRepository>()),
     );
@@ -438,21 +445,15 @@ class Di {
       ),
     );
 
-    // Vaccins Conseils Data Source
-    _getIt.registerLazySingleton<VaccinsConseilsRemoteDataSource>(
-      () => VaccinsConseilsRemoteDataSourceImpl(
-        apiService: _getIt<ApiService<CibleVaccinModel>>(),
-      ),
-    );
-
-    // Vaccins Conseils Repository
+    // Repository
     _getIt.registerLazySingleton<VaccinsConseilsRepository>(
-      () => VaccinsConseilsRepositoryImpl(
-        remoteDataSource: _getIt<VaccinsConseilsRemoteDataSource>(),
-      ),
+        () => VaccinsConseilsRepositoryImpl(remoteDataSource: _getIt<VaccinsConseilsRemoteDataSource>()),
     );
 
-    // Vaccins Conseils Use Cases
+    // Data Source
+    _getIt.registerLazySingleton<VaccinsConseilsRemoteDataSource>(() => VaccinsConseilsRemoteDataSourceImpl(apiService: _getIt<ApiService<CibleVaccinModel>>()));
+
+    // Use Cases
     _getIt.registerLazySingleton<GetVaccinsConseilsUseCase>(
       () => GetVaccinsConseilsUseCase(repository: _getIt<VaccinsConseilsRepository>()),
     );
@@ -468,6 +469,8 @@ class Di {
         getCiblesVaccin: _getIt<GetCiblesVaccinUseCase>(),
       ),
     );
+    // endregion
+
 
     // Vaccin List Use Cases
     _getIt.registerLazySingleton<GetVaccinListUseCase>(

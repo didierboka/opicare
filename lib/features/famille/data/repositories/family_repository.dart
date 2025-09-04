@@ -11,7 +11,7 @@ class FamilyRepositoryImpl implements FamilyRepository {
   Future<CustomResponse<FamilyMember>> getFamilyMembers(String userId) async {
     try{
       final apiService = ApiService<FamilyMember>(fromJson: FamilyMember.fromJson);
-      final response = await apiService.post('/famille', {'id': '216'});
+      final response = await apiService.post('/famille', {'id': userId});
       return response;
     }
     catch(e){

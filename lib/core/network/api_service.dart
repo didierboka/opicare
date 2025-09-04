@@ -11,12 +11,16 @@ import 'package:opicare/core/helpers/debug_logger.dart';
 import '../constants/api_url.dart';
 
 class ApiService<T> {
+
+
   final String baseUrl;
   final String baseUrlAgent;
   final String baseUrlOrange;
   final T Function(Map<String, dynamic>) fromJson;
 
+
   ApiService({this.baseUrl = ApiUrl.prod, this.baseUrlAgent = ApiUrl.prodAgent, this.baseUrlOrange = ApiUrl.prodOrange, required this.fromJson});
+
 
   Future<CustomResponse<T>> get(String endpoint) async {
     final url = Uri.parse('$baseUrl$endpoint');
@@ -28,6 +32,7 @@ class ApiService<T> {
       return CustomResponse<T>(status: false, message: 'Erreur de connexion: $e');
     }
   }
+
 
   Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true, bool likeAgent = false, bool likeOrange = false, String? overrideD}) async {
     print("START API SERVICE POST");
@@ -92,6 +97,7 @@ class ApiService<T> {
     print("END API SERVICE POST");
     return res;
   }
+
 
   CustomResponse<T> _processResponse(http.Response response, {bool likeAgent = false, bool likeOrange = false}) {
     MyLogger.writeLog("START API SERVICE _processResponse");
