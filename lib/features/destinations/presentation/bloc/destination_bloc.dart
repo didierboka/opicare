@@ -36,7 +36,7 @@ class DestinationBloc extends Bloc<DestinationEvent, DestinationState> {
     );
   }
 
-  FutureOr<void> _onLoadDestinationDetails(
+  void _onLoadDestinationDetails(
     LoadDestinationDetailsEvent event,
     Emitter<DestinationState> emit,
   ) async {

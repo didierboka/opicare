@@ -22,12 +22,12 @@ class DestinationsLoaded extends DestinationState {
 }
 
 class DestinationDetailsLoaded extends DestinationState {
-  final DestinationEntity destination;
+  final String? details;
 
-  const DestinationDetailsLoaded(this.destination);
+  const DestinationDetailsLoaded(this.details);
 
   @override
-  List<Object?> get props => [destination];
+  List<Object?> get props => [details];
 }
 
 class DestinationError extends DestinationState {

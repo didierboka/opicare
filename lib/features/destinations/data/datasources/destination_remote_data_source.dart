@@ -5,5 +5,5 @@ import 'package:opicare/features/destinations/data/models/destination_model.dart
 
 abstract class DestinationRemoteDataSource {
   Future<List<DestinationModel>> getDestinations();
-  Future<DestinationModel> getDestinationDetails(String id);
+  Future<String?> getDestinationDetails(String id);
 }

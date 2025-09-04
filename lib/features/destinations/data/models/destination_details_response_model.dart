@@ -1,6 +1,9 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../../core/helpers/debug_logger.dart';
+
 class DestinationDetailsResponse extends Equatable {
+
   final int status;
   final List<String> messages;
   final String transactionId;
@@ -13,6 +16,9 @@ class DestinationDetailsResponse extends Equatable {
 
   factory DestinationDetailsResponse.fromJson(Map<String, dynamic> json) {
     try {
+
+      DebugLogger.log('Réponse pour formattage => $json');
+
       return DestinationDetailsResponse(
         status: json['statut'] as int? ?? 0,
         messages: json['messages'] != null ? List<String>.from(json['messages'] as List) : [],

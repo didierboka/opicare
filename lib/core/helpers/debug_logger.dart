@@ -88,7 +88,7 @@ class DebugLogger {
   /// Log un message de navigation
   static void navigation(String message, {String? emoji}) {
     if (kDebugMode) {
-      final emojiToUse = emoji ?? '🧭';
+      final emojiToUse = emoji ?? '✈️';
       print('$emojiToUse $message');
     }
   }

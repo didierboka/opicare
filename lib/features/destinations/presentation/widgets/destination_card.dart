@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/features/destinations/domain/entities/destination_entity.dart';
 import 'package:opicare/features/destinations/presentation/pages/destination_details_screen.dart';
 
 class DestinationCard extends StatelessWidget {
+
+
   final DestinationEntity destination;
+
 
   const DestinationCard({
     Key? key,
     required this.destination,
   }) : super(key: key);
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +81,7 @@ class DestinationCard extends StatelessWidget {
                     child: TextButton(
                       onPressed: () {
                         // Naviguer vers l'écran de détails de la destination
+                        DebugLogger.log("Destination: ${destination.id} | ${destination.name}");
                         context.push(
                           '${DestinationDetailsScreen.routeName}/${destination.id}',
                           extra: destination,

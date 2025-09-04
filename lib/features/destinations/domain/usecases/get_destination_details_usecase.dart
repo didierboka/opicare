@@ -9,7 +9,7 @@ class GetDestinationDetailsUseCase {
 
   GetDestinationDetailsUseCase(this.repository);
 
-  Future<Either<Failure, DestinationEntity>> execute(String id) async {
+  Future<Either<Failure, String?>> execute(String id) async {
     return await repository.getDestinationDetails(id);
   }
 }

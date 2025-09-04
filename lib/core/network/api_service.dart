@@ -68,7 +68,10 @@ class ApiService<T> {
         body: useFormData ? data : jsonEncode(data),
       );
 
+      DebugLogger.log("RESBU res.response -> ${utf8.decode(response.bodyBytes)}");
+
       res = _processResponse(response);
+
     } on TimeoutException catch (e) {
       MyLogger.writeLog("ERREUR API SERVICE GET: $e");
       res = CustomResponse<T>(
@@ -141,6 +144,9 @@ class ApiService<T> {
             res.statut = 0;
           }
         }
+
+
+        DebugLogger.log("You were here...$httpResBody");
 
         MyLogger.writeLog("httpResBody['statut']: ${httpResBody['statut']} ou ${httpResBody['code']}");
       } else {

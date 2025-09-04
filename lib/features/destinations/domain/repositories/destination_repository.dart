@@ -4,5 +4,5 @@ import 'package:opicare/features/destinations/domain/entities/destination_entity
 
 abstract class DestinationRepository {
   Future<Either<Failure, List<DestinationEntity>>> getDestinations();
-  Future<Either<Failure, DestinationEntity>> getDestinationDetails(String id);
+  Future<Either<Failure, String?>> getDestinationDetails(String id);
 }

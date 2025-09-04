@@ -10,6 +10,7 @@ abstract class DestinationEvent extends Equatable {
 class LoadDestinationsEvent extends DestinationEvent {}
 
 class LoadDestinationDetailsEvent extends DestinationEvent {
+
   final String id;
 
   const LoadDestinationDetailsEvent(this.id);
