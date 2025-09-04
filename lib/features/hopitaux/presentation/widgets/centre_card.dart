@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/centre_model.dart';
+import 'package:maps_launcher/maps_launcher.dart';
 
 class CentreCard extends StatelessWidget {
   final CentreModel centre;
@@ -48,35 +49,40 @@ class CentreCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               // Indicateur de géolocalisation basé sur les coordonnées réelles
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: isGeolocalise 
-                    ? Colours.primaryBlue.withValues(alpha: 0.1)
-                    : Colours.secondaryText.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isGeolocalise ? Icons.location_on : Icons.location_off,
-                      color: isGeolocalise 
-                        ? Colours.primaryBlue 
-                        : Colours.secondaryText,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      isGeolocalise ? 'Géolocalisé' : 'Non géolocalisé',
-                      style: TextStyles.bodyRegular.copyWith(
-                        color: isGeolocalise 
-                          ? Colours.primaryBlue 
+              InkWell(
+                onTap: () {
+                  if (isGeolocalise) MapsLauncher.launchCoordinates(double.parse(centre.centreLat ?? "5.345317"), double.parse( centre.centreLong ?? "-4.024429"));
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isGeolocalise
+                      ? Colours.primaryBlue.withValues(alpha: 0.1)
+                      : Colours.secondaryText.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isGeolocalise ? Icons.location_on : Icons.location_off,
+                        color: isGeolocalise
+                          ? Colours.primaryBlue
                           : Colours.secondaryText,
-                        fontSize: 12,
+                        size: 16,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 4),
+                      Text(
+                        isGeolocalise ? 'Géolocalisé' : 'Non géolocalisé',
+                        style: TextStyles.bodyRegular.copyWith(
+                          color: isGeolocalise
+                            ? Colours.primaryBlue
+                            : Colours.secondaryText,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

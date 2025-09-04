@@ -1,5 +1,5 @@
 
-- Rien ne s affiche dans le details de "Vaccins Voyages" (Bugs)
+✅ Rien ne s affiche dans le details de "Vaccins Voyages" (Bugs)
 - Redirige le user sur la map lorsque le centre est geolocalise (Update)
 - La selection d un plan d abonnement doit rediriger le user vers l ecran d abonnement pour lui permettre de s abonner (Update)
 - Integrer l api de cinetpay (voir dans l ancien projet) (Update)
