@@ -26,32 +26,20 @@ class AppBarActions extends StatelessWidget {
     return Row(
       children: [
         if (!hideNotif)
-        IconButton(
-          icon: Icon(
-            Icons.notifications_none, 
-            color: isSubscriptionExpired 
-                ? Colors.grey.withOpacity(0.5) 
-                : Colours.homeCardSecondaryButtonBlue
+          IconButton(
+            icon: Icon(Icons.notifications_none, color: isSubscriptionExpired ? Colors.grey.withOpacity(0.5) : Colours.homeCardSecondaryButtonBlue),
+            onPressed: isSubscriptionExpired
+                ? onDisabledTap
+                : () {
+                    final authState = context.read<AuthBloc>().state;
+                    if (authState is AuthAuthenticated) {
+                      context.go(NotificationScreen.path, extra: authState.user.patID);
+                    }
+                  },
           ),
-          onPressed: isSubscriptionExpired 
-              ? onDisabledTap 
-              : () {
-                  final authState = context.read<AuthBloc>().state;
-                  if (authState is AuthAuthenticated) {
-                    context.go(NotificationScreen.path, extra: authState.user.patID);
-                  }
-                },
-        ),
         IconButton(
-          icon: Icon(
-            Icons.menu, 
-            color: isSubscriptionExpired 
-                ? Colors.grey.withOpacity(0.5) 
-                : Colours.homeCardSecondaryButtonBlue
-          ),
-          onPressed: isSubscriptionExpired 
-              ? onDisabledTap 
-              : () => scaffoldKey.currentState?.openDrawer(),
+          icon: Icon(Icons.menu, color: isSubscriptionExpired ? Colors.grey.withOpacity(0.5) : Colours.homeCardSecondaryButtonBlue),
+          onPressed: isSubscriptionExpired ? onDisabledTap : () => scaffoldKey.currentState?.openDrawer(),
         ),
       ],
     );
