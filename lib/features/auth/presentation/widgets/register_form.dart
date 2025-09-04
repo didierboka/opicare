@@ -42,9 +42,7 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   bool validateMail(String email) {
-    return RegExp(
-        r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$'
-    ).hasMatch(email);
+    return RegExp(r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$').hasMatch(email);
   }
 
   @override
@@ -54,7 +52,8 @@ class _RegisterFormState extends State<RegisterForm> {
         showLoader(context, state is RegisterLoading);
 
         if (state is RegisterSuccess) {
-          showSnackbar(context,
+          showSnackbar(
+            context,
             message: state.message,
             type: MessageType.success,
           );
@@ -62,7 +61,8 @@ class _RegisterFormState extends State<RegisterForm> {
         }
 
         if (state is RegisterFailure) {
-          showSnackbar(context,
+          showSnackbar(
+            context,
             message: state.message,
             type: MessageType.error,
           );
@@ -133,32 +133,29 @@ class _RegisterFormState extends State<RegisterForm> {
                 onSelected: (val) => setState(() => selectedGenre = val),
                 defaultValidator: true,
               ),
-
-
-              const SizedBox(height: 20),
-              CustomCheckbox(
-                value: rememberMe,
-                onChanged: (v) {
-                  setState(() => rememberMe = v ?? false);
-                },
-                label: 'Se souvenir de moi',
-              ),
+              // const SizedBox(height: 20),
+              // CustomCheckbox(
+              //   value: rememberMe,
+              //   onChanged: (v) {
+              //     setState(() => rememberMe = v ?? false);
+              //   },
+              //   label: 'Se souvenir de moi',
+              // ),
               const SizedBox(height: 20),
               CustomButton(
                 text: 'Créer le compte',
                 onPressed: () {
-                  if (formKey.currentState!.validate() &&
-                      selectedGenre != null) {
+                  if (formKey.currentState!.validate() && selectedGenre != null) {
                     context.read<RegisterBloc>().add(
-                      RegisterSubmitted(
-                        nom: nameController.text,
-                        prenoms: surnameController.text,
-                        dateNaissance: dateController.text,
-                        telephone: '225${phoneController.text}',
-                        email: emailController.text,
-                        genre: selectedGenre!,
-                      ),
-                    );
+                          RegisterSubmitted(
+                            nom: nameController.text,
+                            prenoms: surnameController.text,
+                            dateNaissance: dateController.text,
+                            telephone: '225${phoneController.text}',
+                            email: emailController.text,
+                            genre: selectedGenre!,
+                          ),
+                        );
                   }
                 },
               ),
