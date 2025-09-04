@@ -22,6 +22,8 @@ import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_sc
 import '../../../../shared/widgets/image_b64_widget.dart';
 
 class MonProfilScreen extends StatelessWidget {
+
+
   MonProfilScreen({super.key});
 
   static const path = '/profile';
@@ -30,6 +32,7 @@ class MonProfilScreen extends StatelessWidget {
   final Logger logger = Logger();
   final ImagePicker _picker = ImagePicker();
   final GlobalKey<ScaffoldMessengerState> _messengerKey = GlobalKey<ScaffoldMessengerState>();
+
 
   void _showSubscriptionExpiredDialog(BuildContext context) {
     showDialog(
@@ -355,6 +358,7 @@ class MonProfilScreen extends StatelessWidget {
         log("user.carnetPhoto starts with: ${user.carnetPhoto.isNotEmpty ? user.carnetPhoto.substring(0, user.carnetPhoto.length > 20 ? 20 : user.carnetPhoto.length) : 'VIDE'}");
         log("user.userPic length: ${user.userPic.length}");
         log("user.userPic isEmpty: ${user.userPic.isEmpty}");
+        log("user.formule: ${user.abonnementLabel}");
         log("========================");
 
         return ScaffoldMessenger(
@@ -394,6 +398,7 @@ class MonProfilScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Formule', style: TextStyles.titleMedium),
+                                Text(user.abonnementLabel, style: TextStyles.titleLarge),
                                 const SizedBox(height: 26),
                                 _infoRow('Nom', '${user.name} ${user.surname}', 'Date de naissance', formatDateFromString(user.birthdate)),
                                 _infoRow('Genre', user.sex, 'Contact', user.phone),
