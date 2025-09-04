@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/helpers/helpers.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
@@ -18,15 +19,16 @@ import 'package:opicare/core/di.dart';
 import 'package:opicare/features/welcome/welcome.dart';
 
 class CustomDrawer extends StatelessWidget {
+
   const CustomDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+    final isSubscriptionExpired = SubscriptionHelper.isSubscriptionExpired(user);
+
     return BlocConsumer<AuthBloc, AuthState>(listener: (context, state) {
       if (state is AuthUnauthenticated) {
-        // Redirection gérée par le routeur après déconnexion
-        //  context.go('/login');
         context.go(WelcomeScreen.path);
       }
     }, builder: (context, state) {
@@ -38,7 +40,6 @@ class CustomDrawer extends StatelessWidget {
       return Drawer(
         child: Column(
           children: [
-
             // ✅ En-tête fidèle
             Container(
               width: double.infinity,
@@ -72,20 +73,43 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                       icon: Icons.home,
                       text: 'Accueil',
+                      isDisabled: false,
                       onTap: () {
                         context.go(HomeScreen.path);
                       }),
                   _buildDrawerItem(
                       icon: Icons.vaccines,
                       text: 'Mon carnet de santé',
+                      isDisabled: SubscriptionHelper.shouldDisableOption('Mon carnet de santé', isSubscriptionExpired) || !SubscriptionHelper.canAccessCarnet(user),
                       onTap: () {
-                        context.go(CarnetSanteScreen.path);
+                        //  context.go(CarnetSanteScreen.path);
+
+                        if (isSubscriptionExpired) {
+                          SubscriptionHelper.showSubscriptionExpiredDialog(context);
+                          return;
+                        }
+                        if (SubscriptionHelper.canAccessCarnet(user)) {
+                          context.go(CarnetSanteScreen.path);
+                        } else {
+                          SubscriptionHelper.showCarnetAccessDeniedDialog(context);
+                        }
                       }),
                   _buildDrawerItem(
                       icon: Icons.family_restroom,
+                      isDisabled: SubscriptionHelper.shouldDisableOption('Ma famille', isSubscriptionExpired) || !SubscriptionHelper.canAccessFamily(user),
                       text: 'Ma famille',
                       onTap: () {
-                        context.go(FamilleScreen.path);
+                        //  context.go(FamilleScreen.path);
+
+                        if (isSubscriptionExpired) {
+                          SubscriptionHelper.showSubscriptionExpiredDialog(context);
+                          return;
+                        }
+                        if (SubscriptionHelper.canAccessCarnet(user)) {
+                          context.go(FamilleScreen.path);
+                        } else {
+                          SubscriptionHelper.showCarnetAccessDeniedDialog(context);
+                        }
                       }),
                   _buildDrawerItem(
                       icon: Icons.notifications,
@@ -144,16 +168,19 @@ class CustomDrawer extends StatelessWidget {
     });
   }
 
-  Widget _buildDrawerItem({required IconData icon, required String text, required VoidCallback onTap}) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Icon(icon, color: Colours.secondaryText),
-          title: Text(text, style: TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
-          onTap: onTap,
-        ),
-        const Divider(height: 1, color: Colours.inputBorder),
-      ],
+  Widget _buildDrawerItem({required IconData icon, required String text, required VoidCallback onTap, bool isDisabled = false}) {
+    return Opacity(
+      opacity: isDisabled ? 0.5 : 1.0,
+      child: Column(
+        children: [
+          ListTile(
+            leading: Icon(icon, color: Colours.secondaryText),
+            title: Text(text, style: TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
+            onTap: onTap,
+          ),
+          const Divider(height: 1, color: Colours.inputBorder),
+        ],
+      ),
     );
   }
 
