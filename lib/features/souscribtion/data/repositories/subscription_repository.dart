@@ -1,10 +1,20 @@
+import 'dart:async';
+
+import 'package:cinetpay/cinetpay.dart';
+import 'package:dartz/dartz.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:opicare/core/constants/api_url.dart';
+import 'package:opicare/core/error/failures.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/network/custom_response.dart';
 import 'package:opicare/features/souscribtion/data/models/formule.dart';
 import 'package:opicare/features/souscribtion/data/models/type_abo_model.dart';
-import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
+import 'package:opicare/features/souscribtion/domain/entities/souscription_payment_entity.dart';
 import 'package:opicare/features/souscribtion/domain/entities/type_abo_entity.dart';
 import 'package:opicare/features/souscribtion/domain/repositories/souscription_repository.dart';
+
+import '../../domain/entities/formule_entity.dart';
 
 class SouscriptionRepositoryImpl implements SouscriptionRepository {
   @override
@@ -67,5 +77,16 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
     } else {
       return CustomResponse(status: false, message: response.message ?? "Abonnement échoué");
     }
+  }
+
+
+
+  @override
+  Future<Either<Failure, SouscriptionPaymentEntity>> makePayment({required transactionId, required amount, description, required designation}) async {
+
+    bool successPayment = false;
+
+    return successPayment ? Right(SouscriptionPaymentEntity(transactionId: transactionId)) : Left(PaymentFailure("Echec de paiement..."));
+
   }
 }

@@ -35,6 +35,10 @@ class PermissionFailure extends Failure {
   const PermissionFailure([String message = 'Permission refusée']) : super(message);
 }
 
+class PaymentFailure extends Failure {
+  const PaymentFailure(super.message);
+}
+
 class UnknownFailure extends Failure {
   const UnknownFailure([String message = 'Erreur inconnue']) : super(message);
 } 

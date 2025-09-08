@@ -1,121 +1,15 @@
 //part of 'souscription_bloc.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
-import 'package:opicare/features/souscribtion/domain/entities/type_abo_entity.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/features/souscribtion/domain/repositories/souscription_repository.dart';
-import 'package:opicare/features/souscribtion/domain/usecases/get_formules_usecase.dart';
-import 'package:opicare/features/souscribtion/domain/usecases/get_type_abos_usecase.dart';
+
+import '../../../domain/entities/formule_entity.dart';
+import 'souscription_event.dart';
+import 'souscription_state.dart';
 
 //part of 'souscription_bloc.dart';
 
 //part of 'souscription_bloc.dart';
-
-abstract class SouscriptionEvent {}
-
-class LoadTypeAbos extends SouscriptionEvent {}
-
-class LoadFormules extends SouscriptionEvent {
-  final String typeAboId;
-
-  LoadFormules(this.typeAboId);
-}
-
-class SelectTypeAbo extends SouscriptionEvent {
-  final String? typeAboId;
-
-  SelectTypeAbo(this.typeAboId);
-}
-
-class SelectFormule extends SouscriptionEvent {
-  final String? formuleId;
-
-  SelectFormule(this.formuleId);
-}
-
-class UpdateYears extends SouscriptionEvent {
-  final String years;
-
-  UpdateYears(this.years);
-}
-
-class IncrementYears extends SouscriptionEvent {}
-
-class DecrementYears extends SouscriptionEvent {}
-
-class SubmitSouscription extends SouscriptionEvent {
-  final String typeAbonnement;
-  final String formule;
-  final int years;
-  final String id;
-  final String numtel;
-  final String email;
-  final String tarif;
-
-  SubmitSouscription({
-    required this.typeAbonnement,
-    required this.formule,
-    required this.years,
-    required this.id,
-    required this.numtel,
-    required this.email,
-    required this.tarif,
-  });
-}
-
-abstract class SouscriptionState {}
-
-class SouscriptionInitial extends SouscriptionState {}
-
-class SouscriptionLoading extends SouscriptionState {}
-
-class SouscriptionLoaded extends SouscriptionState {
-  final List<TypeAboEntity> typeAbos;
-  final List<FormuleEntity> formules;
-  final String? selectedTypeAbo;
-  final String? selectedFormule;
-  final int years;
-  final double total;
-
-  SouscriptionLoaded({
-    required this.typeAbos,
-    required this.formules,
-    this.selectedTypeAbo,
-    this.selectedFormule,
-    this.years = 1,
-    this.total = 0.0,
-  });
-
-  SouscriptionLoaded copyWith({
-    List<TypeAboEntity>? typeAbos,
-    List<FormuleEntity>? formules,
-    String? selectedTypeAbo,
-    String? selectedFormule,
-    int? years,
-    double? total,
-  }) {
-    return SouscriptionLoaded(
-      typeAbos: typeAbos ?? this.typeAbos,
-      formules: formules ?? this.formules,
-      selectedTypeAbo: selectedTypeAbo ?? this.selectedTypeAbo,
-      selectedFormule: selectedFormule ?? this.selectedFormule,
-      years: years ?? this.years,
-      total: total ?? this.total,
-    );
-  }
-}
-
-class SouscriptionSuccess extends SouscriptionState {
-  final String message;
-
-  SouscriptionSuccess(this.message);
-}
-
-class SouscriptionFailure extends SouscriptionState {
-  final String message;
-
-  SouscriptionFailure(this.message);
-}
 
 class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
   final SouscriptionRepository souscriptionRepository;
@@ -129,6 +23,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     on<IncrementYears>(_onIncrementYears);
     on<DecrementYears>(_onDecrementYears);
     on<SubmitSouscription>(_onSubmitSouscription);
+    on<ExecutePaymentSouscriptionEvent>(_onExecutePaymentSouscription);
   }
 
   Future<void> _onLoadTypeAbos(
@@ -209,7 +104,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     // Initialiser les années avec la valeur bonus de la formule
     final years = formule.bonus > 0 ? formule.bonus : 1;
-    
+
     // Prix initial (pas de pas d'incrément au début)
     final prixInitial = formule.prix;
     final total = prixInitial;
@@ -238,7 +133,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     // Calculer le nombre de pas depuis la valeur initiale (bonus)
     final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
-    
+
     // Prix initial + (nombre de pas × prix initial)
     final prixInitial = formule.prix;
     final total = prixInitial + (pasIncrement * prixInitial);
@@ -265,10 +160,10 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     // Incrémenter par la valeur du bonus
     final years = currentState.years + formule.bonus;
-    
+
     // Calculer le nombre de pas d'incrément depuis la valeur initiale (bonus)
     final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
-    
+
     // Prix initial + (nombre de pas × prix initial)
     final prixInitial = formule.prix;
     final total = prixInitial + (pasIncrement * prixInitial);
@@ -295,10 +190,10 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     // Décrémenter par la valeur du bonus, mais ne pas aller en dessous du bonus
     final years = (currentState.years - formule.bonus).clamp(formule.bonus, double.infinity).toInt();
-    
+
     // Calculer le nombre de pas depuis la valeur initiale (bonus)
     final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
-    
+
     // Prix initial + (nombre de pas × prix initial)
     final prixInitial = formule.prix;
     final total = prixInitial + (pasIncrement * prixInitial);
@@ -333,6 +228,16 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     } catch (e) {
       emit(SouscriptionFailure('Erreur lors de la souscription'));
     }
+  }
+
+  void _onExecutePaymentSouscription(ExecutePaymentSouscriptionEvent event, Emitter<SouscriptionState> emit) async {
+    DebugLogger.log(event.toString());
+
+    emit(ExecutingPaymentFailedSouscriptionState());
+
+
+
+    // souscriptionRepository.makePayment(transactionId: event.transactionId, amount: event.montant, designation: event.designation);
   }
 
   @override

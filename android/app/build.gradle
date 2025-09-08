@@ -39,6 +39,8 @@ android {
     }
 }
 
+println "👉 compileSdkVersion = " + android.compileSdkVersion
+
 flutter {
     source = "../.."
 }

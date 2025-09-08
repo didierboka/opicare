@@ -1,5 +1,6 @@
-import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
 import 'package:opicare/features/souscribtion/domain/repositories/souscription_repository.dart';
+
+import '../entities/formule_entity.dart';
 
 class GetFormulesUseCase {
   final SouscriptionRepository repository;

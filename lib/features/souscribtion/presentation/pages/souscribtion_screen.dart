@@ -1,7 +1,9 @@
+import 'package:cinetpay/cinetpay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/enums/app_enums.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
@@ -12,7 +14,12 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
-import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
+import 'package:opicare/features/souscribtion/presentation/pages/cinetpay_checkout_screen.dart';
+
+import '../../../../core/constants/api_url.dart';
+import '../../domain/entities/formule_entity.dart';
+import '../bloc/souscription/souscription_event.dart';
+import '../bloc/souscription/souscription_state.dart';
 
 class SouscriptionScreen extends StatefulWidget {
   static const path = '/souscription';
@@ -110,6 +117,35 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
             );
           }
 
+          if (state is ExecutingPaymentFailedSouscriptionState) {
+            return CinetPayCheckout(
+              title: "OPISMS",
+              configData: <String, dynamic>{
+                'apikey': ApiUrl.cinetPayApiKey,
+                'site_id': ApiUrl.cinetPaySiteId,
+                'notify_url': 'https://www.google.com',
+              },
+              paymentData: <String, dynamic>{
+                'transaction_id': DateTime.now().millisecondsSinceEpoch.toString(),
+                'amount': 100,
+                'currency': 'XOF',
+                'channels': 'ALL',
+                'description': "Abonnement ",
+              },
+              waitResponse: (response) {
+                // Gestion du succès ou de l’échec
+                DebugLogger.success("INFOS CINETPAY SUCESS $response");
+                //  successPayment = true;
+                //  return Right(SouscriptionPaymentEntity(transactionId: transactionId));
+              },
+              onError: (error) {
+                // Gestion des erreurs
+                DebugLogger.error("INFOS CINETPAY ERROR $error");
+                //  return Left(PaymentFailure("$error"));
+              },
+            );
+          }
+
           final loadedState = state as SouscriptionLoaded;
           final selectedFormule = loadedState.formules.firstWhere(
             (f) => f.id == loadedState.selectedFormule,
@@ -191,20 +227,25 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                       const SizedBox(height: 30),
                       CustomButton(
                         text: 'Souscrire',
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate() && loadedState.selectedTypeAbo != null && loadedState.selectedFormule != null) {
-                            context.read<SouscriptionBloc>().add(
-                                  SubmitSouscription(
-                                    id: user.patID,
-                                    numtel: user.phone,
-                                    email: user.email,
-                                    tarif: selectedFormule.prix.toString(),
-                                    typeAbonnement: loadedState.selectedTypeAbo!,
-                                    formule: loadedState.selectedFormule!,
-                                    years: loadedState.years,
-                                  ),
-                                );
+                            //  context.read<SouscriptionBloc>().add(
+                            //        SubmitSouscription(
+                            //          id: user.patID,
+                            //          numtel: user.phone,
+                            //          email: user.email,
+                            //          tarif: selectedFormule.prix.toString(),
+                            //          typeAbonnement: loadedState.selectedTypeAbo!,
+                            //          formule: loadedState.selectedFormule!,
+                            //          years: loadedState.years,
+                            //        ),
+                            //      );
                           }
+                          DebugLogger.log("Lauching payment...");
+                          //  context.read<SouscriptionBloc>().add(ExecutePaymentSouscriptionEvent(designation: "ABONNEMENT E-CARNET", transactionId: "transactionId", montant: 100));
+                          final result = await context.push(CinetPayCheckoutScreen.path);
+
+                          DebugLogger.log("result payment...$result");
                         },
                       ),
                     ],

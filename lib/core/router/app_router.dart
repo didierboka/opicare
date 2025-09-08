@@ -50,6 +50,7 @@ import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repo
 import '../../features/profile/presentation/pages/profile_screen.dart';
 import '../../features/souscribtion/domain/repositories/souscription_repository.dart';
 import '../../features/jours_vaccins/domain/repositories/jour_vaccin_repository.dart';
+import '../../features/souscribtion/presentation/pages/cinetpay_checkout_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: AppWrapper.path,
@@ -267,6 +268,10 @@ final appRouter = GoRouter(
         ),
         child: VaccinsConseilsScreen(),
       ),
+    ),
+    GoRoute(
+      path: CinetPayCheckoutScreen.path,
+      builder: (context, state) => CinetPayCheckoutScreen(name: "name", email: "email", mobileNo: "mobileNo", isAcceptTerms: true),
     ),
   ],
 );

@@ -1,4 +1,5 @@
-import 'package:opicare/features/souscribtion/domain/entities/FormuleEntity.dart';
+
+import '../../domain/entities/formule_entity.dart';
 
 class FormuleModel {
 

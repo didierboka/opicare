@@ -13,6 +13,8 @@ import 'package:opicare/features/disponibilite_vaccins/presentation/bloc/dispo_v
 import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_disponible_model.dart';
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
 
+import '../../../souscribtion/presentation/bloc/souscription/souscription_state.dart';
+
 class DisponibiliteVaccinScreen extends StatefulWidget {
   static const path = '/disponibilite-vaccin';
 

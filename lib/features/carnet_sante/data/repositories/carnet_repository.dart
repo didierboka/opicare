@@ -103,6 +103,7 @@ class CarnetRepositoryImpl implements CarnetRepository {
     return response;
   }
 
+  
   @override
   Future<Either<Failure, List<VisitTypeEntity>>> getVisitTypes() async {
     try {
@@ -125,6 +126,7 @@ class CarnetRepositoryImpl implements CarnetRepository {
       return Left(ServerFailure('Erreur lors du chargement des types de visite: $e'));
     }
   }
+
 
   @override
   Future<CustomResponse<Map<String, dynamic>>> submitVaccineData(VaccineSubmissionEntity vaccineSubmission) async {

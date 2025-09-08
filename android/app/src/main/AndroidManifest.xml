@@ -1,4 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
     <!-- Permissions pour les appels téléphoniques -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
     
@@ -10,11 +14,13 @@
     
     <!-- Feature pour la caméra -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
-    
+    <uses-feature android:name="android.hardware.telephony" android:required="false"/>
+
     <application
         android:label="opicare"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/launcher_icon"
+        tools:targetApi="23">
         <activity
             android:name=".MainActivity"
             android:exported="true"
