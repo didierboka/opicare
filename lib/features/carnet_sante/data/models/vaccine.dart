@@ -31,4 +31,9 @@ class Vaccine {
       photoPath: json['PHOTO_PATH'],
     );
   }
+
+  @override
+  String toString() {
+    return 'Vaccine{id: $id, name: $name, recallDate: $recallDate, presenceDate: $presenceDate, lotNumber: $lotNumber, centerName: $centerName, patientId: $patientId, photoPath: $photoPath}';
+  }
 }

@@ -1,4 +1,6 @@
-🚀 Version 1.0.11 version 11
+🚀 Version 1.0.11 version 12
+
+🎉 Fonctionnalites
 
 ✏️ Corrections
 ✅ Rien ne s affiche dans le details de "Vaccins Voyages" (Bugs)

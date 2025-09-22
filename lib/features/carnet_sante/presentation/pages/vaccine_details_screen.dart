@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:opicare/core/constants/log.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
@@ -22,6 +24,7 @@ class VaccineDetailsScreen extends StatefulWidget {
 }
 
 class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
+
   String? _selectedImagePath;
   final ImagePicker _picker = ImagePicker();
 
@@ -29,6 +32,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
   void initState() {
     super.initState();
     _selectedImagePath = widget.vaccine.photoPath;
+    DebugLogger.debug("VISITE -> ${widget.vaccine.toString()}");
   }
 
   bool get _hasUnsavedChanges => _selectedImagePath != widget.vaccine.photoPath;

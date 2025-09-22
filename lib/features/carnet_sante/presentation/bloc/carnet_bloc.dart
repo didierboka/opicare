@@ -309,26 +309,23 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     }
   }
 
-  Future<void> _onUpdateVaccinePhoto(
-    UpdateVaccinePhoto event,
-    Emitter<CarnetState> emit,
-  ) async {
+  Future<void> _onUpdateVaccinePhoto(UpdateVaccinePhoto event, Emitter<CarnetState> emit) async {
     emit(UpdateVaccinePhotoLoading());
 
-    try {
-      final response = await repository.updateVaccinePhoto(
-        vaccineId: event.vaccineId,
-        photoPath: event.photoPath,
-      );
+    // try {
+    //   final response = await repository.updateVaccinePhoto(
+    //     vaccineId: event.vaccineId,
+    //     photoPath: event.photoPath,
+    //   );
 
-      if (response.status) {
-        emit(UpdateVaccinePhotoSuccess(response.message ?? 'Photo mise à jour avec succès'));
-      } else {
-        emit(UpdateVaccinePhotoFailure(response.message ?? 'Erreur lors de la mise à jour'));
-      }
-    } catch (e) {
-      emit(UpdateVaccinePhotoFailure('Erreur lors de la mise à jour: $e'));
-    }
+    //   if (response.status) {
+    //     emit(UpdateVaccinePhotoSuccess(response.message ?? 'Photo mise à jour avec succès'));
+    //   } else {
+    //     emit(UpdateVaccinePhotoFailure(response.message ?? 'Erreur lors de la mise à jour'));
+    //   }
+    // } catch (e) {
+    //   emit(UpdateVaccinePhotoFailure('Erreur lors de la mise à jour: $e'));
+    // }
   }
 
   Future<void> _onAddVaccine(

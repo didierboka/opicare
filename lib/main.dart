@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
       message: 'Utilisez le menu pour naviguer dans l\'application',
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
-        title: 'Opisms',
+        title: 'OPICARE',
         routerConfig: appRouter,
         theme: ThemeData(
           primaryColor: Colours.secondaryText,

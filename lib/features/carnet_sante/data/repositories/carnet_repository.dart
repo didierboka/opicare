@@ -81,52 +81,6 @@ class CarnetRepositoryImpl implements CarnetRepository {
     return response;
   }
 
-  @override
-  Future<CustomResponse<Map<String, dynamic>>> updateVaccinePhoto({
-    required String vaccineId,
-    required String photoPath,
-  }) async {
-    final ApiService<Map<String, dynamic>> updatePhotoApiService = ApiService(
-      fromJson: (json) => json,
-    );
-
-    final response = await updatePhotoApiService.post(
-      '/vaccin/update-photo',
-      likeAgent: true,
-      useFormData: true,
-      {
-        "vaccineId": vaccineId,
-        "photoPath": photoPath,
-      }
-    );
-
-    return response;
-  }
-
-  
-  @override
-  Future<Either<Failure, List<VisitTypeEntity>>> getVisitTypes() async {
-    try {
-      final ApiService<VisitTypeModel> visitTypesApiService = ApiService(
-        fromJson: (json) => VisitTypeModel.fromJson(json),
-      );
-
-      final response = await visitTypesApiService.post('/typevisite', {}, likeAgent: true);
-      
-      if (response.status && response.datas != null) {
-        final entities = response.datas!.map((model) => VisitTypeEntity(
-          id: model.id,
-          typeVisite: model.typeVisite,
-        )).toList();
-        return Right(entities);
-      } else {
-        return Left(ServerFailure(response.message ?? 'Erreur lors du chargement des types de visite'));
-      }
-    } catch (e) {
-      return Left(ServerFailure('Erreur lors du chargement des types de visite: $e'));
-    }
-  }
-
 
   @override
   Future<CustomResponse<Map<String, dynamic>>> submitVaccineData(VaccineSubmissionEntity vaccineSubmission) async {
@@ -158,4 +112,50 @@ class CarnetRepositoryImpl implements CarnetRepository {
 
     return response;
   }
+
+
+  @override
+  Future<Either<Failure, List<VisitTypeEntity>>> getVisitTypes() async {
+    try {
+      final ApiService<VisitTypeModel> visitTypesApiService = ApiService(
+        fromJson: (json) => VisitTypeModel.fromJson(json),
+      );
+
+      final response = await visitTypesApiService.post('/typevisite', {}, likeAgent: true);
+
+      if (response.status && response.datas != null) {
+        final entities = response.datas!.map((model) => VisitTypeEntity(
+          id: model.id,
+          typeVisite: model.typeVisite,
+        )).toList();
+        return Right(entities);
+      } else {
+        return Left(ServerFailure(response.message ?? 'Erreur lors du chargement des types de visite'));
+      }
+    } catch (e) {
+      return Left(ServerFailure('Erreur lors du chargement des types de visite: $e'));
+    }
+  }
+
+
+ // @override
+ // Future<Either<Failure, VaccineSubmissionEntity>> updateVaccinePhoto({required String vaccineId, required String photoPath,}) async {
+ //   final ApiService<Map<String, dynamic>> updatePhotoApiService = ApiService(
+ //     fromJson: (json) => json,
+ //   );
+
+ //   final response = await updatePhotoApiService.post(
+ //       '/vaccin/update-photo',
+ //       likeAgent: true,
+ //       useFormData: true,
+ //       {
+ //         "vaccineId": vaccineId,
+ //         "photoPath": photoPath,
+ //       }
+ //   );
+
+
+
+ //   return response;
+ // }
 }

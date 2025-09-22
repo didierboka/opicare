@@ -22,28 +22,28 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       ) async {
     emit(LoginLoading());
 
-    //  try {
-    //    final res = await authRepository.login(
-    //      emailOrPhone: event.emailOrPhone,
-    //      password: event.password,
-    //      //rememberMe: event.rememberMe,
-    //    );
-    //    if (!res.status) {
-    //      emit(LoginFailure(res.message!));
-    //      return;
-    //    }
-//
-    //    if (event.rememberMe && res.data != null) {
-    //      await authBloc.localStorage.saveUser(res.data!);
-    //      // Rafraîchir l'état d'authentification
-    //      authBloc.add(AuthCheckRequested());
-    //    }
-//
-    //    authBloc.add(AuthUserChanged(res.data));
-    //    emit(LoginSuccess(user: res.data!));
-    //  } catch (e) {
-    //    print("Erreur LoginBloc: ${e.toString()}");
-    //    emit(LoginFailure(e.toString()));
-    //  }
+    try {
+      final res = await authRepository.login(
+        emailOrPhone: event.emailOrPhone,
+        password: event.password,
+        //rememberMe: event.rememberMe,
+      );
+      if (!res.status) {
+        emit(LoginFailure(res.message!));
+        return;
+      }
+
+      if (event.rememberMe && res.data != null) {
+        await authBloc.localStorage.saveUser(res.data!);
+        // Rafraîchir l'état d'authentification
+        authBloc.add(AuthCheckRequested());
+      }
+
+      authBloc.add(AuthUserChanged(res.data));
+      emit(LoginSuccess(user: res.data!));
+    } catch (e) {
+      print("Erreur LoginBloc: ${e.toString()}");
+      emit(LoginFailure(e.toString()));
+    }
   }
 }

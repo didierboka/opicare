@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 class VaccineSubmissionEntity extends Equatable {
+
+  final String? calId;
   final String usrId;
   final String ctrregion;
   final String ctrdist;
@@ -13,7 +15,9 @@ class VaccineSubmissionEntity extends Equatable {
   final String vacId;
   final String dtRap;
 
+
   const VaccineSubmissionEntity({
+    this.calId,
     required this.usrId,
     required this.ctrregion,
     required this.ctrdist,
@@ -27,8 +31,10 @@ class VaccineSubmissionEntity extends Equatable {
     required this.dtRap,
   });
 
+
   @override
   List<Object?> get props => [
+        calId,
         usrId,
         ctrregion,
         ctrdist,
@@ -41,4 +47,10 @@ class VaccineSubmissionEntity extends Equatable {
         vacId,
         dtRap,
       ];
-} 
+
+
+  @override
+  String toString() {
+    return 'VaccineSubmissionEntity{calId: $calId, usrId: $usrId, ctrregion: $ctrregion, ctrdist: $ctrdist, ctrId: $ctrId, dtPre: $dtPre, lot: $lot, imgCarnet: $imgCarnet, typeAbnt: $typeAbnt, patId: $patId, vacId: $vacId, dtRap: $dtRap}';
+  }
+}

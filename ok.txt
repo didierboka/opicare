@@ -12,7 +12,7 @@
 - Impossible de voir l image qui est ajoutee dans une visite effectuee (Bugs)
 
 
-- Le user doit pouvoir imprimer ou partager la photo du carnet d une visite
+- Le user doit pouvoir imprimer ou partager la photo du carnet d une visite (Feature)
 
 
 - Dans ajouter visite, fusionner le champs numero de lot et commentaire en Commentaire / numero de lot (utilise le champs de commentaire et retirer le champs de numero de lot)  (Update)
