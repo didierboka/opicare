@@ -40,22 +40,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
 
-    try {
-      final user = await localStorage.getSavedUser();
-      if (user != null) {
-        // Validate user has essential data
-        if (user.patID.isNotEmpty) {
-          logger.i("Valid user foundoo: ${user.name}");
-          emit(AuthAuthenticated(user));
-          return;
-        }
-      }
-      logger.i("No valid user found, redirecting to login");
-      emit(AuthUnauthenticated());
-    } catch (e) {
-      logger.e("Auth check failed: $e");
-      emit(AuthUnauthenticated());
-    }
+    //  try {
+    //    final user = await localStorage.getSavedUser();
+    //    if (user != null) {
+    //      // Validate user has essential data
+    //      if (user.patID.isNotEmpty) {
+    //        logger.i("Valid user foundoo: ${user.name}");
+    //        emit(AuthAuthenticated(user));
+    //        return;
+    //      }
+    //    }
+    //    logger.i("No valid user found, redirecting to login");
+    //    emit(AuthUnauthenticated());
+    //  } catch (e) {
+    //    logger.e("Auth check failed: $e");
+    //    emit(AuthUnauthenticated());
+    //  }
   }
 
   void _onUserChanged(
