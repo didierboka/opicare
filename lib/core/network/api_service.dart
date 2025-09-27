@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:opicare/core/constants/log.dart';
@@ -21,22 +20,162 @@ class ApiService<T> {
 
   ApiService({this.baseUrl = ApiUrl.prod, this.baseUrlAgent = ApiUrl.prodAgent, this.baseUrlOrange = ApiUrl.prodOrange, required this.fromJson});
 
-
-  Future<CustomResponse<T>> get(String endpoint) async {
-    final url = Uri.parse('$baseUrl$endpoint');
+  /// Vérifie la connectivité réseau en tentant une connexion vers un serveur fiable
+  Future<bool> _checkConnectivity() async {
     try {
-      final response = await http.get(url);
-      return _processResponse(response);
+      final client = http.Client();
+      final response = await client.get(
+        Uri.parse('https://www.google.com'),
+      ).timeout(const Duration(seconds: 5));
+      client.close();
+      return response.statusCode == 200;
     } catch (e) {
-      MyLogger.writeLog("ERREUR API SERVICE GET: $e");
-      return CustomResponse<T>(status: false, message: 'Erreur de connexion: $e');
+      return false;
     }
   }
 
 
-  Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {Map<String, String>? headers, bool useFormData = true, bool likeAgent = false, bool likeOrange = false, String? overrideD}) async {
+  Future<CustomResponse<T>> get(String endpoint, {
+    Duration? timeout,
+    int maxRetries = 3,
+    bool likeAgent = false,
+    bool likeOrange = false,
+  }) async {
+    // Vérifier la connectivité réseau
+    if (!await _checkConnectivity()) {
+      return CustomResponse<T>(
+        status: false,
+        message: 'Aucune connexion internet disponible',
+        errorType: ErrorType.networkError,
+      );
+    }
+
+    late Uri url;
+    
+    if (likeAgent) {
+      url = Uri.parse('$baseUrlAgent$endpoint');
+    } else if (likeOrange) {
+      url = Uri.parse('$baseUrlOrange$endpoint');
+    } else {
+      url = Uri.parse('$baseUrl$endpoint');
+    }
+
+    DebugLogger.network('GET URL: ${url.toString()} (timeout: ${timeout ?? const Duration(seconds: 30)})');
+
+    // Timeout global pour toutes les tentatives
+    final globalTimeout = Duration(
+      seconds: (timeout ?? const Duration(seconds: 30)).inSeconds * maxRetries,
+    );
+
+    try {
+      return await Future.any([
+        _performGetWithRetries(url, timeout ?? const Duration(seconds: 30), maxRetries),
+        Future.delayed(globalTimeout, () => CustomResponse<T>(
+          status: false,
+          message: 'Timeout global dépassé après ${globalTimeout.inSeconds} secondes',
+          errorType: ErrorType.networkError,
+        )),
+      ]);
+    } catch (e) {
+      return CustomResponse<T>(
+        status: false,
+        message: 'Erreur lors de la requête GET: $e',
+        errorType: ErrorType.unknown,
+      );
+    }
+  }
+
+  Future<CustomResponse<T>> _performGetWithRetries(
+    Uri url, 
+    Duration timeout, 
+    int maxRetries
+  ) async {
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        final client = http.Client();
+        
+        final response = await client.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'Opicare-Mobile-App/1.0',
+            'Connection': 'keep-alive',
+            'Cache-Control': 'no-cache',
+            'Accept-Encoding': 'gzip, deflate',
+          },
+        ).timeout(timeout);
+
+        client.close();
+        return _processResponse(response);
+        
+      } on TimeoutException catch (e) {
+        MyLogger.writeLog("ERREUR API SERVICE GET (Timeout - Tentative $attempt/$maxRetries): $e");
+        if (attempt == maxRetries) {
+          return CustomResponse<T>(
+            status: false,
+            message: 'Délai d\'attente dépassé après $maxRetries tentatives',
+            errorType: ErrorType.networkError,
+          );
+        }
+        // Attendre avant de réessayer avec délai progressif
+        await Future.delayed(Duration(seconds: attempt * 3));
+        
+      } on http.ClientException catch (e) {
+        MyLogger.writeLog("ERREUR API SERVICE GET (ClientException - Tentative $attempt/$maxRetries): $e");
+        if (attempt == maxRetries) {
+          return CustomResponse<T>(
+            status: false,
+            message: 'Erreur de connexion après $maxRetries tentatives: $e',
+            errorType: ErrorType.networkError,
+          );
+        }
+        // Attendre avant de réessayer avec délai progressif
+        await Future.delayed(Duration(seconds: attempt * 3));
+        
+      } catch (e) {
+        MyLogger.writeLog("ERREUR API SERVICE GET (Tentative $attempt/$maxRetries): $e");
+        if (attempt == maxRetries) {
+          return CustomResponse<T>(
+            status: false,
+            message: 'Erreur inconnue après $maxRetries tentatives: $e',
+            errorType: ErrorType.unknown,
+          );
+        }
+        // Attendre avant de réessayer avec délai progressif
+        await Future.delayed(Duration(seconds: attempt * 3));
+      }
+    }
+
+    return CustomResponse<T>(
+      status: false,
+      message: 'Échec après $maxRetries tentatives',
+      errorType: ErrorType.networkError,
+    );
+  }
+
+
+  Future<CustomResponse<T>> post(String endpoint, Map<String, dynamic> data, {
+    Map<String, String>? headers, 
+    bool useFormData = true, 
+    bool likeAgent = false, 
+    bool likeOrange = false, 
+    String? overrideD,
+    Duration? timeout,
+    int maxRetries = 3,
+  }) async {
     print("START API SERVICE POST");
-    //  final url = Uri.parse(likeAgent ? '$baseUrlAgent$endpoint' : '$baseUrl$endpoint');
+    
+    // Vérifier la connectivité réseau
+    if (!await _checkConnectivity()) {
+      return CustomResponse<T>(
+        status: false,
+        message: 'Aucune connexion internet disponible',
+        errorType: ErrorType.networkError,
+        isLoading: false,
+      );
+    }
+
     late Uri url;
 
     if (likeAgent) {
@@ -47,58 +186,122 @@ class ApiService<T> {
       url = Uri.parse('$baseUrl$endpoint');
     }
 
-    CustomResponse<T> res = CustomResponse<T>(isLoading: true);
-
     if (overrideD != null) {
       data['d'] = overrideD;
     } else {
       data['d'] = 'PROD';
     }
 
-    DebugLogger.network('URL: ${url.toString()}');
-    DebugLogger.network('Data being sent: ${jsonEncode(data)}');
+    DebugLogger.network('POST URL: ${url.toString()}');
+    DebugLogger.network('Data being sent (timeout: ${timeout ?? const Duration(seconds: 60)}): "${data}"');
     DebugLogger.network('overrideD value: $overrideD');
 
+    // Timeout global pour toutes les tentatives
+    final globalTimeout = Duration(
+      seconds: (timeout ?? const Duration(seconds: 60)).inSeconds * maxRetries,
+    );
+
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': useFormData ? 'application/x-www-form-urlencoded' : 'application/json',
-        },
-        body: useFormData ? data : jsonEncode(data),
-      );
+      return await Future.any([
+        _performPostWithRetries(url, data, useFormData, timeout ?? const Duration(seconds: 60), maxRetries),
 
-      DebugLogger.log("RESBU res.response -> ${utf8.decode(response.bodyBytes)}");
-
-      res = _processResponse(response);
-
-    } on TimeoutException catch (e) {
-      MyLogger.writeLog("ERREUR API SERVICE GET: $e");
-      res = CustomResponse<T>(
-        status: false,
-        message: 'Délai d\'attente dépassé: $e',
-        errorType: ErrorType.networkError,
-      );
-    } on http.ClientException catch (e) {
-      MyLogger.writeLog("ERREUR API SERVICE GET: $e");
-      res = CustomResponse<T>(
-        status: false,
-        message: 'Erreur de connexion: $e',
-        errorType: ErrorType.networkError,
-      );
+        Future.delayed(globalTimeout, () => CustomResponse<T>(
+          status: false,
+          message: 'Timeout global dépassé après ${globalTimeout.inSeconds} secondes',
+          errorType: ErrorType.networkError,
+          isLoading: false,
+        )),
+      ]);
     } catch (e) {
-      MyLogger.writeLog("ERREUR API SERVICE GET: $e");
-      print("Erreur ApiService post: ${e.toString()}");
-      res = CustomResponse<T>(
+      return CustomResponse<T>(
         status: false,
-        message: 'Erreur inconnue: $e',
+        message: 'Erreur lors de la requête POST: $e',
         errorType: ErrorType.unknown,
+        isLoading: false,
       );
-    } finally {
-      res.isLoading = false;
     }
-    print("END API SERVICE POST");
-    return res;
+  }
+
+  Future<CustomResponse<T>> _performPostWithRetries(
+    Uri url, 
+    Map<String, dynamic> data, 
+    bool useFormData, 
+    Duration timeout, 
+    int maxRetries
+  ) async {
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        final client = http.Client();
+        
+        final response = await client.post(
+          url,
+          headers: {
+            'Content-Type': useFormData ? 'application/x-www-form-urlencoded' : 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'Opicare-Mobile-App/1.0',
+            'Connection': 'keep-alive',
+            'Cache-Control': 'no-cache',
+            'Accept-Encoding': 'gzip, deflate',
+          },
+          body: useFormData ? data : jsonEncode(data),
+        ).timeout(timeout);
+
+        client.close();
+        DebugLogger.log("RESBU res.response -> ${utf8.decode(response.bodyBytes)}");
+
+        final res = _processResponse(response);
+        res.isLoading = false;
+        print("END API SERVICE POST");
+        return res;
+
+      } on TimeoutException catch (e) {
+        MyLogger.writeLog("ERREUR API SERVICE POST (Timeout - Tentative $attempt/$maxRetries): $e");
+        if (attempt == maxRetries) {
+          return CustomResponse<T>(
+            status: false,
+            message: 'Délai d\'attente dépassé après $maxRetries tentatives',
+            errorType: ErrorType.networkError,
+            isLoading: false,
+          );
+        }
+        // Attendre avant de réessayer avec délai progressif
+        await Future.delayed(Duration(seconds: attempt * 3));
+        
+      } on http.ClientException catch (e) {
+        MyLogger.writeLog("ERREUR API SERVICE POST (ClientException - Tentative $attempt/$maxRetries): $e");
+        if (attempt == maxRetries) {
+          return CustomResponse<T>(
+            status: false,
+            message: 'Erreur de connexion après $maxRetries tentatives: $e',
+            errorType: ErrorType.networkError,
+            isLoading: false,
+          );
+        }
+        // Attendre avant de réessayer avec délai progressif
+        await Future.delayed(Duration(seconds: attempt * 3));
+        
+      } catch (e) {
+        MyLogger.writeLog("ERREUR API SERVICE POST (Tentative $attempt/$maxRetries): $e");
+        print("Erreur ApiService post: ${e.toString()}");
+        if (attempt == maxRetries) {
+          return CustomResponse<T>(
+            status: false,
+            message: 'Erreur inconnue après $maxRetries tentatives: $e',
+            errorType: ErrorType.unknown,
+            isLoading: false,
+          );
+        }
+        // Attendre avant de réessayer avec délai progressif
+        await Future.delayed(Duration(seconds: attempt * 3));
+      }
+    }
+
+    return CustomResponse<T>(
+      status: false,
+      message: 'Échec après $maxRetries tentatives',
+      errorType: ErrorType.networkError,
+      isLoading: false,
+    );
   }
 
 

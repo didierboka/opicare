@@ -24,3 +24,14 @@
 
 
 - La programmation d une visite ne marche pas (Bugs)
+
+
+----------------------------------------------REQUETES---------------------------------------------------------------
+
+#1- Dans la liste des visites (effectuees, manquees et a venir), il faudrait remonter :
+    -   le ID du vaccin
+    -   le ID de l agent qui a saisi les visites dans le carnet du client
+    -   le ID du centre
+    -   le ID du district
+    -   le ID de region
+

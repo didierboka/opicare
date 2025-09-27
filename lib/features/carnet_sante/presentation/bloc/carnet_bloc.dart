@@ -52,12 +52,11 @@ class RescheduleVaccineRequested extends CarnetEvent {
 }
 
 class UpdateVaccinePhoto extends CarnetEvent {
-  final String vaccineId;
-  final String photoPath;
+
+  final VaccineSubmissionEntity visiteUpdate;
 
   UpdateVaccinePhoto({
-    required this.vaccineId,
-    required this.photoPath,
+    required this.visiteUpdate
   });
 }
 
@@ -312,20 +311,17 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
   Future<void> _onUpdateVaccinePhoto(UpdateVaccinePhoto event, Emitter<CarnetState> emit) async {
     emit(UpdateVaccinePhotoLoading());
 
-    // try {
-    //   final response = await repository.updateVaccinePhoto(
-    //     vaccineId: event.vaccineId,
-    //     photoPath: event.photoPath,
-    //   );
+     try {
+       final result = await repository.updateVaccinePhoto(vaccineUpdate: event.visiteUpdate);
 
-    //   if (response.status) {
-    //     emit(UpdateVaccinePhotoSuccess(response.message ?? 'Photo mise à jour avec succès'));
-    //   } else {
-    //     emit(UpdateVaccinePhotoFailure(response.message ?? 'Erreur lors de la mise à jour'));
-    //   }
-    // } catch (e) {
-    //   emit(UpdateVaccinePhotoFailure('Erreur lors de la mise à jour: $e'));
-    // }
+       result.fold((failure) {
+         emit(UpdateVaccinePhotoFailure('Erreur lors de la mise à jour'));
+       }, (updateDone) {
+         emit(UpdateVaccinePhotoSuccess('Photo mise à jour avec succès'));
+       });
+     } catch (e) {
+       emit(UpdateVaccinePhotoFailure('Erreur lors de la mise à jour: $e'));
+     }
   }
 
   Future<void> _onAddVaccine(

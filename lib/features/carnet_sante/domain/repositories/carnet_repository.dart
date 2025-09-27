@@ -18,7 +18,7 @@ abstract class CarnetRepository {
 
   Future<CustomResponse<Map<String, dynamic>>> rescheduleVaccine({required String vaccineId, required String patientId, required DateTime newDate, required String centreId, required String districtId, required String regionId});
 
-  //  Future<Either<Failure, VaccineSubmissionEntity>> updateVaccinePhoto({required VaccineSubmissionEntity vaccineUpdate});
+  Future<Either<Failure, VaccineSubmissionEntity>> updateVaccinePhoto({required VaccineSubmissionEntity vaccineUpdate});
 
   Future<Either<Failure, List<VisitTypeEntity>>> getVisitTypes();
 

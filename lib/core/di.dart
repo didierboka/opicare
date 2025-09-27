@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
@@ -272,6 +275,7 @@ class Di {
         apiService: _getIt<ApiService<Vaccine>>(),
         missedVaccineApiService: _getIt<ApiService<MissedVaccine>>(),
         upcomingVaccineApiService: _getIt<ApiService<UpcomingVaccine>>(),
+        opiClient: HttpClient()
       ),
     );
 

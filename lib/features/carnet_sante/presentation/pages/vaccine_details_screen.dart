@@ -1,9 +1,11 @@
+import 'dart:developer';
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:opicare/core/constants/log.dart';
 import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
@@ -12,6 +14,10 @@ import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
+
+import '../../../../core/constants/api_url.dart';
+import '../../domain/entities/vaccine_submission_entity.dart';
+import 'package:image/image.dart' as img;
 
 class VaccineDetailsScreen extends StatefulWidget {
   static const path = '/vaccine_details';
@@ -24,7 +30,6 @@ class VaccineDetailsScreen extends StatefulWidget {
 }
 
 class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
-
   String? _selectedImagePath;
   final ImagePicker _picker = ImagePicker();
 
@@ -178,61 +183,80 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
   }
 
   Widget _buildImagePreview() {
+    DebugLogger.debug("_selectedImagePath != null ${_selectedImagePath != null}");
+    //DebugLogger.debug("_selectedImagePath!.startsWith('/') ${_selectedImagePath!.startsWith('i', 0) || _selectedImagePath!.startsWith('i', 0)}");
+
     return Container(
-      width: double.infinity,
-      height: 180,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colours.inputBorder),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.file(
-          File(_selectedImagePath!),
-          fit: BoxFit.cover,
+        width: double.infinity,
+        height: 180,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colours.inputBorder),
         ),
-      ),
-    );
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: _selectedImagePath != null
+              ? (_selectedImagePath!.contains('base64') || _selectedImagePath!.length > 1000)
+                  ? Image.memory(
+                      base64Decode(_selectedImagePath!),
+                      fit: BoxFit.cover,
+                    )
+                  : Image.file(
+                      File(_selectedImagePath!),
+                      fit: BoxFit.cover,
+                    )
+              : Container(
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.photo, size: 48, color: Colors.grey),
+                ),
+        ));
   }
 
   Widget _buildUpdateButton() {
     return BlocListener<CarnetBloc, CarnetState>(
-      listener: (context, state) {
+        listener: (context, state) {
+          //final isLoading = state is UpdateVaccinePhotoLoading;
+          if (state is UpdateVaccinePhotoLoading) showLoader(context, true);
 
-        //final isLoading = state is UpdateVaccinePhotoLoading;
-        if (state is UpdateVaccinePhotoLoading) showLoader(context, true);
-      },
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: CustomButton(
-                  text: 'Retour',
-                  onPressed: () => _handleBackNavigation(),
-                  backgroundColor: Colors.grey[200],
-                  textColor: Colours.primaryText,
+          if (state is UpdateVaccinePhotoFailure) {
+            context.pop();
+          }
+
+          if (state is UpdateVaccinePhotoSuccess) {
+            Navigator.of(context).pop();
+            context.pop();
+          }
+        },
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: CustomButton(
+                    text: 'Retour',
+                    onPressed: () => _handleBackNavigation(),
+                    backgroundColor: Colors.grey[200],
+                    textColor: Colours.primaryText,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: CustomButton(
-                  text: 'Mise à jour',
-                  onPressed: _updateVaccine,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: CustomButton(
+                    text: 'Mise à jour',
+                    onPressed: _updateVaccine,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      )
-    );
+              ],
+            ),
+          ],
+        ));
   }
 
   Future<void> _takePhoto() async {
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 80,
+        imageQuality: 50,
       );
 
       if (image != null) {
@@ -247,7 +271,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
     try {
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 80,
+        imageQuality: 50,
       );
 
       if (image != null) {
@@ -263,6 +287,8 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
       final CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: imagePath,
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        compressFormat: ImageCompressFormat.png,
+        compressQuality: 50,
         uiSettings: [
           AndroidUiSettings(
             toolbarTitle: 'Rogner la photo',
@@ -305,10 +331,56 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
     }
 
     try {
-      context.read<CarnetBloc>().add(UpdateVaccinePhoto(
-        vaccineId: widget.vaccine.id,
-        photoPath: _selectedImagePath!,
-      ));
+      DebugLogger.debug("Calendri => ${widget.vaccine.id}");
+      DebugLogger.debug("patientId => ${widget.vaccine.patientId}");
+
+      // Convertir la photo en base64 avec compression
+      String base64Image = "";
+      if (_selectedImagePath != null) {
+        final imageFile = File(_selectedImagePath!);
+
+        // Vérifier la taille du fichier
+        final fileSize = await imageFile.length();
+        if (fileSize > 5 * 1024 * 1024) {
+          // 5MB max
+          _showErrorSnackBar('L\'image est trop volumineuse (max 5MB)');
+          return;
+        }
+
+        // Lire et compresser l'image
+        final originalBytes = await imageFile.readAsBytes();
+        final originalImage = img.decodeImage(originalBytes);
+
+        if (originalImage != null) {
+          // Réduire la taille de l'image (max 800px de largeur)
+          final resizedImage = img.copyResize(originalImage, width: 800);
+
+          // Compresser en JPEG avec qualité 70%
+          final compressedBytes = img.encodeJpg(resizedImage, quality: 50);
+
+          base64Image = base64Encode(compressedBytes);
+          DebugLogger.debug("Photo compressée: ${base64Image.length} caractères");
+        } else {
+          _showErrorSnackBar('Erreur lors du traitement de l\'image');
+          return;
+        }
+      }
+
+      final visiteToPhotoEntity = VaccineSubmissionEntity(
+        ctrdist: ApiUrl.regionId,
+        ctrId: ApiUrl.centreId,
+        ctrregion: ApiUrl.regionId,
+        dtPre: widget.vaccine.presenceDate,
+        dtRap: widget.vaccine.recallDate,
+        lot: widget.vaccine.lotNumber,
+        patId: widget.vaccine.patientId,
+        usrId: ApiUrl.agentId,
+        calId: widget.vaccine.id,
+        vacId: "84",
+        imgCarnet: base64Image,
+      );
+
+      context.read<CarnetBloc>().add(UpdateVaccinePhoto(visiteUpdate: visiteToPhotoEntity));
     } catch (e) {
       _showErrorSnackBar('Erreur lors de la mise à jour: $e');
     }
@@ -387,4 +459,4 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
       Navigator.pop(context);
     }
   }
-} 
+}

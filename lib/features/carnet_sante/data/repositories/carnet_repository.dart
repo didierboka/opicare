@@ -1,5 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
+import 'package:opicare/core/constants/api_url.dart';
 import 'package:opicare/core/error/failures.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/network/custom_response.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
@@ -11,17 +16,21 @@ import 'package:opicare/features/carnet_sante/domain/entities/vaccine_submission
 
 import 'package:opicare/features/carnet_sante/domain/entities/visit_type_entity.dart';
 import 'package:opicare/features/carnet_sante/domain/repositories/carnet_repository.dart';
+import 'package:http/http.dart' as http;
 
 
 class CarnetRepositoryImpl implements CarnetRepository {
+
   final ApiService<Vaccine> apiService;
   final ApiService<MissedVaccine> missedVaccineApiService;
   final ApiService<UpcomingVaccine> upcomingVaccineApiService;
+  HttpClient opiClient;
 
   CarnetRepositoryImpl({
     required this.apiService,
     required this.missedVaccineApiService,
     required this.upcomingVaccineApiService,
+    required this.opiClient
   });
 
   @override
@@ -137,6 +146,61 @@ class CarnetRepositoryImpl implements CarnetRepository {
     }
   }
 
+  @override
+  Future<Either<Failure, VaccineSubmissionEntity>> updateVaccinePhoto({
+    required VaccineSubmissionEntity vaccineUpdate,
+  }) async {
+    try {
+      final url = Uri.parse('https://opisms.net/opisms-aws/vaccin/majrdv');
+      //  final url = Uri.parse('https://www.google.com');
+
+      // Construction du body
+      final data = {
+        "calId": vaccineUpdate.calId,
+        "usrId": vaccineUpdate.usrId,
+        "ctrregion": vaccineUpdate.ctrregion,
+        "ctrdist": vaccineUpdate.ctrdist,
+        "ctrId": vaccineUpdate.ctrId,
+        "dtPre": vaccineUpdate.dtPre,
+        "lot": vaccineUpdate.lot,
+        "imgCarnet": vaccineUpdate.imgCarnet,
+        "typeAbnt": vaccineUpdate.typeAbnt,
+        "patId": vaccineUpdate.patId,
+        "vacId": vaccineUpdate.vacId,
+        "dtRap": vaccineUpdate.dtRap,
+        "d": "PROD",
+      };
+
+      final response = await http.post(
+        url,
+        headers: ApiUrl.httpHeaders,
+        body: jsonEncode(data),
+      ).timeout(const Duration(seconds: 180));
+
+      // Log des données envoyées
+      DebugLogger.network('URL        : ${url.toString()}');
+      DebugLogger.network('BODY       : ${jsonEncode(data)}');
+      DebugLogger.network('CODE       : ${response.statusCode}');
+      DebugLogger.network('RESPONSE   : ${utf8.decode(response.bodyBytes)}');
+
+      return Right(vaccineUpdate);
+      //  if (response.statusCode == 200) {
+      //    final decoded = jsonDecode(response.body);
+      //    if (decoded['statut'] == 1) {
+      //      return Right(vaccineUpdate);
+      //    } else {
+      //      DebugLogger.network("Une erreur est survenue ${decoded['message']}");
+      //      return Left(ServerFailure(decoded['message'] ?? 'Erreur lors de la mise à jour'));
+      //    }
+      //  } else {
+      //    DebugLogger.network("Une erreur est survenue ${response.statusCode}");
+      //    return Left(ServerFailure('Erreur HTTP: ${response.statusCode}'));
+      //  }
+    } catch (e) {
+      DebugLogger.network("Une erreur est survenue $e");
+      return Left(ServerFailure('Erreur lors de la mise à jour: $e'));
+    }
+  }
 
  // @override
  // Future<Either<Failure, VaccineSubmissionEntity>> updateVaccinePhoto({required String vaccineId, required String photoPath,}) async {

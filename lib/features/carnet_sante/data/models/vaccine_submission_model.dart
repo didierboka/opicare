@@ -1,22 +1,42 @@
+import 'package:equatable/equatable.dart';
 import 'package:opicare/features/carnet_sante/domain/entities/vaccine_submission_entity.dart';
 
-class VaccineSubmissionModel extends VaccineSubmissionEntity {
+
+class VaccineSubmissionModel extends Equatable {
+
+  final String? calId;
+  final String usrId;
+  final String ctrregion;
+  final String ctrdist;
+  final String ctrId;
+  final String dtPre;
+  final String lot;
+  final String imgCarnet;
+  final String? typeAbnt;
+  final String patId;
+  final String vacId;
+  final String dtRap;
+
+
   const VaccineSubmissionModel({
-    required super.usrId,
-    required super.ctrregion,
-    required super.ctrdist,
-    required super.ctrId,
-    required super.dtPre,
-    required super.lot,
-    required super.imgCarnet,
-    required super.typeAbnt,
-    required super.patId,
-    required super.vacId,
-    required super.dtRap,
+    this.calId,
+    required this.usrId,
+    required this.ctrregion,
+    required this.ctrdist,
+    required this.ctrId,
+    required this.dtPre,
+    required this.lot,
+    required this.imgCarnet,
+    this.typeAbnt,
+    required this.patId,
+    required this.vacId,
+    required this.dtRap,
   });
+
 
   factory VaccineSubmissionModel.fromJson(Map<String, dynamic> json) {
     return VaccineSubmissionModel(
+      calId: json['calId'],
       usrId: json['usrId'] ?? '',
       ctrregion: json['ctrregion'] ?? '',
       ctrdist: json['ctrdist'] ?? '',
@@ -24,15 +44,17 @@ class VaccineSubmissionModel extends VaccineSubmissionEntity {
       dtPre: json['dtPre'] ?? '',
       lot: json['lot'] ?? '',
       imgCarnet: json['imgCarnet'] ?? '',
-      typeAbnt: json['typeAbnt'] ?? '',
+      typeAbnt: json['typeAbnt'],
       patId: json['patId'] ?? '',
       vacId: json['vacId'] ?? '',
       dtRap: json['dtRap'] ?? '',
     );
   }
 
+
   Map<String, dynamic> toJson() {
     return {
+      'calId': calId,
       'usrId': usrId,
       'ctrregion': ctrregion,
       'ctrdist': ctrdist,
@@ -46,4 +68,29 @@ class VaccineSubmissionModel extends VaccineSubmissionEntity {
       'dtRap': dtRap,
     };
   }
-} 
+
+
+  // Méthode de conversion vers l'entité domaine
+  VaccineSubmissionEntity toDomain() {
+    return VaccineSubmissionEntity(
+      calId: calId,
+      usrId: usrId,
+      ctrregion: ctrregion,
+      ctrdist: ctrdist,
+      ctrId: ctrId,
+      dtPre: dtPre,
+      lot: lot,
+      imgCarnet: imgCarnet,
+      typeAbnt: typeAbnt,
+      patId: patId,
+      vacId: vacId,
+      dtRap: dtRap,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+    calId, usrId, ctrregion, ctrdist, ctrId, dtPre, lot,
+    imgCarnet, typeAbnt, patId, vacId, dtRap
+  ];
+}

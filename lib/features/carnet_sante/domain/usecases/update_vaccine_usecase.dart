@@ -18,9 +18,9 @@ class UpdateVaccineUseCase {
   UpdateVaccineUseCase({required this.repository});
 
 
-  // Future<Either<Failure, VaccineSubmissionEntity>> execute(VaccineSubmissionEntity vaccineSubmission) async {
-  //     return await repository.updateVaccineInfos(vaccineUpdate: vaccineSubmission);
-  // }
+  Future<Either<Failure, VaccineSubmissionEntity>> execute(VaccineSubmissionEntity vaccineSubmission) async {
+    return await repository.updateVaccinePhoto(vaccineUpdate: vaccineSubmission);
+  }
 
 
 }

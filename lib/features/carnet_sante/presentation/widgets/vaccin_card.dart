@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -32,7 +33,7 @@ class VaccineCard extends StatelessWidget {
             _buildDetailRow('Date d\'administration', formatDateFromString(vaccine.presenceDate)),
             _buildDetailRow('Numéro de lot', vaccine.lotNumber),
             ///_buildDetailRow('Centre de vaccination', vaccine.centerName),
-            const SizedBox(height: 12),
+            const SizedBox(height: 5),
             _buildPhotoSection(),
           ],
         ),
@@ -76,16 +77,16 @@ class VaccineCard extends StatelessWidget {
               ),
               if (vaccine.photoPath != null)
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: Colours.inputBorder),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      File(vaccine.photoPath!),
+                    child: Image.memory(
+                      base64Decode(vaccine.photoPath!),
                       fit: BoxFit.cover,
                     ),
                   ),

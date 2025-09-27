@@ -114,6 +114,7 @@ final appRouter = GoRouter(
       path: VaccineDetailsScreen.path,
       builder: (context, state) {
         final vaccine = state.extra as Vaccine?;
+
         if (vaccine == null) {
           return CarnetSanteScreen();
         }

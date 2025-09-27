@@ -28,7 +28,7 @@ class Vaccine {
       lotNumber: json['LOVAC'] ?? '',
       centerName: json['NOMCENTR'] ?? '',
       patientId: json['IDPAT'] ?? '',
-      photoPath: json['PHOTO_PATH'],
+      photoPath: json['IMGCARNET'],
     );
   }
 

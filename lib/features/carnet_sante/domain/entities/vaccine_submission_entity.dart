@@ -10,7 +10,7 @@ class VaccineSubmissionEntity extends Equatable {
   final String dtPre;
   final String lot;
   final String imgCarnet;
-  final String typeAbnt;
+  final String? typeAbnt;
   final String patId;
   final String vacId;
   final String dtRap;
@@ -25,7 +25,7 @@ class VaccineSubmissionEntity extends Equatable {
     required this.dtPre,
     required this.lot,
     required this.imgCarnet,
-    required this.typeAbnt,
+    this.typeAbnt,
     required this.patId,
     required this.vacId,
     required this.dtRap,
@@ -51,6 +51,6 @@ class VaccineSubmissionEntity extends Equatable {
 
   @override
   String toString() {
-    return 'VaccineSubmissionEntity{calId: $calId, usrId: $usrId, ctrregion: $ctrregion, ctrdist: $ctrdist, ctrId: $ctrId, dtPre: $dtPre, lot: $lot, imgCarnet: $imgCarnet, typeAbnt: $typeAbnt, patId: $patId, vacId: $vacId, dtRap: $dtRap}';
+    return 'VaccineSubmissionEntity{calId: $calId, usrId: $usrId, ctrregion: $ctrregion, ctrdist: $ctrdist, ctrId: $ctrId, dtPre: $dtPre, lot: $lot, typeAbnt: $typeAbnt, patId: $patId, vacId: $vacId, dtRap: $dtRap, imgCarnet: $imgCarnet}';
   }
 }
