@@ -95,7 +95,7 @@ class VaccineCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           CustomButton(
-            text: 'Joindre une image',
+            text: 'Voir plus',
             onPressed: () {
               context.push(VaccineDetailsScreen.path, extra: vaccine);
             },

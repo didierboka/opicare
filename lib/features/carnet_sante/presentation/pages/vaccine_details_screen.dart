@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +15,7 @@ import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/constants/api_url.dart';
 import '../../domain/entities/vaccine_submission_entity.dart';
@@ -174,6 +176,15 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
                     textColor: Colours.primaryText,
                   ),
                 ),
+                const SizedBox(width: 12),
+                //  Expanded(
+                //    child: CustomButton(
+                //      text: '🖨️ Imprimer/Partager',
+                //      onPressed: _shareWithFlutterShare,
+                //      backgroundColor: Colors.grey[200],
+                //      textColor: Colours.primaryText,
+                //    ),
+                //  ),
               ],
             ),
           ],
@@ -181,6 +192,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
       ),
     );
   }
+
 
   Widget _buildImagePreview() {
     DebugLogger.debug("_selectedImagePath != null ${_selectedImagePath != null}");
@@ -197,19 +209,71 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
           borderRadius: BorderRadius.circular(8),
           child: _selectedImagePath != null
               ? (_selectedImagePath!.contains('base64') || _selectedImagePath!.length > 1000)
-                  ? Image.memory(
-                      base64Decode(_selectedImagePath!),
-                      fit: BoxFit.cover,
+                  ? GestureDetector(
+                      onTap: () => _showFullScreenImage(base64Decode(_selectedImagePath!)),
+                      child: Image.memory(
+                        base64Decode(_selectedImagePath!),
+                        fit: BoxFit.cover,
+                      ),
                     )
-                  : Image.file(
-                      File(_selectedImagePath!),
-                      fit: BoxFit.cover,
+                  : GestureDetector(
+                      onTap: () => _showFullScreenImage(File(_selectedImagePath!).readAsBytesSync()),
+                      child: Image.file(
+                        File(_selectedImagePath!),
+                        fit: BoxFit.cover,
+                      ),
                     )
               : Container(
                   color: Colors.grey[200],
                   child: const Icon(Icons.photo, size: 48, color: Colors.grey),
                 ),
         ));
+  }
+
+  void _showFullScreenImage(Uint8List imageBytes) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(20),
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pop(),
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.black.withOpacity(0.8),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: InteractiveViewer(
+                      panEnabled: true,
+                      minScale: 0.5,
+                      maxScale: 4.0,
+                      child: Image.memory(
+                        imageBytes,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white, size: 32),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildUpdateButton() {

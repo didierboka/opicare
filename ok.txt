@@ -1,29 +1,20 @@
 - Integrer l api de cinetpay (voir dans l ancien projet) (Update) (credential incorrect)
-
-
-- Rajouter la fonctionalite "Mot de passe oublie" (Feature)
+- La programmation d une visite ne marche pas (Bugs)
+- Dans ajouter visite, fusionner le champs numero de lot et commentaire en Commentaire / numero de lot (utilise le champs de commentaire et retirer le champs de numero de lot)  (Update)
+    - donner la possibilite de selectionner un district
+    - donner la possibilite de selectionner un centre en fonction du district selectionne
 
 
 - Dans carnet le bouton "+" doit reagir differamment en fonction de l ecran ou on se trouve soit: (Update)
     - "Effectue": Ajouter une visite
     - "Prochain": Programmer une visite
 
-
-- Impossible de voir l image qui est ajoutee dans une visite effectuee (Bugs)
-
-
 - Le user doit pouvoir imprimer ou partager la photo du carnet d une visite (Feature)
-
-
-- Dans ajouter visite, fusionner le champs numero de lot et commentaire en Commentaire / numero de lot (utilise le champs de commentaire et retirer le champs de numero de lot)  (Update)
-    - donner la possibilite de selectionner un district
-    - donner la possibilite de selectionner un centre en fonction du district selectionne
-
-
+- Rajouter la fonctionalite "Mot de passe oublie" (Feature)
 - Donner la possibilite au user connecte d rajouter un membre a sa famille. (Feature)
 
 
-- La programmation d une visite ne marche pas (Bugs)
+
 
 
 ----------------------------------------------REQUETES---------------------------------------------------------------
