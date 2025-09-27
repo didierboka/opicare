@@ -41,6 +41,15 @@ android {
 
 println "👉 compileSdkVersion = " + android.compileSdkVersion
 
+// Ajoutez ce bloc dependencies ⬇️
+dependencies {
+    implementation platform("com.google.firebase:firebase-bom:33.0.0")
+    implementation "com.google.firebase:firebase-crashlytics"
+    implementation "com.google.firebase:firebase-analytics"
+}
+
 flutter {
     source = "../.."
 }
+
+apply plugin: "com.google.gms.google-services"

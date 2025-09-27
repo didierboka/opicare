@@ -61,3 +61,5 @@ temp.json
 !/RELEASE_NOTES.md
 !/CHANGELOG.md
 devtools_options.yaml
+.cursor
+.cursor/rules/presentation.mdc

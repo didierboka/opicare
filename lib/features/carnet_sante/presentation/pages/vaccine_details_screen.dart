@@ -196,34 +196,35 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
   }
 
   Widget _buildUpdateButton() {
-    return BlocBuilder<CarnetBloc, CarnetState>(
-      builder: (context, state) {
-        final isLoading = state is UpdateVaccinePhotoLoading;
-        
-        return Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    text: 'Retour',
-                    onPressed: () => _handleBackNavigation(),
-                    backgroundColor: Colors.grey[200],
-                    textColor: Colours.primaryText,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: CustomButton(
-                    text: isLoading ? 'Mise à jour...' : 'Mise à jour',
-                    onPressed: isLoading ? () {} : _updateVaccine,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
+    return BlocListener<CarnetBloc, CarnetState>(
+      listener: (context, state) {
+
+        //final isLoading = state is UpdateVaccinePhotoLoading;
+        if (state is UpdateVaccinePhotoLoading) showLoader(context, true);
       },
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: 'Retour',
+                  onPressed: () => _handleBackNavigation(),
+                  backgroundColor: Colors.grey[200],
+                  textColor: Colours.primaryText,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: CustomButton(
+                  text: 'Mise à jour',
+                  onPressed: _updateVaccine,
+                ),
+              ),
+            ],
+          ),
+        ],
+      )
     );
   }
 
@@ -269,6 +270,15 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
             toolbarWidgetColor: Colors.white,
             initAspectRatio: CropAspectRatioPreset.square,
             lockAspectRatio: true,
+            statusBarColor: Colours.primaryBlue,
+            activeControlsWidgetColor: Colours.primaryBlue,
+            cropFrameColor: Colours.primaryBlue,
+            cropGridColor: Colours.primaryBlue,
+            backgroundColor: Colors.black,
+            hideBottomControls: false,
+            showCropGrid: true,
+            cropFrameStrokeWidth: 2,
+            cropGridStrokeWidth: 1,
           ),
           IOSUiSettings(
             title: 'Rogner la photo',
