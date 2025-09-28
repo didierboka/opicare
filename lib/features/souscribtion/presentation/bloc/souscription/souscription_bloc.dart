@@ -19,17 +19,13 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     on<LoadFormules>(_onLoadFormules);
     on<SelectTypeAbo>(_onSelectTypeAbo);
     on<SelectFormule>(_onSelectFormule);
-    on<UpdateYears>(_onUpdateYears);
     on<IncrementYears>(_onIncrementYears);
     on<DecrementYears>(_onDecrementYears);
     on<SubmitSouscription>(_onSubmitSouscription);
     on<ExecutePaymentSouscriptionEvent>(_onExecutePaymentSouscription);
   }
 
-  Future<void> _onLoadTypeAbos(
-    LoadTypeAbos event,
-    Emitter<SouscriptionState> emit,
-  ) async {
+  Future<void> _onLoadTypeAbos(LoadTypeAbos event, Emitter<SouscriptionState> emit) async {
     emit(SouscriptionLoading());
     try {
       final typeAbos = await souscriptionRepository.getTypeAbos();
@@ -43,10 +39,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     }
   }
 
-  Future<void> _onLoadFormules(
-    LoadFormules event,
-    Emitter<SouscriptionState> emit,
-  ) async {
+  Future<void> _onLoadFormules(LoadFormules event, Emitter<SouscriptionState> emit) async {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
@@ -64,10 +57,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     }
   }
 
-  void _onSelectTypeAbo(
-    SelectTypeAbo event,
-    Emitter<SouscriptionState> emit,
-  ) {
+  void _onSelectTypeAbo(SelectTypeAbo event, Emitter<SouscriptionState> emit) {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
@@ -82,28 +72,22 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     }
   }
 
-  void _onSelectFormule(
-    SelectFormule event,
-    Emitter<SouscriptionState> emit,
-  ) {
+  void _onSelectFormule(SelectFormule event, Emitter<SouscriptionState> emit) {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
-    if (event.formule.id != "0") {
+    if (event.formule.id == "") {
       emit(currentState.copyWith(selectedFormule: null, total: 0.0, years: 1,));
       return;
     }
 
-    final formule = currentState.formules.firstWhere(
-      (f) => f.id == event.formule.id,
-      orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
-    );
+    DebugLogger.log(("PASSED HERE-event.formule.. ${event.formule.id}"));
 
     // Initialiser les années avec la valeur bonus de la formule
-    final years = formule.bonus > 0 ? formule.bonus : 1;
+    final years = event.formule.bonus > 0 ? event.formule.bonus : 1;
 
     // Prix initial (pas de pas d'incrément au début)
-    final prixInitial = formule.prix;
+    final prixInitial = event.formule.prix;
     final total = prixInitial;
 
     emit(currentState.copyWith(
@@ -113,40 +97,11 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     ));
   }
 
-  void _onUpdateYears(
-    UpdateYears event,
-    Emitter<SouscriptionState> emit,
-  ) {
+  void _onIncrementYears(IncrementYears event, Emitter<SouscriptionState> emit,){
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
-    if (currentState.selectedFormule == null) return;
-
-    final years = int.tryParse(event.years) ?? 1;
-    final formule = currentState.formules.firstWhere(
-      (f) => f.id == currentState.selectedFormule,
-      orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
-    );
-
-    // Calculer le nombre de pas depuis la valeur initiale (bonus)
-    final pasIncrement = (years - formule.bonus) ~/ formule.bonus;
-
-    // Prix initial + (nombre de pas × prix initial)
-    final prixInitial = formule.prix;
-    final total = prixInitial + (pasIncrement * prixInitial);
-
-    emit(currentState.copyWith(
-      years: years,
-      total: total,
-    ));
-  }
-
-  void _onIncrementYears(
-    IncrementYears event,
-    Emitter<SouscriptionState> emit,
-  ) {
-    if (state is! SouscriptionLoaded) return;
-    final currentState = state as SouscriptionLoaded;
+    DebugLogger.debug("CURRENT: ${currentState.selectedFormule?.id}:${currentState.selectedFormule?.libelle}:${currentState.selectedFormule?.bonus}");
 
     if (currentState.selectedFormule == null) return;
 
@@ -154,6 +109,9 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
       (f) => f.id == currentState.selectedFormule?.id,
       orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
     );
+
+    DebugLogger.debug("FORMULE: ${formule.libelle}=${formule.bonus}");
+    DebugLogger.debug("CURRENT YEAR : ${currentState.years}");
 
     // Incrémenter par la valeur du bonus
     final years = currentState.years + formule.bonus;
@@ -171,10 +129,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     ));
   }
 
-  void _onDecrementYears(
-    DecrementYears event,
-    Emitter<SouscriptionState> emit,
-  ) {
+  void _onDecrementYears(DecrementYears event, Emitter<SouscriptionState> emit,) {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
@@ -201,10 +156,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     ));
   }
 
-  Future<void> _onSubmitSouscription(
-    SubmitSouscription event,
-    Emitter<SouscriptionState> emit,
-  ) async {
+  Future<void> _onSubmitSouscription(SubmitSouscription event, Emitter<SouscriptionState> emit,) async {
     emit(SouscriptionLoading());
     try {
       final response = await souscriptionRepository.submitSouscription(
@@ -230,7 +182,6 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
   void _onExecutePaymentSouscription(ExecutePaymentSouscriptionEvent event, Emitter<SouscriptionState> emit) async {
     DebugLogger.log(event.toString());
     emit(ExecutingPaymentSouscriptionState());
-    // souscriptionRepository.makePayment(transactionId: event.transactionId, amount: event.montant, designation: event.designation);
   }
 
   @override

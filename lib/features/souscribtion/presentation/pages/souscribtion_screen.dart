@@ -43,6 +43,8 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
   void initState() {
     super.initState();
     context.read<SouscriptionBloc>().add(LoadTypeAbos());
+
+    _formule = FormuleEntity(id: "", libelle: "", prix: 0, bonus: 0);
   }
 
 
@@ -218,11 +220,10 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                           options: state.typeAbos,
                           onSelected: (typeAbonnement) {
                             _typeAbonnement = typeAbonnement;
+                            _formule = FormuleEntity(id: "", libelle: "", prix: 0, bonus: 0);
+                            _abonYears = 1;
                             context.read<SouscriptionBloc>().add(LoadFormules(_typeAbonnement!));
                             context.read<SouscriptionBloc>().add(SelectTypeAbo(_typeAbonnement));
-
-                            DebugLogger.debug("TYPE ABO => ${_typeAbonnement?.libelle}");
-                            DebugLogger.debug("TYPE ABO ID => ${_typeAbonnement?.id}");
                           },
                           validator: (val) => val == null ? 'Champs requis' : null,
                           getValue: (type) => type?.id ?? "",
@@ -232,51 +233,50 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                         const SizedBox(height: 20),
                         CustomSelectField<FormuleEntity?>(
                           label: 'Formule',
-                          selectedValue: state.selectedFormule,
+                          selectedValue: _formule,
                           hint: 'Choisir une formule',
                           options: state.formules,
                           onSelected: (formule) {
                             _formule = formule;
+                            _abonYears = _formule!.bonus;
                             context.read<SouscriptionBloc>().add(SelectFormule(_formule!));
-
-                            DebugLogger.debug("FORMUUUUUUUUUULE BONUS-> ${_formule?.bonus}");
-                            DebugLogger.debug("FORMUUUUUUUUUULE IDFORMULE-> ${_formule?.id}");
-                            DebugLogger.debug("FORMUUUUUUUUUULE LIBELLE-> ${_formule?.libelle}");
-                            DebugLogger.debug("FORMUUUUUUUUUULE TARIF-> ${_formule?.prix}");
-
                           },
-                          validator: (val) => val == null ? 'Champs requis' : null,
+                          validator: (formule) => formule == null ? 'Champs requis' : null,
                           isEnabled: state.selectedTypeAbo != null,
                           getValue: (formule) => "${formule?.id}",
                           getDisplayText: (formule) => "${formule?.libelle}",
                         ),
+
                         const SizedBox(height: 20),
+
                         CustomIncrementField(
                           label: 'Nombre d\'années',
                           hint: '0',
                           icon: Icons.calendar_month,
-                          value: state.years,
-                          minValue: (_formule?.bonus ?? 0) > 0 ? (_formule?.bonus ?? 0) : 1,
-                          increment: (_formule?.bonus ?? 1) > 0 ? (_formule?.bonus ?? 1) : 1,
-                          onChanged: (value) {
-                            if (value > state.years) {
+                          value: _abonYears,
+                          minValue: _formule!.bonus > 0 ? _formule!.bonus : 0,
+                          increment: _formule!.bonus > 0 ? _formule!.bonus : 0,
+                          onChanged: (year) {
+                            _abonYears = year;
+
+                            if (year > state.years) {
                               context.read<SouscriptionBloc>().add(IncrementYears());
                             } else {
                               context.read<SouscriptionBloc>().add(DecrementYears());
                             }
-
-                            _abonYears = state.years;
-                            DebugLogger.debug("YEAR SELECTED -> $_abonYears");
+                            _abonYears = year;
                           },
-                          validator: (value) {
-                            if (value == null || value < 1) return 'Nombre d\'années invalide';
-                            if (selectedFormule.bonus > 0 && value < selectedFormule.bonus) {
-                              return 'Minimum ${selectedFormule.bonus} année(s) pour cette formule';
+                          validator: (year) {
+                            if (year == null || year < 1) return 'Nombre d\'années invalide';
+                            if (_formule!.bonus > 0 && year < _formule!.bonus) {
+                              return 'Minimum ${_formule!.bonus} année(s) pour cette formule';
                             }
                             return null;
                           },
                         ),
+
                         const SizedBox(height: 30),
+
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -285,9 +285,9 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                           ),
                           child: Column(
                             children: [
-                              _buildDetailRow('Formule', selectedFormule.libelle),
-                              _buildDetailRow('Prix annuel', '${selectedFormule.prix} FCfa'),
-                              _buildDetailRow('Années', state.years.toString()),
+                              _buildDetailRow('Formule', _formule!.libelle),
+                              _buildDetailRow('Prix annuel', '${_formule!.prix} FCfa'),
+                              _buildDetailRow('Années', _abonYears.toString()),
                               const Divider(),
                               _buildDetailRow('Total', '${state.total.toStringAsFixed(0)} FCfa', isBold: true),
                             ],
@@ -297,13 +297,15 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                         CustomButton(
                           text: 'Souscrire',
                           onPressed: () async {
-                            if (_formKey.currentState!.validate() && state.selectedTypeAbo != null && state.selectedFormule != null) {
-                              DebugLogger.log("Lauching payment...");
-                              context.read<SouscriptionBloc>().add(ExecutePaymentSouscriptionEvent(designation: "ABONNEMENT E-CARNET", transactionId: "transactionId", montant: 100));
-                            }
+                            //  if (_formKey.currentState!.validate() && state.selectedTypeAbo != null && state.selectedFormule != null) {
+                            //    DebugLogger.log("Lauching payment...");
+                            //    context.read<SouscriptionBloc>().add(ExecutePaymentSouscriptionEvent(designation: "ABONNEMENT E-CARNET", transactionId: "transactionId", montant: 100));
+                            //  }
 
-                            //final result = await context.push(CinetPayCheckoutScreen.path);
-                            //DebugLogger.log("result payment...$result");
+                            if (_formKey.currentState!.validate() && state.selectedTypeAbo != null && state.selectedFormule != null) {
+                              final result = await context.push(CinetPayCheckoutScreen.path);
+                              DebugLogger.log("result payment: $result");
+                            }
                           },
                         ),
                       ],

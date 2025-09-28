@@ -31,11 +31,6 @@ class SelectFormule extends SouscriptionEvent {
   SelectFormule(this.formule);
 }
 
-class UpdateYears extends SouscriptionEvent {
-  final String years;
-
-  UpdateYears(this.years);
-}
 
 class IncrementYears extends SouscriptionEvent {}
 

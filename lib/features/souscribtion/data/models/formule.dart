@@ -15,10 +15,8 @@ class FormuleModel {
   factory FormuleModel.fromJson(Map<String, dynamic> json) {
     // Gérer le cas où BONUS peut être une chaîne ou un entier
 
-    DebugLogger.debug("FORMUUUUUUUUUULE -> $json");
-
-
     int bonusValue;
+
     if (json['BONUS'] is String) {
       bonusValue = int.tryParse(json['BONUS']) ?? 0;
     } else if (json['BONUS'] is int) {

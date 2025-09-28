@@ -2,6 +2,7 @@
 import 'package:cinetpay/cinetpay.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 
 import '../../../../core/constants/api_url.dart';
 
@@ -102,23 +103,30 @@ class _CinetPayCheckoutScreenState extends State<CinetPayCheckoutScreen> {
       body: Container(
         child: Center(
           child: CinetPayCheckout(
-              title: 'KELFILM-PAYMENT',
+              title: 'OPICARE',
               titleBackgroundColor: null,
-              configData: <String, Object?>{'site_id': ApiUrl.cinetPaySiteId, 'apikey': ApiUrl.cinetPayApiKey},
+              configData: <String, Object?>{
+                'site_id': ApiUrl.cinetPaySiteId,
+                'apikey': ApiUrl.cinetPayApiKey,
+                'notify_url': 'https://www.google.com',
+              },
               paymentData: <String, Object?>{
                 'transaction_id': _transactionId,
                 'amount': 100,
                 'currency': 'XOF',
                 'channels': 'ALL',
-                'description': 'Ticket pour'
+                'description': 'Abonnement'
+
               },
               waitResponse: (response) {
                //  _processToBookEvent(response);
-                context.pop("success apyment;");
+
+                DebugLogger.success("PAIEMENT OKOKOKOK");
+                context.pop("success;");
               },
               onError: (error) {
                 print('UNE ERREUR EST SURVENUE => ${error}');
-                context.pop("failed apyment;");
+                context.pop("failed;");
               }),
         ),
       ),

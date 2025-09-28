@@ -42,6 +42,7 @@ class CustomIncrementField extends StatelessWidget {
           ),
           child: Row(
             children: [
+
               // Bouton décrément
               Container(
                 decoration: BoxDecoration(
@@ -67,6 +68,7 @@ class CustomIncrementField extends StatelessWidget {
                   ),
                 ),
               ),
+
               // Affichage de la valeur
               Expanded(
                 child: Container(
@@ -99,6 +101,7 @@ class CustomIncrementField extends StatelessWidget {
                   ),
                 ),
               ),
+
               // Bouton incrément
               Container(
                 decoration: BoxDecoration(
