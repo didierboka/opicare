@@ -8,17 +8,23 @@ import 'package:opicare/features/carnet_sante/presentation/widgets/missed_vaccin
 import 'package:opicare/features/carnet_sante/presentation/widgets/upcoming_vaccine_card.dart';
 
 class VaccineTabView extends StatefulWidget {
-  const VaccineTabView({super.key});
+  final Function(int)? onTabChanged;
+  const VaccineTabView({super.key, this.onTabChanged});
 
   @override
   State<VaccineTabView> createState() => _VaccineTabViewState();
 }
 
+
+
 class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStateMixin {
+
+
   late TabController _tabController;
   bool _hasLoadedMissed = false;
   bool _hasLoadedUpcoming = false;
   bool _hasLoadedEffectues = false;
+
 
   @override
   void initState() {
@@ -32,6 +38,7 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
     });
   }
 
+
   void _loadEffectuesData() {
     if (!_hasLoadedEffectues) {
       final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
@@ -40,9 +47,15 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
     }
   }
 
+
   void _onTabChanged() {
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
-    
+
+    // Notifier le parent du changement d'onglet
+    if (widget.onTabChanged != null) {
+      widget.onTabChanged!(_tabController.index);
+    }
+
     switch (_tabController.index) {
       case 0: // Onglet "Effectués"
         context.read<CarnetBloc>().add(LoadVaccines(id: user.patID));
@@ -65,11 +78,13 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
     }
   }
 
+
   @override
   void dispose() {
     _tabController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -102,6 +117,7 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
       ),
     );
   }
+
 
   Widget _buildVaccineList(BuildContext context) {
     return BlocBuilder<CarnetBloc, CarnetState>(

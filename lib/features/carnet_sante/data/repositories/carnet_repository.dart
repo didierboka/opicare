@@ -107,6 +107,7 @@ class CarnetRepositoryImpl implements CarnetRepository {
       lot: vaccineSubmission.lot,
       imgCarnet: vaccineSubmission.imgCarnet,
       typeAbnt: vaccineSubmission.typeAbnt,
+      type: vaccineSubmission.type,
       patId: vaccineSubmission.patId,
       vacId: vaccineSubmission.vacId,
       dtRap: vaccineSubmission.dtRap,

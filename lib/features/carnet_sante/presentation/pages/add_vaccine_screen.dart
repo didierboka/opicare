@@ -24,6 +24,9 @@ import 'package:opicare/features/carnet_sante/presentation/bloc/type_visite_bloc
 import 'package:opicare/features/carnet_sante/presentation/bloc/type_visite_event.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/type_visite_state.dart';
 
+import '../../../../core/widgets/navigation/back_button_blocker_widget.dart';
+import 'vaccine_summary_screen.dart';
+
 class AddVaccineScreen extends StatefulWidget {
   static const path = '/add_vaccine';
 
@@ -60,14 +63,10 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<NomVaccinBloc>(
-          create: (context) => NomVaccinBloc(
-            nomVaccinRepository: NomVaccinRepositoryImpl(),
-          ),
+          create: (context) => NomVaccinBloc(nomVaccinRepository: NomVaccinRepositoryImpl()),
         ),
         BlocProvider<TypeVisiteBloc>(
-          create: (context) => TypeVisiteBloc(
-            typeVisiteRepository: TypeVisiteRepositoryImpl(),
-          )..add(LoadTypeVisites()),
+          create: (context) => TypeVisiteBloc(typeVisiteRepository: TypeVisiteRepositoryImpl())..add(LoadTypeVisites()),
         ),
       ],
       child: BlocListener<CarnetBloc, CarnetState>(
@@ -79,38 +78,43 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
             _showErrorSnackBar(state.message);
           }
         },
-        child: Scaffold(
-          appBar: AppBar(
-            title: const Text('Ajouter un vaccin'),
-            backgroundColor: Colours.primaryBlue,
-            foregroundColor: Colors.white,
-            elevation: 0,
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(),
-                  const SizedBox(height: 24),
-                  _buildTypeVaccinDropdown(),
-                  const SizedBox(height: 16),
-                  _buildVaccineNameField(),
-                  const SizedBox(height: 16),
-                  _buildAdministrationDateField(),
-                  const SizedBox(height: 16),
-                  _buildLotNumberField(),
-                  //  const SizedBox(height: 16),
-                  //  _buildCenterNameField(),
-                  const SizedBox(height: 16),
-                  _buildCommentField(),
-                  const SizedBox(height: 16),
-                  _buildPhotoSection(),
-                  const SizedBox(height: 32),
-                  _buildSubmitButton(),
-                ],
+        child: BackButtonBlockerWidget(
+          message: 'Utilisez le bouton "Annuler"',
+          showConfirmationDialog: false,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Ajouter une visite'),
+              backgroundColor: Colours.primaryBlue,
+              foregroundColor: Colors.white,
+              automaticallyImplyLeading: false,
+              elevation: 5,
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(),
+                    const SizedBox(height: 24),
+                    _buildTypeVaccinDropdown(),
+                    const SizedBox(height: 16),
+                    _buildVaccineNameField(),
+                    const SizedBox(height: 16),
+                    _buildAdministrationDateField(),
+                    //  const SizedBox(height: 16),
+                    //  _buildLotNumberField(),
+                    //  const SizedBox(height: 16),
+                    //  _buildCenterNameField(),
+                    const SizedBox(height: 16),
+                    _buildCommentField(),
+                    const SizedBox(height: 16),
+                    _buildPhotoSection(),
+                    const SizedBox(height: 32),
+                    _buildSubmitButton(),
+                  ],
+                ),
               ),
             ),
           ),
@@ -135,7 +139,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Nouveau vaccin',
+                  'Nouvelle visite',
                   style: TextStyles.titleLarge.copyWith(
                     color: Colours.primaryBlue,
                   ),
@@ -144,7 +148,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Ajoutez les informations de votre vaccin effectué',
+              'Ajoutez les informations de votre visite effectuée',
               style: TextStyles.bodyRegular.copyWith(
                 color: Colours.secondaryText,
               ),
@@ -174,9 +178,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
                 DropdownButtonFormField<TypeVisiteModel>(
                   value: _selectedTypeVisite,
                   decoration: InputDecoration(
-                    hintText: state is TypeVisiteLoading 
-                        ? 'Chargement...' 
-                        : 'Sélectionnez un type de visite',
+                    hintText: state is TypeVisiteLoading ? 'Chargement...' : 'Sélectionnez un type de visite',
                     hintStyle: TextStyles.bodyRegular.copyWith(
                       color: Colours.secondaryText,
                     ),
@@ -197,22 +199,24 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
                     prefixIcon: const Icon(Icons.category),
                   ),
                   items: _buildTypeVisiteDropdownItems(state),
-                  onChanged: state is TypeVisiteLoading ? null : (TypeVisiteModel? value) {
-                    setState(() {
-                      _selectedTypeVisite = value;
-                      // Réinitialiser le nom de vaccin sélectionné quand le type change
-                      _selectedNomVaccin = null;
+                  onChanged: state is TypeVisiteLoading
+                      ? null
+                      : (TypeVisiteModel? value) {
+                          setState(() {
+                            _selectedTypeVisite = value;
+                            // Réinitialiser le nom de vaccin sélectionné quand le type change
+                            _selectedNomVaccin = null;
 
-                      _nameController.clear();
-                    });
-                    
-                    // Charger les noms de vaccins si un type est sélectionné
-                    if (value != null) {
-                      context.read<NomVaccinBloc>().add(LoadNomsVaccins(value.id));
-                    } else {
-                      context.read<NomVaccinBloc>().add(ClearNomsVaccins());
-                    }
-                  },
+                            _nameController.clear();
+                          });
+
+                          // Charger les noms de vaccins si un type est sélectionné
+                          if (value != null) {
+                            context.read<NomVaccinBloc>().add(LoadNomsVaccins(value.id));
+                          } else {
+                            context.read<NomVaccinBloc>().add(ClearNomsVaccins());
+                          }
+                        },
                   validator: (value) {
                     if (value == null) {
                       return 'Le type de visite est requis';
@@ -289,6 +293,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
       builder: (context, state) {
         DebugLogger.log('État NomVaccin: $state');
         DebugLogger.log('Valeur sélectionnée: ${_selectedNomVaccin?.nomVac} (ID: ${_selectedNomVaccin?.idVac})');
+
         if (state is NomVaccinLoaded && _selectedNomVaccin != null) {
           final found = state.nomsVaccins.any((item) => item.idVac == _selectedNomVaccin!.idVac);
           DebugLogger.log('Valeur trouvée dans la liste: $found');
@@ -310,7 +315,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
                   value: _selectedNomVaccin,
                   isExpanded: true,
                   decoration: InputDecoration(
-                    hintText: _selectedTypeVisite == null 
+                    hintText: _selectedTypeVisite == null
                         ? 'Sélectionnez d\'abord un type de visite'
                         : state is NomVaccinLoading
                             ? 'Chargement des noms de vaccins...'
@@ -336,20 +341,22 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
                   ),
                   items: _buildNomVaccinDropdownItems(state),
                   menuMaxHeight: 200,
-                  onChanged: (_selectedTypeVisite != null && state is! NomVaccinLoading) ? (NomVaccinModel? value) {
-                    DebugLogger.log('onChanged appelé avec: ${value?.nomVac} (ID: ${value?.idVac})');
-                    setState(() {
-                      _selectedNomVaccin = value;
+                  onChanged: (_selectedTypeVisite != null && state is! NomVaccinLoading)
+                      ? (NomVaccinModel? value) {
+                          DebugLogger.log('onChanged appelé avec: ${value?.nomVac} (ID: ${value?.idVac})');
+                          setState(() {
+                            _selectedNomVaccin = value;
 
-                      if (value != null) {
-                        _nameController.text = value.nomVac;
-                        DebugLogger.log('Valeur mise à jour: ${_selectedNomVaccin?.nomVac} (ID: ${_selectedNomVaccin?.idVac})');
-                      } else {
-                        _nameController.clear();
-                        DebugLogger.log('Valeur effacée');
-                      }
-                    });
-                  } : null,
+                            if (value != null) {
+                              _nameController.text = value.nomVac;
+                              DebugLogger.log('Valeur mise à jour: ${_selectedNomVaccin?.nomVac} (ID: ${_selectedNomVaccin?.idVac})');
+                            } else {
+                              _nameController.clear();
+                              DebugLogger.log('Valeur effacée');
+                            }
+                          });
+                        }
+                      : null,
                   // Désactiver complètement le dropdown pendant le chargement
                   /*icon: state is NomVaccinLoading
                       ? const SizedBox(
@@ -395,7 +402,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
               SizedBox(
                 width: 20,
                 height: 20,
-                child:  CircularProgressIndicator(
+                child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                 ),
@@ -491,7 +498,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Commentaire',
+          'Commentaire / numero de lot',
           style: TextStyles.bodyBold.copyWith(
             color: Colours.primaryText,
           ),
@@ -590,7 +597,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
     return BlocBuilder<CarnetBloc, CarnetState>(
       builder: (context, state) {
         final isLoading = state is AddVaccineLoading;
-        
+
         return Column(
           children: [
             Row(
@@ -624,6 +631,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
       },
     );
   }
+
 
   Future<void> _takePhoto() async {
     try {
@@ -698,7 +706,7 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // Naviguer vers la page de récapitulatif avec toutes les données
-      context.push('/vaccine_summary', extra: {
+      context.push(VaccineSummaryScreen.path, extra: {
         'selectedVaccin': _selectedNomVaccin,
         'selectedTypeVisite': _selectedTypeVisite,
         'administrationDate': _administrationDateController.text,
@@ -726,4 +734,4 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
       ),
     );
   }
-} 
+}

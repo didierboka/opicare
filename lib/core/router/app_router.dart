@@ -38,6 +38,7 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/carnet_sante/domain/repositories/carnet_repository.dart';
 import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import '../../features/carnet_sante/presentation/pages/reschedule_vaccine_screen.dart';
+import '../../features/carnet_sante/presentation/pages/schedule_vaccine_screen.dart';
 import '../../features/carnet_sante/presentation/pages/vaccine_details_screen.dart';
 import '../../features/carnet_sante/presentation/pages/add_vaccine_screen.dart';
 import '../../features/carnet_sante/presentation/pages/vaccine_summary_screen.dart';
@@ -94,6 +95,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: HomeScreen.path,
       builder: (context, state) => HomeScreen(),
+    ),
+    GoRoute(
+      path: ScheduleVaccineScreen.path,
+      builder: (context, state) => BlocProvider(
+        create: (context) => CarnetBloc(
+          repository: Di.get<CarnetRepository>(),
+          getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
+          submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
+        ),
+        child: ScheduleVaccineScreen(),
+      ),
     ),
     GoRoute(
       path: NotificationScreen.path,

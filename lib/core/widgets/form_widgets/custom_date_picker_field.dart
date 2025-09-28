@@ -12,6 +12,10 @@ class CustomDateInputField extends StatefulWidget {
   final bool defaultValidation;
   final String? Function(String? value)? validator;
   final bool allowFutureDates;
+  final int initialDateOffset;
+  final int minDateOffset;
+  final int maxDateOffset;
+  final bool allowPastDates;
 
   const CustomDateInputField({
     super.key,
@@ -20,8 +24,13 @@ class CustomDateInputField extends StatefulWidget {
     required this.icon,
     required this.controller,
     this.defaultValidation = true,
-    this.validator,
     this.allowFutureDates = false,
+    this.allowPastDates = true,
+    this.validator,
+
+    this.initialDateOffset = 0,
+    this.minDateOffset = 0,
+    this.maxDateOffset = 3650,
   });
 
   @override
@@ -52,14 +61,24 @@ class _CustomDateInputFieldState extends State<CustomDateInputField> {
 
   Future<void> _selectDate(BuildContext context) async {
     final now = DateTime.now();
-    final lastDate = widget.allowFutureDates 
-        ? DateTime(now.year + 10) // Permettre jusqu'à 10 ans dans le futur
+
+    // Calcul des dates limites
+    final initialDate = now.add(Duration(days: widget.initialDateOffset));
+
+    // Première date sélectionnable
+    final firstDate = widget.allowPastDates
+        ? DateTime(1900)  // Si dates passées autorisées, depuis 1900
+        : now.add(Duration(days: widget.minDateOffset));
+
+    // Dernière date sélectionnable
+    final lastDate = widget.allowFutureDates
+        ? now.add(Duration(days: widget.maxDateOffset))
         : now;
-    
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: now,
-      firstDate: DateTime(1900),
+      initialDate: initialDate,
+      firstDate: firstDate,
       lastDate: lastDate,
     );
     if (picked != null) {

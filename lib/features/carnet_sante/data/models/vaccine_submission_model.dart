@@ -13,6 +13,7 @@ class VaccineSubmissionModel extends Equatable {
   final String lot;
   final String imgCarnet;
   final String? typeAbnt;
+  final String? type;
   final String patId;
   final String vacId;
   final String dtRap;
@@ -28,6 +29,7 @@ class VaccineSubmissionModel extends Equatable {
     required this.lot,
     required this.imgCarnet,
     this.typeAbnt,
+    this.type,
     required this.patId,
     required this.vacId,
     required this.dtRap,
@@ -61,6 +63,7 @@ class VaccineSubmissionModel extends Equatable {
       'ctrId': ctrId,
       'dtPre': dtPre,
       'lot': lot,
+      'type': type,
       'imgCarnet': imgCarnet,
       'typeAbnt': typeAbnt,
       'patId': patId,

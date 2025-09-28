@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/di.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
@@ -16,12 +17,67 @@ import 'package:opicare/features/carnet_sante/presentation/widgets/health_card_h
 import 'package:opicare/features/carnet_sante/presentation/widgets/vaccine_table_view.dart';
 
 import '../../domain/repositories/carnet_repository.dart';
+import 'schedule_vaccine_screen.dart';
 
-class CarnetSanteScreen extends StatelessWidget {
+class CarnetSanteScreen extends StatefulWidget {
+
   static const path = '/carnet_sante';
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   CarnetSanteScreen({super.key});
+
+  @override
+  State<CarnetSanteScreen> createState() => _CarnetSanteScreenState();
+}
+
+
+class _CarnetSanteScreenState extends State<CarnetSanteScreen> {
+
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  int _currentTabIndex = 0;
+
+
+  void _onTabChanged(int index) {
+    DebugLogger.debug("TAB CLICKED => $index");
+    setState(() {
+      _currentTabIndex = index;
+    });
+  }
+
+
+  Widget? _buildFloatingActionButton(BuildContext context) {
+    switch (_currentTabIndex) {
+      case 0: // Effectués
+        return FloatingActionButton(
+          onPressed: () {
+            context.push(AddVaccineScreen.path);
+          },
+          backgroundColor: Colours.primaryBlue,
+          child: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 28,
+          ),
+        );
+      case 1: // Manqués
+        return null; // Pas de bouton flottant
+      case 2: // Prochains
+        return FloatingActionButton(
+          onPressed: () {
+            context.push(ScheduleVaccineScreen.path);
+          },
+          backgroundColor: Colours.primaryBlue,
+          child: const Icon(
+            Icons.calendar_today,
+            color: Colors.white,
+            size: 28,
+          ),
+        );
+      default:
+        return null;
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -54,22 +110,12 @@ class CarnetSanteScreen extends StatelessWidget {
                     imageAsset: 'assets/images/vaccination-sans-bg.png',
                   ),
                   //const TabBarHeader(),
-                  const Expanded(child: VaccineTabView()),
+                  Expanded(child: VaccineTabView(onTabChanged: _onTabChanged)),
                 ],
               ),
             ),
           ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              context.go(AddVaccineScreen.path);
-            },
-            backgroundColor: Colours.primaryBlue,
-            child: const Icon(
-              Icons.add,
-              color: Colors.white,
-              size: 28,
-            ),
-          ),
+          floatingActionButton: _buildFloatingActionButton(context),
           bottomNavigationBar: CustomBottomNavBar(),
         ),
       ),

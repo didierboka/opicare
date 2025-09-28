@@ -1,16 +1,12 @@
 🚀 Version 1.0.11 version 12
 
 🎉 Fonctionnalites
+✅ Ajout de programmation de visite
+✅ Ajout de photo sur une visite effectue
+✅ Changement dynamic des actions "Ajouter visite" & "Programmer visite"
 
 ✏️ Corrections
-✅ Rien ne s affiche dans le details de "Vaccins Voyages" (Bugs)
-✅ Redirige le user sur la map lorsque le centre est geolocalise (Update)
-✅ Retrait de "se souvenir de moi" dans la creation de compte (Update)
-✅ Les menus "FAMILLE" & "CARNET" ne doivent etre visible qu a partir de la formule "BUSINESS" (Feature)
-✅ Quand pas de formule (apres une inscription) permettre de se deconnecter ou de supprimer le compte (Bugs)
-✅ Changer le message de demande d abonnement par : Votre abonnement n'est pas actif, veuillez vous abonner à la formule "BUSINESS" ou "SERENITY" pour accéder à l'ensemble des fonctionnalités (Update)
-✅ Afficher la formule du user connecte (Update)
-✅ Afficher la date d expiration de l abonnement en rouge lorsqu elle a expiree (Update)
+✅
 
 📱 Compatibilité :
 - iOS 13+

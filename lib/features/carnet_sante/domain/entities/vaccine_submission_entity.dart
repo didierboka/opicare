@@ -11,6 +11,7 @@ class VaccineSubmissionEntity extends Equatable {
   final String lot;
   final String imgCarnet;
   final String? typeAbnt;
+  final String? type;
   final String patId;
   final String vacId;
   final String dtRap;
@@ -26,6 +27,7 @@ class VaccineSubmissionEntity extends Equatable {
     required this.lot,
     required this.imgCarnet,
     this.typeAbnt,
+    this.type,
     required this.patId,
     required this.vacId,
     required this.dtRap,
@@ -36,6 +38,8 @@ class VaccineSubmissionEntity extends Equatable {
   List<Object?> get props => [
         calId,
         usrId,
+        type,
+        typeAbnt,
         ctrregion,
         ctrdist,
         ctrId,
@@ -51,6 +55,6 @@ class VaccineSubmissionEntity extends Equatable {
 
   @override
   String toString() {
-    return 'VaccineSubmissionEntity{calId: $calId, usrId: $usrId, ctrregion: $ctrregion, ctrdist: $ctrdist, ctrId: $ctrId, dtPre: $dtPre, lot: $lot, typeAbnt: $typeAbnt, patId: $patId, vacId: $vacId, dtRap: $dtRap, imgCarnet: $imgCarnet}';
+    return 'VaccineSubmissionEntity{calId: $calId, usrId: $usrId, ctrregion: $ctrregion, ctrdist: $ctrdist, ctrId: $ctrId, dtPre: $dtPre, lot: $lot, type: $type, typeAbnt: $typeAbnt, patId: $patId, vacId: $vacId, dtRap: $dtRap, imgCarnet: $imgCarnet}';
   }
 }
