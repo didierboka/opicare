@@ -5,13 +5,13 @@ abstract class HopitauxEvent {}
 class LoadDistricts extends HopitauxEvent {}
 
 class LoadCentresByDistrict extends HopitauxEvent {
-  final String districtId;
-  LoadCentresByDistrict({required this.districtId});
+  final DistrictModel district;
+  LoadCentresByDistrict({required this.district});
 }
 
 class SelectDistrict extends HopitauxEvent {
-  final String districtId;
-  SelectDistrict({required this.districtId});
+  final DistrictModel district;
+  SelectDistrict({required this.district});
 }
 
 class ClearErrorMessage extends HopitauxEvent {} 

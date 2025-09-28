@@ -10,6 +10,8 @@ import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_select_field.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/enums/app_enums.dart';
+import 'package:opicare/features/disponibilite_vaccins/data/models/centre_model.dart';
+import 'package:opicare/features/disponibilite_vaccins/data/models/district_model.dart';
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
 import 'package:opicare/features/jours_vaccins/presentation/widgets/week_calendar_widget.dart';
 
@@ -77,28 +79,32 @@ class _JoursVaccinScreenState extends State<JoursVaccinScreen> {
                   children: [
                     Text('Sélectionner un centre', style: TextStyles.titleMedium),
                     const SizedBox(height: 20),
-                    CustomSelectField(
+                    CustomSelectField<DistrictModel?>(
                       label: 'Liste des districts',
                       selectedValue: state is JoursVaccinLoaded ? state.selectedDistrict : null,
                       hint: 'Sélectionner un district',
-                      options: state is JoursVaccinLoaded ? state.districts.map((d) => {'libelle': d.nom, 'valeur': d.id}).toList() : [],
-                      onSelected: (value) {
-                        DebugLogger.info('JoursVaccinScreen: District sélectionné - $value');
-                        bloc.add(SelectDistrict(districtId: value!));
+                      options: state is JoursVaccinLoaded ? state.districts : [],
+                      onSelected: (district) {
+                        DebugLogger.info('JoursVaccinScreen: District sélectionné - ${district?.nom}');
+                        bloc.add(SelectDistrict(district: district!));
                       },
+                      getValue: (district) => "${district?.id}",
+                      getDisplayText: (district) => "${district?.nom}",
                     ),
                     const SizedBox(height: 16),
-                    CustomSelectField(
+                    CustomSelectField<CentreModel?>(
                       label: 'Liste des centres',
                       selectedValue: state is JoursVaccinLoaded ? state.selectedCentre : null,
                       hint: 'Sélectionner un centre',
-                      options: state is JoursVaccinLoaded ? state.centres.map((c) => {'libelle': c.nom, 'valeur': c.id}).toList() : [],
-                      onSelected: (value) {
-                        DebugLogger.info('JoursVaccinScreen: Centre sélectionné - $value');
-                        if (value != null) {
-                          bloc.add(SelectCentre(centretId: value));
-                        }
+                      options: state is JoursVaccinLoaded ? state.centres : [],
+                      onSelected: (centre) {
+                        DebugLogger.info('JoursVaccinScreen: Centre sélectionné - ${centre?.nom}');
+                        //  if (value != null) {
+                          bloc.add(SelectCentre(centre: centre!));
+                        //  }
                       },
+                      getDisplayText: (centre) => "${centre?.nom}",
+                      getValue: (centre) => "${centre?.id}",
                       isEnabled: state is JoursVaccinLoaded && state.selectedDistrict != null,
                     ),
                     const SizedBox(height: 30),

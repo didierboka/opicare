@@ -7,7 +7,7 @@ class GetFormulesUseCase {
 
   GetFormulesUseCase(this.repository);
 
-  Future<List<FormuleEntity>> call(String typeAboId) async {
+  Future<List<FormuleEntity>> execute(String typeAboId) async {
     return await repository.getFormules(typeAboId);
   }
 }

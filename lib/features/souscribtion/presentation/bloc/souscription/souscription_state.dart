@@ -16,8 +16,8 @@ class SouscriptionLoading extends SouscriptionState {}
 class SouscriptionLoaded extends SouscriptionState {
   final List<TypeAboEntity> typeAbos;
   final List<FormuleEntity> formules;
-  final String? selectedTypeAbo;
-  final String? selectedFormule;
+  final TypeAboEntity? selectedTypeAbo;
+  final FormuleEntity? selectedFormule;
   final int years;
   final double total;
 
@@ -33,8 +33,8 @@ class SouscriptionLoaded extends SouscriptionState {
   SouscriptionLoaded copyWith({
     List<TypeAboEntity>? typeAbos,
     List<FormuleEntity>? formules,
-    String? selectedTypeAbo,
-    String? selectedFormule,
+    TypeAboEntity? selectedTypeAbo,
+    FormuleEntity? selectedFormule,
     int? years,
     double? total,
   }) {

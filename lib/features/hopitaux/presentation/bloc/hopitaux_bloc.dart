@@ -36,14 +36,13 @@ class HopitauxBloc extends Bloc<HopitauxEvent, HopitauxState> {
     }
   }
 
-  Future<void> _onLoadCentresByDistrict(
-      LoadCentresByDistrict event, Emitter<HopitauxState> emit) async {
+  Future<void> _onLoadCentresByDistrict(LoadCentresByDistrict event, Emitter<HopitauxState> emit) async {
     if (state is! HopitauxLoaded) return;
     final currentState = state as HopitauxLoaded;
 
     emit(HopitauxLoading());
     try {
-      final centres = await hopitauxRepository.getCentresByDistrict(event.districtId);
+      final centres = await hopitauxRepository.getCentresByDistrict(event.district.id);
       if (!centres.status) {
         emit(HopitauxFailure(
           message: centres.message!,
@@ -56,7 +55,7 @@ class HopitauxBloc extends Bloc<HopitauxEvent, HopitauxState> {
       }
       emit(currentState.copyWith(
         centres: centres.datas ?? [],
-        selectedDistrict: event.districtId,
+        selectedDistrict: event.district,
         errorMessage: null,
       ));
     } catch (e) {
@@ -69,10 +68,10 @@ class HopitauxBloc extends Bloc<HopitauxEvent, HopitauxState> {
     final currentState = state as HopitauxLoaded;
 
     emit(currentState.copyWith(
-      selectedDistrict: event.districtId,
+      selectedDistrict: event.district,
       centres: [],
     ));
-    add(LoadCentresByDistrict(districtId: event.districtId));
+    add(LoadCentresByDistrict(district: event.district));
   }
 
   void _onClearErrorMessage(ClearErrorMessage event, Emitter<HopitauxState> emit) {

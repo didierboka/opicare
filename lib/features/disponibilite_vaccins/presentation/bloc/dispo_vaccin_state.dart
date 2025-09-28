@@ -10,8 +10,8 @@ class DispoVaccinLoaded extends DispoVaccinState {
   final List<DistrictModel> districts;
   final List<CentreModel> centres;
   final List<VaccinDisponibleModel> vaccinsDisponibles;
-  final String? selectedDistrict;
-  final String? selectedCentre;
+  final DistrictModel? selectedDistrict;
+  final CentreModel? selectedCentre;
   final String? errorMessage;
   final bool isLoadingVaccins;
 
@@ -28,8 +28,8 @@ class DispoVaccinLoaded extends DispoVaccinState {
       {List<DistrictModel>? districts,
       List<CentreModel>? centres,
       List<VaccinDisponibleModel>? vaccinsDisponibles,
-      String? selectedDistrict,
-      String? selectedCentre, 
+      DistrictModel? selectedDistrict,
+      CentreModel? selectedCentre,
       String? errorMessage,
       bool? isLoadingVaccins}) {
     return DispoVaccinLoaded(

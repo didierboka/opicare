@@ -122,7 +122,7 @@ class _RegisterFormState extends State<RegisterForm> {
                 },
               ),
               const SizedBox(height: 20),
-              CustomSelectField(
+              CustomStringSelectField(
                 label: 'Genre',
                 selectedValue: selectedGenre,
                 hint: 'Sélectionner le genre',

@@ -39,8 +39,6 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
       {'d': 'PROD', 'id': typeAboId},
     );
 
-    //if (!response.status) throw Exception(response.message);
-
     final models = response.datas ?? [];
     return models.map((model) => model.toEntity()).toList();
   }

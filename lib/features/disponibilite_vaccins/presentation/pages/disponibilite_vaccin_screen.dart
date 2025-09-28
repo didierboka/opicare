@@ -9,6 +9,8 @@ import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_select_field.dart';
+import 'package:opicare/features/disponibilite_vaccins/data/models/centre_model.dart';
+import 'package:opicare/features/disponibilite_vaccins/data/models/district_model.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/bloc/dispo_vaccin_bloc.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_disponible_model.dart';
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
@@ -76,30 +78,36 @@ class _DisponibiliteVaccinScreenState extends State<DisponibiliteVaccinScreen> {
                     const SizedBox(height: 20),
 
                     // Menu District
-                    CustomSelectField(
+                    CustomSelectField<DistrictModel?>(
                       label: 'Liste des districts',
                       selectedValue: state is DispoVaccinLoaded ? state.selectedDistrict : null,
                       hint: 'Sélectionner un district',
-                      options: state is DispoVaccinLoaded ? state.districts.map((d) => {'libelle': d.nom, 'valeur': d.id}).toList() : [],
-                      onSelected: (value) => bloc.add(SelectDistrict(districtId: value!)),
+                      options: state is DispoVaccinLoaded ? state.districts : [],
+                      onSelected: (district) => bloc.add(SelectDistrict(district: district!)),
+                      getDisplayText: (district) => "${district?.nom}",
+                      getValue: (district) => "${district?.id}",
                     ),
+
                     const SizedBox(height: 16),
 
                     // Menu Centre
-                    CustomSelectField(
+                    CustomSelectField<CentreModel?>(
                       label: 'Liste des centres',
                       selectedValue: state is DispoVaccinLoaded ? state.selectedCentre : null,
                       hint: 'Sélectionner un centre',
-                      options: state is DispoVaccinLoaded ? state.centres.map((c) => {'libelle': c.nom, 'valeur': c.id}).toList() : [],
-                      onSelected: (value) {
-                        if (value != null) {
-                          bloc.add(SelectCentre(centretId: value));
+                      options: state is DispoVaccinLoaded ? state.centres : [],
+                      onSelected: (centre) {
+                        //  if (value != null) {
+                          bloc.add(SelectCentre(centre: centre!));
                           // Charger les vaccins disponibles pour ce centre
-                          bloc.add(LoadVaccinsDisponibles(centreId: value));
-                        }
+                          bloc.add(LoadVaccinsDisponibles(centre: centre));
+                        //  }
                       },
+                      getValue: (centre) => "${centre?.id}",
+                      getDisplayText: (centre) => "${centre?.nom}",
                       isEnabled: state is DispoVaccinLoaded && state.selectedDistrict != null,
                     ),
+
                     const SizedBox(height: 30),
 
                     // Section Résultats

@@ -9,7 +9,7 @@ class HopitauxLoading extends HopitauxState {}
 class HopitauxLoaded extends HopitauxState {
   final List<DistrictModel> districts;
   final List<CentreModel> centres;
-  final String? selectedDistrict;
+  final DistrictModel? selectedDistrict;
   final String? errorMessage;
 
   HopitauxLoaded({
@@ -22,7 +22,7 @@ class HopitauxLoaded extends HopitauxState {
   HopitauxLoaded copyWith({
     List<DistrictModel>? districts,
     List<CentreModel>? centres,
-    String? selectedDistrict,
+    DistrictModel? selectedDistrict,
     String? errorMessage,
   }) {
     return HopitauxLoaded(

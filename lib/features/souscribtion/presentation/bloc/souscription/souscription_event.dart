@@ -1,5 +1,8 @@
 import 'package:cinetpay/cinetpay.dart';
 
+import '../../../domain/entities/formule_entity.dart';
+import '../../../domain/entities/type_abo_entity.dart';
+
 /// * Sep, 2025
 /// * Created by didierboka on 05/09/2025.
 /// * Author: Didier BOKA <didierboka.developer@gmail.com>
@@ -11,21 +14,21 @@ abstract class SouscriptionEvent {}
 class LoadTypeAbos extends SouscriptionEvent {}
 
 class LoadFormules extends SouscriptionEvent {
-  final String typeAboId;
+  final TypeAboEntity typeAbo;
 
-  LoadFormules(this.typeAboId);
+  LoadFormules(this.typeAbo);
 }
 
 class SelectTypeAbo extends SouscriptionEvent {
-  final String? typeAboId;
+  final TypeAboEntity? typeAbo;
 
-  SelectTypeAbo(this.typeAboId);
+  SelectTypeAbo(this.typeAbo);
 }
 
 class SelectFormule extends SouscriptionEvent {
-  final String? formuleId;
+  final FormuleEntity formule;
 
-  SelectFormule(this.formuleId);
+  SelectFormule(this.formule);
 }
 
 class UpdateYears extends SouscriptionEvent {

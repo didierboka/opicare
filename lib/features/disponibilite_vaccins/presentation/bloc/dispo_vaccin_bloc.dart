@@ -52,7 +52,7 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
 
     emit(DispoVaccinLoading());
     try {
-      final centres = await dispoVaccinRepository.getCentre(event.districtId);
+      final centres = await dispoVaccinRepository.getCentre(event.district.id);
       if(!centres.status){
         emit(DispoVaccinFailure(message: centres.message!, previousState: currentState.copyWith(
           centres: [],
@@ -65,7 +65,7 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
       }
       emit(currentState.copyWith(
         centres: centres.datas ?? [],
-        selectedDistrict: event.districtId,
+        selectedDistrict: event.district,
         selectedCentre: null,
         vaccinsDisponibles: [],
         errorMessage: null
@@ -81,12 +81,12 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
     final currentState = state as DispoVaccinLoaded;
 
     emit(currentState.copyWith(
-      selectedDistrict: event.districtId,
+      selectedDistrict: event.district,
       selectedCentre: null, // <-- Réinitialisé
       centres: [],         // <-- Vidé
       vaccinsDisponibles: [], // <-- Vidé
     ));
-    add(LoadCentres(districtId: event.districtId));
+    add(LoadCentres(district: event.district));
   }
 
   void _onSelectCentre(
@@ -95,7 +95,7 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
     final currentState = state as DispoVaccinLoaded;
 
     emit(currentState.copyWith(
-      selectedCentre: event.centretId,
+      selectedCentre: event.centre,
       vaccinsDisponibles: [], // <-- Vidé quand on change de centre
     ));
   }
@@ -108,8 +108,8 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
     emit(currentState.copyWith(isLoadingVaccins: true));
     
     try {
-      logger.d("Chargement des vaccins pour le centre: ${event.centreId}");
-      final vaccinsResponse = await dispoVaccinRepository.getVaccinsDisponibles(event.centreId);
+      logger.d("Chargement des vaccins pour le centre: ${event.centre.nom}");
+      final vaccinsResponse = await dispoVaccinRepository.getVaccinsDisponibles(event.centre.id);
       
       logger.d("Réponse API vaccins: ${vaccinsResponse.status} - ${vaccinsResponse.message}");
       
@@ -127,7 +127,7 @@ class DispoVaccinBloc extends Bloc<DispoVaccinEvent, DispoVaccinState> {
       
       // Si le code est 1, cela signifie qu'il n'y a pas de vaccins disponibles
       if (vaccinsData.code == 1) {
-        logger.w("Aucun vaccin disponible pour le centre ${event.centreId}: ${vaccinsData.message}");
+        logger.w("Aucun vaccin disponible pour le centre ${event.centre.nom}: ${vaccinsData.message}");
         emit(currentState.copyWith(
           vaccinsDisponibles: [],
           isLoadingVaccins: false,

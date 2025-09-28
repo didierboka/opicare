@@ -1,22 +1,24 @@
 part of 'jours_vaccin_bloc.dart';
 
 abstract class JoursVaccinEvent{}
+
 class LoadDistricts extends JoursVaccinEvent{}
+
 class LoadCentres extends JoursVaccinEvent{
-  final String districtId;
-  LoadCentres({required this.districtId});
+  final DistrictModel district;
+  LoadCentres({required this.district});
 }
 
 class SelectDistrict extends JoursVaccinEvent{
-  final String districtId;
-  SelectDistrict({required this.districtId});
+  final DistrictModel district;
+  SelectDistrict({required this.district});
 }
 class SelectCentre extends JoursVaccinEvent{
-  final String centretId;
-  SelectCentre({required this.centretId});
+  final CentreModel centre;
+  SelectCentre({required this.centre});
 }
 
 class LoadVaccinsByCentre extends JoursVaccinEvent{
-  final String centreId;
-  LoadVaccinsByCentre({required this.centreId});
+  final CentreModel centre;
+  LoadVaccinsByCentre({required this.centre});
 }

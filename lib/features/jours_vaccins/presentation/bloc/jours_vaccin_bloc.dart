@@ -27,8 +27,7 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
     on<LoadVaccinsByCentre>(_onLoadVaccinsByCentre);
   }
 
-  Future<void> _onLoadDistricts(
-      LoadDistricts event, Emitter<JoursVaccinState> emit) async {
+  Future<void> _onLoadDistricts(LoadDistricts event, Emitter<JoursVaccinState> emit) async {
     DebugLogger.info('JoursVaccinBloc: Chargement des districts...');
     emit(JoursVaccinLoading());
     try {
@@ -52,9 +51,8 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
     }
   }
 
-  Future<void> _onLoadCentres(
-      LoadCentres event, Emitter<JoursVaccinState> emit) async {
-    DebugLogger.info('JoursVaccinBloc: Chargement des centres pour district ${event.districtId}...');
+  Future<void> _onLoadCentres(LoadCentres event, Emitter<JoursVaccinState> emit) async {
+    DebugLogger.info('JoursVaccinBloc: Chargement des centres pour district ${event.district.nom}...');
     if (state is! JoursVaccinLoaded) {
       DebugLogger.warning('JoursVaccinBloc: État invalide pour charger les centres');
       return;
@@ -62,7 +60,7 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
     final currentState = state as JoursVaccinLoaded;
     emit(JoursVaccinLoading());
     try {
-      final centres = await dispoVaccinRepository.getCentre(event.districtId);
+      final centres = await dispoVaccinRepository.getCentre(event.district.id);
       if (!centres.status) {
         DebugLogger.error('JoursVaccinBloc: Échec du chargement des centres - ${centres.message}');
         emit(JoursVaccinFailure(
@@ -75,7 +73,7 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
       DebugLogger.success('JoursVaccinBloc: Centres chargés avec succès - ${centres.datas?.length ?? 0} centres');
       emit(currentState.copyWith(
         centres: centres.datas ?? [],
-        selectedDistrict: event.districtId,
+        selectedDistrict: event.district,
         selectedCentre: null,
         vaccins: null,
         errorMessage: null,
@@ -86,9 +84,8 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
     }
   }
 
-  Future<void> _onLoadVaccinsByCentre(
-      LoadVaccinsByCentre event, Emitter<JoursVaccinState> emit) async {
-    DebugLogger.info('JoursVaccinBloc: Chargement des vaccins pour centre ${event.centreId}...');
+  Future<void> _onLoadVaccinsByCentre(LoadVaccinsByCentre event, Emitter<JoursVaccinState> emit) async {
+    DebugLogger.info('JoursVaccinBloc: Chargement des vaccins pour centre ${event.centre.nom}...');
     if (state is! JoursVaccinLoaded) {
       DebugLogger.warning('JoursVaccinBloc: État invalide pour charger les vaccins');
       return;
@@ -96,7 +93,7 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
     final currentState = state as JoursVaccinLoaded;
     emit(JoursVaccinLoading());
     try {
-      final result = await getVaccinsByCentreUseCase.execute(event.centreId);
+      final result = await getVaccinsByCentreUseCase.execute(event.centre.id);
       result.fold(
         (failure) {
           DebugLogger.error('JoursVaccinBloc: Échec du chargement des vaccins - ${failure.message}');
@@ -109,7 +106,7 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
           DebugLogger.success('JoursVaccinBloc: Vaccins chargés avec succès - ${vaccins.length} vaccins');
           emit(currentState.copyWith(
             vaccins: vaccins,
-            selectedCentre: event.centreId,
+            selectedCentre: event.centre,
             errorMessage: null,
           ));
         },
@@ -121,24 +118,27 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
   }
 
   void _onSelectDistrict(SelectDistrict event, Emitter<JoursVaccinState> emit) {
-    DebugLogger.info('JoursVaccinBloc: Sélection du district ${event.districtId}');
+    DebugLogger.info('JoursVaccinBloc: Sélection du district ${event.district.nom}');
+
     if (state is! JoursVaccinLoaded) {
       DebugLogger.warning('JoursVaccinBloc: État invalide pour sélectionner le district');
       return;
     }
     final currentState = state as JoursVaccinLoaded;
+
     emit(currentState.copyWith(
-      selectedDistrict: event.districtId,
+      selectedDistrict: event.district,
       selectedCentre: null,
       centres: [],
       vaccins: null,
     ));
+
     DebugLogger.info('JoursVaccinBloc: Ajout de l\'événement LoadCentres');
-    add(LoadCentres(districtId: event.districtId));
+    add(LoadCentres(district: event.district));
   }
 
   void _onSelectCentre(SelectCentre event, Emitter<JoursVaccinState> emit) {
-    DebugLogger.info('JoursVaccinBloc: Sélection du centre ${event.centretId}');
+    DebugLogger.info('JoursVaccinBloc: Sélection du centre ${event.centre.nom}');
     if (state is! JoursVaccinLoaded) {
       DebugLogger.warning('JoursVaccinBloc: État invalide pour sélectionner le centre');
       return;
@@ -146,16 +146,16 @@ class JoursVaccinBloc extends Bloc<JoursVaccinEvent, JoursVaccinState> {
     final currentState = state as JoursVaccinLoaded;
     
     // Éviter la récursion infinie en vérifiant si le centre est déjà sélectionné
-    if (currentState.selectedCentre == event.centretId) {
+    if (currentState.selectedCentre?.id == event.centre.id) {
       DebugLogger.info('JoursVaccinBloc: Centre déjà sélectionné, pas de changement');
       return;
     }
     
     emit(currentState.copyWith(
-      selectedCentre: event.centretId,
+      selectedCentre: event.centre,
       vaccins: null,
     ));
     DebugLogger.info('JoursVaccinBloc: Ajout de l\'événement LoadVaccinsByCentre');
-    add(LoadVaccinsByCentre(centreId: event.centretId));
+    add(LoadVaccinsByCentre(centre: event.centre));
   }
 }

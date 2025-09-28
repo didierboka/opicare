@@ -13,7 +13,7 @@ class FormuleRepositoryImpl implements FormuleRepository {
   Future<CustomResponse<Formule>> getFormules(String id) async {
     try {
       final ApiService<Formule> apiService = ApiService<Formule>(fromJson: Formule.fromJson);
-      final response = await apiService.post('/listeformule', {"id": "1"});
+      final response = await apiService.post('/listeformule', {"id": id});
       return response;
     } catch (e) {
       return CustomResponse(status: false, message: e.toString());

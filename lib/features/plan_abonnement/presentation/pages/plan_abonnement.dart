@@ -12,15 +12,14 @@ import 'package:opicare/features/plan_abonnement/presentation/widgets/plan_card.
 
 class PlanAbonnementScreen extends StatelessWidget {
   static const path = '/plan-abonnement';
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     //final id = (context.read<AuthBloc>().state as AuthAuthenticated).user.id;
     return BlocProvider(
-      create: (context) => FormuleBloc(
-        repository: FormuleRepositoryImpl(),
-      )..add(LoadFormules(id: 'id')),
+      create: (context) => FormuleBloc(repository: FormuleRepositoryImpl(),)..add(LoadFormules(id: '1')),
       child: BackButtonBlockerWidget(
         message: 'Utilisez le menu pour naviguer',
         child: Scaffold(

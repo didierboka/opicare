@@ -35,6 +35,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
       final typeAbos = await souscriptionRepository.getTypeAbos();
       emit(SouscriptionLoaded(
         typeAbos: typeAbos,
+        selectedTypeAbo: null,
         formules: [],
       ));
     } catch (e) {
@@ -51,10 +52,10 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
     emit(SouscriptionLoading());
     try {
-      final formules = await souscriptionRepository.getFormules(event.typeAboId);
+      final formules = await souscriptionRepository.getFormules(event.typeAbo.id);
       emit(currentState.copyWith(
         formules: formules,
-        selectedTypeAbo: event.typeAboId,
+        selectedTypeAbo: event.typeAbo,
         selectedFormule: null, // Reset la formule sélectionnée
         total: 0.0, // Reset le total
       ));
@@ -70,8 +71,8 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
-    if (event.typeAboId != null) {
-      add(LoadFormules(event.typeAboId!));
+    if (event.typeAbo != null) {
+      add(LoadFormules(event.typeAbo!));
     } else {
       emit(currentState.copyWith(
         selectedTypeAbo: null,
@@ -88,17 +89,13 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     if (state is! SouscriptionLoaded) return;
     final currentState = state as SouscriptionLoaded;
 
-    if (event.formuleId == null) {
-      emit(currentState.copyWith(
-        selectedFormule: null,
-        total: 0.0,
-        years: 1,
-      ));
+    if (event.formule.id != "0") {
+      emit(currentState.copyWith(selectedFormule: null, total: 0.0, years: 1,));
       return;
     }
 
     final formule = currentState.formules.firstWhere(
-      (f) => f.id == event.formuleId,
+      (f) => f.id == event.formule.id,
       orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
     );
 
@@ -110,7 +107,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     final total = prixInitial;
 
     emit(currentState.copyWith(
-      selectedFormule: event.formuleId,
+      selectedFormule: event.formule,
       years: years,
       total: total,
     ));
@@ -154,7 +151,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     if (currentState.selectedFormule == null) return;
 
     final formule = currentState.formules.firstWhere(
-      (f) => f.id == currentState.selectedFormule,
+      (f) => f.id == currentState.selectedFormule?.id,
       orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
     );
 
@@ -184,7 +181,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     if (currentState.selectedFormule == null) return;
 
     final formule = currentState.formules.firstWhere(
-      (f) => f.id == currentState.selectedFormule,
+      (f) => f.id == currentState.selectedFormule?.id,
       orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
     );
 
@@ -232,11 +229,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
 
   void _onExecutePaymentSouscription(ExecutePaymentSouscriptionEvent event, Emitter<SouscriptionState> emit) async {
     DebugLogger.log(event.toString());
-
-    emit(ExecutingPaymentFailedSouscriptionState());
-
-
-
+    emit(ExecutingPaymentSouscriptionState());
     // souscriptionRepository.makePayment(transactionId: event.transactionId, amount: event.montant, designation: event.designation);
   }
 

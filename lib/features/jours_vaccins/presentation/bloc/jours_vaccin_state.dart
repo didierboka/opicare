@@ -9,8 +9,8 @@ class JoursVaccinLoading extends JoursVaccinState {}
 class JoursVaccinLoaded extends JoursVaccinState {
   final List<DistrictModel> districts;
   final List<CentreModel> centres;
-  final String? selectedDistrict;
-  final String? selectedCentre;
+  final DistrictModel? selectedDistrict;
+  final CentreModel? selectedCentre;
   final List<VaccinCentreEntity>? vaccins;
   final String? errorMessage;
 
@@ -27,8 +27,8 @@ class JoursVaccinLoaded extends JoursVaccinState {
       {List<DistrictModel>? districts,
         List<CentreModel>? centres,
         List<VaccinCentreEntity>? vaccins,
-        String? selectedDistrict,
-        String? selectedCentre,
+        DistrictModel? selectedDistrict,
+        CentreModel? selectedCentre,
          String? errorMessage}) {
     return JoursVaccinLoaded(
         districts: districts ?? this.districts,

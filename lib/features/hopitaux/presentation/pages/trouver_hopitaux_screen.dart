@@ -9,6 +9,7 @@ import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_select_field.dart';
+import 'package:opicare/features/disponibilite_vaccins/data/models/district_model.dart';
 import 'package:opicare/features/hopitaux/presentation/bloc/hopitaux_bloc.dart';
 import 'package:opicare/features/hopitaux/presentation/widgets/centre_card.dart';
 import 'package:opicare/features/disponibilite_vaccins/data/models/centre_model.dart';
@@ -96,15 +97,18 @@ class _TrouverHopitauxScreenState extends State<TrouverHopitauxScreen> {
                       const SizedBox(height: 20),
                       
                       // Sélection du district
-                      CustomSelectField(
+                      CustomSelectField<DistrictModel?>(
                         label: 'Liste des districts',
                         selectedValue: state is HopitauxLoaded ? state.selectedDistrict : null,
                         hint: 'Sélectionner un district',
                         options: state is HopitauxLoaded 
-                          ? state.districts.map((d) => {'libelle': d.nom, 'valeur': d.id}).toList() 
+                          ? state.districts
                           : [],
-                        onSelected: (value) => bloc.add(SelectDistrict(districtId: value!)),
+                        onSelected: (district) => bloc.add(SelectDistrict(district: district!)),
+                        getDisplayText: (district) => "${district?.nom}",
+                        getValue: (district) => "${district?.id}",
                       ),
+
                       const SizedBox(height: 30),
                       
                       // Section Résultats

@@ -1,4 +1,6 @@
 
+import 'package:opicare/core/helpers/debug_logger.dart';
+
 import '../../domain/entities/formule_entity.dart';
 
 class FormuleModel {
@@ -12,6 +14,10 @@ class FormuleModel {
 
   factory FormuleModel.fromJson(Map<String, dynamic> json) {
     // Gérer le cas où BONUS peut être une chaîne ou un entier
+
+    DebugLogger.debug("FORMUUUUUUUUUULE -> $json");
+
+
     int bonusValue;
     if (json['BONUS'] is String) {
       bonusValue = int.tryParse(json['BONUS']) ?? 0;
@@ -20,7 +26,8 @@ class FormuleModel {
     } else {
       bonusValue = 0;
     }
-    
+
+
     return FormuleModel(
       id: json['IDFORMULE']?.toString() ?? '', 
       formuleLibelle: json['LIBELLE']?.toString() ?? '', 
@@ -33,7 +40,7 @@ class FormuleModel {
     return FormuleEntity(
       id: id,
       libelle: formuleLibelle,
-      prix: double.tryParse(prix) ?? 0.0,
+      prix: double.parse(prix),
       bonus: bonus,
     );
   }

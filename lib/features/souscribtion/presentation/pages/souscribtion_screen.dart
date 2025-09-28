@@ -13,10 +13,12 @@ import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart'
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:opicare/features/souscribtion/domain/entities/type_abo_entity.dart';
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
 import 'package:opicare/features/souscribtion/presentation/pages/cinetpay_checkout_screen.dart';
 
 import '../../../../core/constants/api_url.dart';
+import '../../../user/data/models/user_model.dart';
 import '../../domain/entities/formule_entity.dart';
 import '../bloc/souscription/souscription_event.dart';
 import '../bloc/souscription/souscription_state.dart';
@@ -31,6 +33,10 @@ class SouscriptionScreen extends StatefulWidget {
 }
 
 class _SouscriptionScreenState extends State<SouscriptionScreen> {
+
+  TypeAboEntity? _typeAbonnement;
+  FormuleEntity? _formule;
+  int _abonYears = 1;
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -39,10 +45,83 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
     context.read<SouscriptionBloc>().add(LoadTypeAbos());
   }
 
+
+  Future<void> _showCinetPayDialog(BuildContext ctxCinet, UserModel? userModel) async {
+    DebugLogger.debug("USER-MODEL => ${userModel?.toJson()}");
+
+    showDialog(
+      context: ctxCinet,
+      builder: (BuildContext ctxDialg) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(20),
+          child: Container(
+            width: 500,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: CinetPayCheckout(
+              title: "OPICARE",
+              configData: <String, dynamic>{
+                'apikey': ApiUrl.cinetPayApiKey,
+                'site_id': ApiUrl.cinetPaySiteId,
+                'notify_url': 'https://www.google.com',
+              },
+              paymentData: <String, dynamic>{
+                'transaction_id': DateTime.now().millisecondsSinceEpoch.toString(),
+                'amount': 100,
+                'currency': 'XOF',
+                'channels': 'ALL',
+                'description': "Abonnement",
+              },
+              waitResponse: (response) {
+                // Gestion du succès ou de l'échec
+                DebugLogger.success("INFOS CINETPAY SUCCESS ${response}");
+                //  Navigator.of(context).pop(); // Fermer le dialogue
+                // Traiter la réponse de succès
+
+                //  ctxDialg.pop();
+
+                //  ctxCinet.read<SouscriptionBloc>().add(
+                //    SubmitSouscription(
+                //      id: "${userModel?.patID}",
+                //      numtel:"${userModel?.phone}",
+                //      email: "${userModel?.email}",
+                //      tarif: "0",
+                //      typeAbonnement: "{loadedState.selectedTypeAbo}",
+                //      formule: "${_formule?.id}",
+                //      //  years: "${int.parse(_formEnt?.years ?? "0")}",
+                //      years: 1
+                //    ),
+                //  );
+
+                DebugLogger.debug("USER(${userModel?.patID} : ${userModel?.name} : ${userModel?.id} : ${userModel?.phone})");
+                DebugLogger.debug("ABONNEMENT(${_formule?.id}:${_formule?.libelle}:${_formule?.prix}:${_formule?.bonus})");
+                DebugLogger.debug("TYPEABONNEMENT(${_typeAbonnement?.id}:${_typeAbonnement?.libelle})");
+                DebugLogger.debug("YEAR(${_abonYears})");
+              },
+              onError: (error) {
+                // Gestion des erreurs
+                DebugLogger.error("INFOS CINETPAY ERROR $error");
+                // Fermer le dialogue
+                ctxDialg.pop(false);
+                // Traiter l'erreur
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+
   @override
   void dispose() {
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -76,14 +155,12 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
               type: MessageType.error,
             );
           }
+
+          if (state is ExecutingPaymentSouscriptionState) {
+            _showCinetPayDialog(context, user);
+          }
         },
         builder: (context, state) {
-          if (state is SouscriptionInitial || state is SouscriptionLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
           if (state is SouscriptionFailure) {
             return Center(
               child: Column(
@@ -117,142 +194,128 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
             );
           }
 
-          if (state is ExecutingPaymentFailedSouscriptionState) {
-            return CinetPayCheckout(
-              title: "OPISMS",
-              configData: <String, dynamic>{
-                'apikey': ApiUrl.cinetPayApiKey,
-                'site_id': ApiUrl.cinetPaySiteId,
-                'notify_url': 'https://www.google.com',
-              },
-              paymentData: <String, dynamic>{
-                'transaction_id': DateTime.now().millisecondsSinceEpoch.toString(),
-                'amount': 100,
-                'currency': 'XOF',
-                'channels': 'ALL',
-                'description': "Abonnement ",
-              },
-              waitResponse: (response) {
-                // Gestion du succès ou de l’échec
-                DebugLogger.success("INFOS CINETPAY SUCESS $response");
-                //  successPayment = true;
-                //  return Right(SouscriptionPaymentEntity(transactionId: transactionId));
-              },
-              onError: (error) {
-                // Gestion des erreurs
-                DebugLogger.error("INFOS CINETPAY ERROR $error");
-                //  return Left(PaymentFailure("$error"));
-              },
+          if (state is SouscriptionLoaded) {
+            final selectedFormule = state.formules.firstWhere(
+                  (f) => f.id == state.selectedFormule,
+              orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
             );
-          }
 
-          final loadedState = state as SouscriptionLoaded;
-          final selectedFormule = loadedState.formules.firstWhere(
-            (f) => f.id == loadedState.selectedFormule,
-            orElse: () => FormuleEntity(id: '', libelle: '', prix: 0.0, bonus: 0),
-          );
+            //  _formEnt = selectedFormule;
 
-          return BackButtonBlockerWidget(
-            message: 'Utilisez le menu pour naviguer',
-            child: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      CustomSelectField(
-                        label: 'Type d\'abonnement',
-                        selectedValue: loadedState.selectedTypeAbo,
-                        hint: 'Choisir un abonnement',
-                        options: loadedState.typeAbos.map((t) => {'libelle': t.libelle, 'valeur': t.id}).toList(),
-                        onSelected: (val) {
-                          context.read<SouscriptionBloc>().add(LoadFormules(val));
-                          context.read<SouscriptionBloc>().add(SelectTypeAbo(val));
-                        },
-                        validator: (val) => val == null ? 'Champs requis' : null,
-                      ),
-                      const SizedBox(height: 20),
-                      CustomSelectField(
-                        label: 'Formule',
-                        selectedValue: loadedState.selectedFormule,
-                        hint: 'Choisir une formule',
-                        options: loadedState.formules.map((f) => {'libelle': f.libelle, 'valeur': f.id}).toList(),
-                        onSelected: (val) {
-                          context.read<SouscriptionBloc>().add(SelectFormule(val));
-                        },
-                        validator: (val) => val == null ? 'Champs requis' : null,
-                        isEnabled: loadedState.selectedTypeAbo != null,
-                      ),
-                      const SizedBox(height: 20),
-                      CustomIncrementField(
-                        label: 'Nombre d\'années',
-                        hint: '1',
-                        icon: Icons.calendar_month,
-                        value: loadedState.years,
-                        minValue: selectedFormule.bonus > 0 ? selectedFormule.bonus : 1,
-                        increment: selectedFormule.bonus > 0 ? selectedFormule.bonus : 1,
-                        onChanged: (value) {
-                          if (value > loadedState.years) {
-                            context.read<SouscriptionBloc>().add(IncrementYears());
-                          } else {
-                            context.read<SouscriptionBloc>().add(DecrementYears());
-                          }
-                        },
-                        validator: (value) {
-                          if (value == null || value < 1) return 'Nombre d\'années invalide';
-                          if (selectedFormule.bonus > 0 && value < selectedFormule.bonus) {
-                            return 'Minimum ${selectedFormule.bonus} année(s) pour cette formule';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 30),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(8),
+            return BackButtonBlockerWidget(
+              message: 'Utilisez le menu pour naviguer',
+              child: SafeArea(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        CustomSelectField<TypeAboEntity?>(
+                          label: 'Type d\'abonnement',
+                          selectedValue: state.selectedTypeAbo,
+                          hint: 'Choisir un abonnement',
+                          options: state.typeAbos,
+                          onSelected: (typeAbonnement) {
+                            _typeAbonnement = typeAbonnement;
+                            context.read<SouscriptionBloc>().add(LoadFormules(_typeAbonnement!));
+                            context.read<SouscriptionBloc>().add(SelectTypeAbo(_typeAbonnement));
+
+                            DebugLogger.debug("TYPE ABO => ${_typeAbonnement?.libelle}");
+                            DebugLogger.debug("TYPE ABO ID => ${_typeAbonnement?.id}");
+                          },
+                          validator: (val) => val == null ? 'Champs requis' : null,
+                          getValue: (type) => type?.id ?? "",
+                          getDisplayText: (type) => type?.libelle ?? "",
                         ),
-                        child: Column(
-                          children: [
-                            _buildDetailRow('Formule', selectedFormule.libelle),
-                            _buildDetailRow('Prix annuel', '${selectedFormule.prix} FCfa'),
-                            _buildDetailRow('Années', loadedState.years.toString()),
-                            const Divider(),
-                            _buildDetailRow('Total', '${loadedState.total.toStringAsFixed(0)} FCfa', isBold: true),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 30),
-                      CustomButton(
-                        text: 'Souscrire',
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate() && loadedState.selectedTypeAbo != null && loadedState.selectedFormule != null) {
-                            //  context.read<SouscriptionBloc>().add(
-                            //        SubmitSouscription(
-                            //          id: user.patID,
-                            //          numtel: user.phone,
-                            //          email: user.email,
-                            //          tarif: selectedFormule.prix.toString(),
-                            //          typeAbonnement: loadedState.selectedTypeAbo!,
-                            //          formule: loadedState.selectedFormule!,
-                            //          years: loadedState.years,
-                            //        ),
-                            //      );
-                          }
-                          DebugLogger.log("Lauching payment...");
-                          //  context.read<SouscriptionBloc>().add(ExecutePaymentSouscriptionEvent(designation: "ABONNEMENT E-CARNET", transactionId: "transactionId", montant: 100));
-                          final result = await context.push(CinetPayCheckoutScreen.path);
 
-                          DebugLogger.log("result payment...$result");
-                        },
-                      ),
-                    ],
+                        const SizedBox(height: 20),
+                        CustomSelectField<FormuleEntity?>(
+                          label: 'Formule',
+                          selectedValue: state.selectedFormule,
+                          hint: 'Choisir une formule',
+                          options: state.formules,
+                          onSelected: (formule) {
+                            _formule = formule;
+                            context.read<SouscriptionBloc>().add(SelectFormule(_formule!));
+
+                            DebugLogger.debug("FORMUUUUUUUUUULE BONUS-> ${_formule?.bonus}");
+                            DebugLogger.debug("FORMUUUUUUUUUULE IDFORMULE-> ${_formule?.id}");
+                            DebugLogger.debug("FORMUUUUUUUUUULE LIBELLE-> ${_formule?.libelle}");
+                            DebugLogger.debug("FORMUUUUUUUUUULE TARIF-> ${_formule?.prix}");
+
+                          },
+                          validator: (val) => val == null ? 'Champs requis' : null,
+                          isEnabled: state.selectedTypeAbo != null,
+                          getValue: (formule) => "${formule?.id}",
+                          getDisplayText: (formule) => "${formule?.libelle}",
+                        ),
+                        const SizedBox(height: 20),
+                        CustomIncrementField(
+                          label: 'Nombre d\'années',
+                          hint: '0',
+                          icon: Icons.calendar_month,
+                          value: state.years,
+                          minValue: (_formule?.bonus ?? 0) > 0 ? (_formule?.bonus ?? 0) : 1,
+                          increment: (_formule?.bonus ?? 1) > 0 ? (_formule?.bonus ?? 1) : 1,
+                          onChanged: (value) {
+                            if (value > state.years) {
+                              context.read<SouscriptionBloc>().add(IncrementYears());
+                            } else {
+                              context.read<SouscriptionBloc>().add(DecrementYears());
+                            }
+
+                            _abonYears = state.years;
+                            DebugLogger.debug("YEAR SELECTED -> $_abonYears");
+                          },
+                          validator: (value) {
+                            if (value == null || value < 1) return 'Nombre d\'années invalide';
+                            if (selectedFormule.bonus > 0 && value < selectedFormule.bonus) {
+                              return 'Minimum ${selectedFormule.bonus} année(s) pour cette formule';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 30),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
+                              _buildDetailRow('Formule', selectedFormule.libelle),
+                              _buildDetailRow('Prix annuel', '${selectedFormule.prix} FCfa'),
+                              _buildDetailRow('Années', state.years.toString()),
+                              const Divider(),
+                              _buildDetailRow('Total', '${state.total.toStringAsFixed(0)} FCfa', isBold: true),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        CustomButton(
+                          text: 'Souscrire',
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate() && state.selectedTypeAbo != null && state.selectedFormule != null) {
+                              DebugLogger.log("Lauching payment...");
+                              context.read<SouscriptionBloc>().add(ExecutePaymentSouscriptionEvent(designation: "ABONNEMENT E-CARNET", transactionId: "transactionId", montant: 100));
+                            }
+
+                            //final result = await context.push(CinetPayCheckoutScreen.path);
+                            //DebugLogger.log("result payment...$result");
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
+            );
+          }
+
+          return const Center(
+            child: CircularProgressIndicator(),
           );
         },
       ),
