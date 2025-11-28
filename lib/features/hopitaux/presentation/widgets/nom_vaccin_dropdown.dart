@@ -90,7 +90,7 @@ class _NomVaccinDropdownState extends State<NomVaccinDropdown> {
               child: DropdownButtonFormField<NomVaccinModel>(
                 value: _selectedNomVaccin,
                 decoration: InputDecoration(
-                  hintText: widget.hint ?? 'Sélectionnez un nom de vaccin',
+                  hintText: widget.hint ?? 'Sélectionnez une visite',
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
@@ -104,7 +104,7 @@ class _NomVaccinDropdownState extends State<NomVaccinDropdown> {
                 validator: widget.isRequired
                     ? (value) {
                         if (value == null) {
-                          return 'Veuillez sélectionner un nom de vaccin';
+                          return 'Veuillez sélectionner une visite';
                         }
                         return null;
                       }

@@ -139,7 +139,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Photo du vaccin',
+                  'Photo de la visite',
                   style: TextStyles.titleMedium.copyWith(
                     color: Colours.primaryBlue,
                   ),

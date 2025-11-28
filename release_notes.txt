@@ -1,12 +1,12 @@
-🚀 Version 1.0.11 version 12
+🚀 Version 1.0.14 version 14
 
 🎉 Fonctionnalites
-✅ Ajout de programmation de visite
-✅ Ajout de photo sur une visite effectue
-✅ Changement dynamic des actions "Ajouter visite" & "Programmer visite"
+✅ Ajout des images OMS & INHP
+✅ Ajout des indicateurs de type de visite
+✅ Ajout des indicateurs de visite verifiee ou non
+✅ Changement dynamic des typo vaccin en visite
 
 ✏️ Corrections
-✅
 
 📱 Compatibilité :
 - iOS 13+

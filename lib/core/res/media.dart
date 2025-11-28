@@ -3,6 +3,8 @@ abstract class Media {
 
   static const _baseImage = 'assets/images';
   static const _baseLottie = 'assets/lotties';
+  static const _baseFile = 'assets/files';
+
   //Auth
   static const user = '$_baseImage/user.png';
   static const addUser = '$_baseImage/add-user.png';
@@ -37,5 +39,9 @@ abstract class Media {
 
   //Lotties
   static const loader = '$_baseLottie/loading.json';
+
+  //CGU
+  static const cguFiles = '$_baseFile/cgu_opicare.pdf';
+
 
 }

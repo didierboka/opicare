@@ -20,7 +20,9 @@
         android:label="opicare"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon"
+        android:usesCleartextTraffic="true"
         tools:targetApi="23">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -3,11 +3,13 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/di.dart';
+import 'package:opicare/core/res/media.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/register/register_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
 import 'package:opicare/features/auth/presentation/pages/register_page.dart';
+import 'package:opicare/features/cgu/pages/cgu_page.dart';
 import 'package:opicare/features/change_password/presentation/bloc/change_pwd_bloc.dart';
 import 'package:opicare/features/change_password/presentation/pages/change_password_screen.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/bloc/dispo_vaccin_bloc.dart';
@@ -285,6 +287,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: CinetPayCheckoutScreen.path,
       builder: (context, state) => CinetPayCheckoutScreen(name: "name", email: "email", mobileNo: "mobileNo", isAcceptTerms: true),
+    ),
+    GoRoute(
+      path: CguPage.path,
+      builder: (context, state) => CguPage(pdfPath: Media.cguFiles),
     ),
   ],
 );

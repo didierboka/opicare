@@ -193,7 +193,7 @@ class ApiService<T> {
     }
 
     DebugLogger.network('POST URL: ${url.toString()}');
-    DebugLogger.network('Data being sent (timeout: ${timeout ?? const Duration(seconds: 60)}): "${data}"');
+    DebugLogger.network('Data being sent (timeout: ${timeout ?? const Duration(seconds: 60)}): ${jsonEncode(data)}');
     DebugLogger.network('overrideD value: $overrideD');
 
     // Timeout global pour toutes les tentatives

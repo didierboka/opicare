@@ -1,13 +1,16 @@
 {
-  "calId": "19897594",
-  "usrId": "21",
-  "ctrregion": "11",
-  "ctrdist": "86",
-  "ctrId": "25",
-  "dtPre": "2013-12-12",
-  "lot": "127VFC044Z",
-  "imgCarnet":"",
-  "patId": "216",
-  "vacId": "84",
-  "dtRap":"2013-12-12"
+  "cpm_site_id": " 613434",
+  "cpm_trans_id": " jrnthbgucw",
+  "cpm_trans_date": " 2022-06-10 15:41:58",
+  "cpm_amount": " 100",
+  "cpm_currency": " XOF",
+  "signature\"": " d3d5e0434f5e8798357033c0430dd4fee10d96d37c71179a51574b0a2f7d3b4f138",
+  "payment_method\"": " OM",
+  "cel_phone_num": " 0707983065",
+  "cpm_phone_prefixe": " 225",
+  "cpm_language": " fr",
+  "cpm_version": " V4",
+  "cpm_payment_config": " SINGLE",
+  "cpm_page_action": " PAYMENT",
+  "cpm_designation": " Abonnement au service de carnet electronique de vaccination"
 }

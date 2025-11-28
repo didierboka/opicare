@@ -116,7 +116,7 @@ class _VaccinInfoScreenState extends State<VaccinInfoScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sélectionnez le type de vaccin',
+                        'Sélectionnez le type de visite',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -169,8 +169,8 @@ class _VaccinInfoScreenState extends State<VaccinInfoScreen> {
                               const SizedBox(height: 16),
                               Text(
                                 selectedType != null
-                                    ? 'Aucun vaccin trouvé pour $selectedType'
-                                    : 'Aucun vaccin disponible',
+                                    ? 'Aucune visite trouvée pour $selectedType'
+                                    : 'Aucune visite disponible',
                                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                                   color: Colors.grey[600],
                                 ),

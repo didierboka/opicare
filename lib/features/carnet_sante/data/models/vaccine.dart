@@ -1,4 +1,6 @@
 class Vaccine {
+
+
   final String id;
   final String name;
   final String recallDate;
@@ -7,30 +9,39 @@ class Vaccine {
   final String centerName;
   final String patientId;
   final String? photoPath;
+  final String? typeVisite;
+  final String? flagVisite;
+
 
   Vaccine({
     required this.id,
     required this.name,
     required this.recallDate,
     required this.presenceDate,
+    required this.flagVisite,
     required this.lotNumber,
+    required this.typeVisite,
     required this.centerName,
     required this.patientId,
     this.photoPath,
   });
+
 
   factory Vaccine.fromJson(Map<String, dynamic> json) {
     return Vaccine(
       id: json['IDCAL'] ?? '',
       name: json['NOMVAC'] ?? '',
       recallDate: json['DATERAPEL'] ?? '',
+      flagVisite: json['FLAGVALIDATION'] ?? '',
       presenceDate: json['PRESENCE'] ?? '',
       lotNumber: json['LOVAC'] ?? '',
       centerName: json['NOMCENTR'] ?? '',
       patientId: json['IDPAT'] ?? '',
       photoPath: json['IMGCARNET'],
+      typeVisite: json['TYPEVISITE'],
     );
   }
+
 
   @override
   String toString() {

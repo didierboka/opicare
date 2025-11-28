@@ -1,4 +1,4 @@
-import 'dart:developer';
+import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 
 /// Helper de logging qui s'affiche uniquement en mode debug
@@ -17,7 +17,8 @@ class DebugLogger {
   static void log(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? _defaultEmoji;
-      print('$emojiToUse $message');
+      //  print('$emojiToUse $message');
+      dev.log('$emojiToUse $message');
     }
   }
 
@@ -73,7 +74,7 @@ class DebugLogger {
   static void network(String message, {String? emoji}) {
     if (kDebugMode) {
       final emojiToUse = emoji ?? '🌐';
-      print('$emojiToUse $message');
+      log('$emojiToUse $message');
     }
   }
 

@@ -8,6 +8,7 @@ import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
+import 'package:opicare/features/cgu/pages/cgu_page.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
@@ -19,7 +20,6 @@ import 'package:opicare/core/di.dart';
 import 'package:opicare/features/welcome/welcome.dart';
 
 class CustomDrawer extends StatelessWidget {
-
   const CustomDrawer({super.key});
 
   @override
@@ -142,11 +142,39 @@ class CustomDrawer extends StatelessWidget {
                         context.go(DisponibiliteVaccinScreen.path);
                       }),
 
+                  SizedBox(height: 20,),
+
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Image.asset(
+                            Media.logoMS,
+                            height: 50,
+                            width: 50,
+                          ),
+                        ),
+
+                        SizedBox(width: 10,),
+
+                        Expanded(
+                          flex: 2,
+                          child: Image.asset(
+                            Media.logoINHP,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
             ),
             // ✅ Footer propre et espacé
-            const Divider(height: 1, color: Colours.inputBorder),
+            // const Divider(height: 1, color: Colours.inputBorder),
+
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Row(
@@ -154,6 +182,9 @@ class CustomDrawer extends StatelessWidget {
                 children: [
                   _buildFooterButton(Icons.home, 'Accueil', () {
                     context.go('/home');
+                  }),
+                  _buildFooterButton(Icons.ad_units_outlined, 'CGU', () {
+                    context.push(CguPage.path);
                   }),
                   _buildFooterButton(Icons.logout, 'Déconnexion', () {
                     Navigator.of(context).pop();

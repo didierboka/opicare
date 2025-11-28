@@ -9,35 +9,65 @@ import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/presentation/pages/vaccine_details_screen.dart';
 class VaccineCard extends StatelessWidget {
+
   final Vaccine vaccine;
 
   const VaccineCard({super.key, required this.vaccine});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              vaccine.name,
-              style: TextStyles.bodyBold.copyWith(
-                color: Colours.primaryBlue,
-              ),
+    return Stack(
+      children: [
+
+        Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      vaccine.name,
+                      style: TextStyles.bodyBold.copyWith(
+                        color: Colours.primaryBlue,
+                      ),
+                    ),
+
+                    const Spacer(),
+
+                    Text(
+                      vaccine.typeVisite ?? "ND",
+                      style: TextStyles.bodyBold.copyWith(
+                        color: Colours.iconGrey,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                _buildDetailRow('Date de rappel', formatDateFromString(vaccine.recallDate)),
+                _buildDetailRow('Date d\'administration', formatDateFromString(vaccine.presenceDate)),
+                _buildDetailRow('Numéro de lot', vaccine.lotNumber),
+                const SizedBox(height: 5),
+                _buildPhotoSection(),
+              ],
             ),
-            const SizedBox(height: 6),
-            _buildDetailRow('Date de rappel', formatDateFromString(vaccine.recallDate)),
-            _buildDetailRow('Date d\'administration', formatDateFromString(vaccine.presenceDate)),
-            _buildDetailRow('Numéro de lot', vaccine.lotNumber),
-            ///_buildDetailRow('Centre de vaccination', vaccine.centerName),
-            const SizedBox(height: 5),
-            _buildPhotoSection(),
-          ],
+          ),
         ),
-      ),
+
+        if (vaccine.flagVisite == '1')
+          Positioned(
+            right: 0,
+            top: 0,
+            child: Icon(
+              Icons.check_circle,
+              color: Colours.successGreen,
+              size: 24,
+            ),
+          )
+
+      ],
     );
   }
 
@@ -62,6 +92,8 @@ class VaccineCard extends StatelessWidget {
   }
 
   Widget _buildPhotoSection() {
+    final cleanBase64 = vaccine.photoPath!.replaceAll(RegExp(r'\s+'), '');
+
     return Builder(
       builder: (context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +102,7 @@ class VaccineCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Photo du vaccin',
+                'Photo de la visite',
                 style: TextStyles.bodyBold.copyWith(
                   color: Colours.primaryBlue,
                 ),
@@ -86,7 +118,7 @@ class VaccineCard extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: Image.memory(
-                      base64Decode(vaccine.photoPath!),
+                      base64Decode(cleanBase64),
                       fit: BoxFit.cover,
                     ),
                   ),

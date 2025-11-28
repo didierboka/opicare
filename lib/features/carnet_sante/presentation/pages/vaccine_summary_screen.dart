@@ -159,7 +159,7 @@ class _VaccineSummaryScreenState extends State<VaccineSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Informations du vaccin',
+              'Informations de la visite',
               style: TextStyles.titleMedium.copyWith(
                 color: Colours.primaryBlue,
               ),
@@ -172,7 +172,7 @@ class _VaccineSummaryScreenState extends State<VaccineSummaryScreen> {
             ),
             const SizedBox(height: 12),
             _buildSummaryItem(
-              'Nom du vaccin',
+              'Nom de la visite',
               selectedVaccin.nomVac,
               Icons.vaccines,
             ),
@@ -282,6 +282,7 @@ class _VaccineSummaryScreenState extends State<VaccineSummaryScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: CustomButton(
+                backgroundColor: _isSubmitting ? Colors.grey.shade200 : null,
                 text: _isSubmitting ? 'Validation...' : 'Valider les infos',
                 onPressed: _isSubmitting ? () {} : () {
                   _submitVaccine();

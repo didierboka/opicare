@@ -47,6 +47,7 @@ dependencies:
   maps_launcher: ^3.0.0+1
   cinetpay: ^1.0.8
   image: ^4.5.4
+  syncfusion_flutter_pdfviewer: ^29.1.38
 
 dev_dependencies:
   flutter_test:
@@ -76,4 +77,5 @@ flutter:
   assets:
     - assets/images/
     - assets/lotties/
+    - assets/files/
 

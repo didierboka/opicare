@@ -232,7 +232,7 @@ class _ScheduleVaccineScreenState extends State<ScheduleVaccineScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Nom du vaccin *',
+                  'Nom de la visite*',
                   style: TextStyles.bodyBold.copyWith(
                     color: Colours.primaryText,
                   ),
@@ -245,8 +245,8 @@ class _ScheduleVaccineScreenState extends State<ScheduleVaccineScreen> {
                     hintText: _selectedTypeVisite == null
                         ? 'Sélectionnez d\'abord un type de visite'
                         : state is NomVaccinLoading
-                        ? 'Chargement des noms de vaccins...'
-                        : 'Sélectionnez un nom de vaccin',
+                        ? 'Chargement des visites...'
+                        : 'Sélectionnez une visite',
                     hintStyle: TextStyles.bodyRegular.copyWith(
                       color: Colours.secondaryText,
                     ),
@@ -297,7 +297,7 @@ class _ScheduleVaccineScreenState extends State<ScheduleVaccineScreen> {
                       : null,*/
                   validator: (value) {
                     if (value == null) {
-                      return 'Le nom du vaccin est requis';
+                      return 'La viste est requise';
                     }
                     return null;
                   },
@@ -337,7 +337,7 @@ class _ScheduleVaccineScreenState extends State<ScheduleVaccineScreen> {
               ),
               SizedBox(width: 12),
               Text(
-                'Chargement des noms de vaccins...',
+                'Chargement des visites...',
                 style: TextStyles.bodyRegular,
               ),
             ],

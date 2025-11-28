@@ -57,4 +57,38 @@ class VaccineSubmissionEntity extends Equatable {
   String toString() {
     return 'VaccineSubmissionEntity{calId: $calId, usrId: $usrId, ctrregion: $ctrregion, ctrdist: $ctrdist, ctrId: $ctrId, dtPre: $dtPre, lot: $lot, type: $type, typeAbnt: $typeAbnt, patId: $patId, vacId: $vacId, dtRap: $dtRap, imgCarnet: $imgCarnet}';
   }
+
+
+  VaccineSubmissionEntity copyWith({
+    String? calId,
+    String? usrId,
+    String? ctrregion,
+    String? ctrdist,
+    String? ctrId,
+    String? dtPre,
+    String? lot,
+    String? imgCarnet,
+    String? typeAbnt,
+    String? type,
+    String? patId,
+    String? vacId,
+    String? dtRap,
+  }) {
+    return VaccineSubmissionEntity(
+      calId: calId ?? this.calId,
+      usrId: usrId ?? this.usrId,
+      ctrregion: ctrregion ?? this.ctrregion,
+      ctrdist: ctrdist ?? this.ctrdist,
+      ctrId: ctrId ?? this.ctrId,
+      dtPre: dtPre ?? this.dtPre,
+      lot: lot ?? this.lot,
+      imgCarnet: imgCarnet ?? this.imgCarnet,
+      typeAbnt: typeAbnt ?? this.typeAbnt,
+      type: type ?? this.type,
+      patId: patId ?? this.patId,
+      vacId: vacId ?? this.vacId,
+      dtRap: dtRap ?? this.dtRap,
+    );
+  }
+
 }
