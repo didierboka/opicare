@@ -20,6 +20,8 @@ class RegisterForm extends StatefulWidget {
 }
 
 class _RegisterFormState extends State<RegisterForm> {
+
+
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final surnameController = TextEditingController();
@@ -27,8 +29,9 @@ class _RegisterFormState extends State<RegisterForm> {
   final emailController = TextEditingController();
   final dateController = TextEditingController();
   final genreController = TextEditingController();
-  String? selectedGenre;
+  String? selectedGenre = 'M';
   bool rememberMe = false;
+
 
   @override
   void dispose() {
@@ -41,9 +44,11 @@ class _RegisterFormState extends State<RegisterForm> {
     super.dispose();
   }
 
+
   bool validateMail(String email) {
     return RegExp(r'^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$').hasMatch(email);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -165,4 +170,5 @@ class _RegisterFormState extends State<RegisterForm> {
       },
     );
   }
+
 }
