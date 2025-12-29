@@ -134,4 +134,10 @@ class SubscriptionHelper {
       },
     );
   }
+
+
+  static String convertDate(String input) {
+    final parts = input.split('-');
+    return "${parts[2]}-${parts[1]}-${parts[0]}";
+  }
 } 

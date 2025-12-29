@@ -1,10 +1,8 @@
-🚀 Version 1.0.14 version 14
+🚀 Version 1.0.16 version 16
 
 🎉 Fonctionnalites
-✅ Ajout des images OMS & INHP
-✅ Ajout des indicateurs de type de visite
-✅ Ajout des indicateurs de visite verifiee ou non
-✅ Changement dynamic des typo vaccin en visite
+✅ Paiement CinetPay officiel
+✅ Abonnement par CARTE DE CREDIT effectif.
 
 ✏️ Corrections
 

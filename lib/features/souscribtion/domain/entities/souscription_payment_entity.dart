@@ -8,20 +8,16 @@ import 'package:equatable/equatable.dart';
 
 class SouscriptionPaymentEntity extends Equatable {
 
-  final String transactionId;
 
-  const SouscriptionPaymentEntity({required this.transactionId});
+  final String transactionId;
+  final int montant;
+  final String metadata;
+
+
+  const SouscriptionPaymentEntity({required this.transactionId, required this.metadata, required this.montant});
+
 
   @override
-  List<Object?> get props => [transactionId];
+  List<Object?> get props => [transactionId, metadata];
 
 }
-
-
-
-
-
-
-
-
-

@@ -8,8 +8,11 @@ import 'package:opicare/features/carnet_sante/presentation/widgets/missed_vaccin
 import 'package:opicare/features/carnet_sante/presentation/widgets/upcoming_vaccine_card.dart';
 
 class VaccineTabView extends StatefulWidget {
+
   final Function(int)? onTabChanged;
-  const VaccineTabView({super.key, this.onTabChanged});
+  final String patId;
+
+  const VaccineTabView({super.key, this.onTabChanged, required this.patId});
 
   @override
   State<VaccineTabView> createState() => _VaccineTabViewState();
@@ -42,7 +45,7 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
   void _loadEffectuesData() {
     if (!_hasLoadedEffectues) {
       final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
-      context.read<CarnetBloc>().add(LoadVaccines(id: user.patID));
+      context.read<CarnetBloc>().add(LoadVaccines(id: widget.patId == '' ? user.patID : widget.patId));
       _hasLoadedEffectues = true;
     }
   }
@@ -58,19 +61,19 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
 
     switch (_tabController.index) {
       case 0: // Onglet "Effectués"
-        context.read<CarnetBloc>().add(LoadVaccines(id: user.patID));
+        context.read<CarnetBloc>().add(LoadVaccines(id: widget.patId == '' ? user.patID : widget.patId));
         if (!_hasLoadedEffectues) {
           _hasLoadedEffectues = true;
         }
         break;
       case 1: // Onglet "Manqués"
-        context.read<CarnetBloc>().add(LoadMissedVaccines(id: user.patID));
+        context.read<CarnetBloc>().add(LoadMissedVaccines(id: widget.patId == '' ? user.patID : widget.patId));
         if (!_hasLoadedMissed) {
           _hasLoadedMissed = true;
         }
         break;
       case 2: // Onglet "Prochains"
-        context.read<CarnetBloc>().add(LoadUpcomingVaccines(id: user.patID));
+        context.read<CarnetBloc>().add(LoadUpcomingVaccines(id: widget.patId == '' ? user.patID : widget.patId));
         if (!_hasLoadedUpcoming) {
           _hasLoadedUpcoming = true;
         }

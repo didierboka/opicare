@@ -1,5 +1,3 @@
-import 'package:cinetpay/cinetpay.dart';
-
 import '../../../domain/entities/formule_entity.dart';
 import '../../../domain/entities/type_abo_entity.dart';
 

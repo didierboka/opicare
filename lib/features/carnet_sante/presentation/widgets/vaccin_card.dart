@@ -49,24 +49,13 @@ class VaccineCard extends StatelessWidget {
                 _buildDetailRow('Date de rappel', formatDateFromString(vaccine.recallDate)),
                 _buildDetailRow('Date d\'administration', formatDateFromString(vaccine.presenceDate)),
                 _buildDetailRow('Numéro de lot', vaccine.lotNumber),
+                _buildDetailRow('Statut visite', vaccine.flagVisite == '1' ? "✅" : "❌"),
                 const SizedBox(height: 5),
                 _buildPhotoSection(),
               ],
             ),
           ),
         ),
-
-        if (vaccine.flagVisite == '1')
-          Positioned(
-            right: 0,
-            top: 0,
-            child: Icon(
-              Icons.check_circle,
-              color: Colours.successGreen,
-              size: 24,
-            ),
-          )
-
       ],
     );
   }

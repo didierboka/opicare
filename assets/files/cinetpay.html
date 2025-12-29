@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <!-- Script officiel CinetPay -->
+    <script src="https://cdn.cinetpay.com/seamless/main.js"></script>
+
+    <script>
+        function postToFlutter(obj) {
+            // On utilise console.log pour communiquer avec Flutter
+            console.log("__CINETPAY_MSG__" + JSON.stringify(obj));
+        }
+
+        function isReady() {
+            return (typeof CinetPay !== "undefined");
+        }
+
+        function startPayment(configJson, paymentJson) {
+            try {
+                var config = JSON.parse(configJson);
+                var payment = JSON.parse(paymentJson);
+
+                let attempts = 0;
+                let timer = setInterval(() => {
+                    if (isReady()) {
+                        clearInterval(timer);
+
+                        CinetPay.setConfig({
+                            apikey: config.apikey,
+                            site_id: config.site_id,
+                            notify_url: config.notify_url
+                        });
+
+                        CinetPay.getCheckout({
+                            transaction_id: payment.transaction_id,
+                            amount: payment.amount,
+                            currency: payment.currency,
+                            alternative_currency: payment.alternative_currency || "",
+                            channels: payment.channels || "ALL",
+                            description: payment.description || "",
+                            customer_id: payment.customer_id || "",
+                            customer_name: payment.customer_name || "",
+                            customer_surname: payment.customer_surname || "",
+                            customer_city: payment.customer_city || "",
+                            customer_email: payment.customer_email || "",
+                            customer_address: payment.customer_address || "",
+                            customer_country: payment.customer_country || "",
+                            customer_zip_code: payment.customer_zip_code || "",
+                            customer_phone_number: payment.customer_phone_number || ""
+                        });
+
+                        CinetPay.waitResponse(function (response) {
+                            postToFlutter({
+                                type: "success",
+                                response: response
+                            });
+                        });
+
+                    } else if (attempts++ > 20) {
+                        clearInterval(timer);
+                        postToFlutter({ type: "error", message: "CinetPay script not loaded." });
+                    }
+                }, 250);
+
+            } catch (e) {
+                postToFlutter({ type: "error", message: "Exception: " + e.toString() });
+            }
+        }
+
+        window.onerror = function(msg, url, line) {
+            postToFlutter({
+                type: "console-error",
+                message: msg + " @line " + line
+            });
+        };
+    </script>
+</head>
+
+<body>
+<h3 style="text-align:center">Paiement en cours...</h3>
+</body>
+</html>

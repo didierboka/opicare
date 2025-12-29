@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,8 +24,9 @@ import 'schedule_vaccine_screen.dart';
 class CarnetSanteScreen extends StatefulWidget {
 
   static const path = '/carnet_sante';
+  final String patId;
 
-  CarnetSanteScreen({super.key});
+  CarnetSanteScreen({super.key, this.patId = ''});
 
   @override
   State<CarnetSanteScreen> createState() => _CarnetSanteScreenState();
@@ -81,6 +84,10 @@ class _CarnetSanteScreenState extends State<CarnetSanteScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    log("CARNET DE SANTE => $_currentTabIndex");
+    log("CARNET DE SANTE (widget.patId) => ${widget.patId}");
+
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
 
     return BlocProvider(
@@ -94,8 +101,10 @@ class _CarnetSanteScreenState extends State<CarnetSanteScreen> {
         child: Scaffold(
           key: _scaffoldKey,
           appBar: CustomAppBar(
-            title: 'Mon carnet de santé',
+            canBack: widget.patId == '' ? false : true,
+            title: widget.patId == '' ? 'Mon carnet de santé' : 'Carnet enfant',
             scaffoldKey: _scaffoldKey,
+            hideNotif: widget.patId == '' ? false : true,
           ),
           drawer: const CustomDrawer(),
           body: SafeArea(
@@ -110,13 +119,16 @@ class _CarnetSanteScreenState extends State<CarnetSanteScreen> {
                     imageAsset: 'assets/images/vaccination-sans-bg.png',
                   ),
                   //const TabBarHeader(),
-                  Expanded(child: VaccineTabView(onTabChanged: _onTabChanged)),
+                  Expanded(child: VaccineTabView(onTabChanged: _onTabChanged, patId: widget.patId)),
                 ],
               ),
             ),
           ),
           floatingActionButton: _buildFloatingActionButton(context),
-          bottomNavigationBar: CustomBottomNavBar(),
+
+          bottomNavigationBar: widget.patId == ''
+              ? CustomBottomNavBar()
+              : null,
         ),
       ),
     );

@@ -9,7 +9,7 @@ import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/famille/data/repositories/family_repository.dart';
 import 'package:opicare/features/famille/presentation/bloc/famille_bloc.dart';
-import 'package:opicare/features/famille/presentation/widgets/familyCard.dart';
+import 'package:opicare/features/famille/presentation/widgets/family_card.dart';
 
 class FamilleScreen extends StatelessWidget {
   static const path = '/famille';

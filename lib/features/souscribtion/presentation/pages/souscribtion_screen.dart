@@ -1,4 +1,5 @@
-import 'package:cinetpay/cinetpay.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -17,8 +18,7 @@ import 'package:opicare/features/souscribtion/domain/entities/type_abo_entity.da
 import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
 import 'package:opicare/features/souscribtion/presentation/pages/cinetpay_checkout_screen.dart';
 
-import '../../../../core/constants/api_url.dart';
-import '../../../user/data/models/user_model.dart';
+import '../../data/models/souscription_payment_model.dart';
 import '../../domain/entities/formule_entity.dart';
 import '../bloc/souscription/souscription_event.dart';
 import '../bloc/souscription/souscription_state.dart';
@@ -34,10 +34,12 @@ class SouscriptionScreen extends StatefulWidget {
 
 class _SouscriptionScreenState extends State<SouscriptionScreen> {
 
+
   TypeAboEntity? _typeAbonnement;
   FormuleEntity? _formule;
   int _abonYears = 1;
   final _formKey = GlobalKey<FormState>();
+
 
   @override
   void initState() {
@@ -45,77 +47,6 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
     context.read<SouscriptionBloc>().add(LoadTypeAbos());
 
     _formule = FormuleEntity(id: "", libelle: "", prix: 0, bonus: 0);
-  }
-
-
-  Future<void> _showCinetPayDialog(BuildContext ctxCinet, UserModel? userModel) async {
-    DebugLogger.debug("USER-MODEL => ${userModel?.toJson()}");
-
-    showDialog(
-      context: ctxCinet,
-      builder: (BuildContext ctxDialg) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.all(20),
-          child: Container(
-            width: 500,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: CinetPayCheckout(
-              title: "OPICARE",
-              configData: <String, dynamic>{
-                'apikey': ApiUrl.cinetPayApiKey,
-                'site_id': ApiUrl.cinetPaySiteId,
-                'notify_url': 'https://www.google.com',
-              },
-              paymentData: <String, dynamic>{
-                'transaction_id': DateTime.now().millisecondsSinceEpoch.toString(),
-                'amount': 100,
-                'currency': 'XOF',
-                'channels': 'ALL',
-                'description': "Abonnement",
-              },
-              waitResponse: (response) {
-                // Gestion du succès ou de l'échec
-                DebugLogger.success("INFOS CINETPAY SUCCESS ${response}");
-                //  Navigator.of(context).pop(); // Fermer le dialogue
-                // Traiter la réponse de succès
-
-                //  ctxDialg.pop();
-
-                //  ctxCinet.read<SouscriptionBloc>().add(
-                //    SubmitSouscription(
-                //      id: "${userModel?.patID}",
-                //      numtel:"${userModel?.phone}",
-                //      email: "${userModel?.email}",
-                //      tarif: "0",
-                //      typeAbonnement: "{loadedState.selectedTypeAbo}",
-                //      formule: "${_formule?.id}",
-                //      //  years: "${int.parse(_formEnt?.years ?? "0")}",
-                //      years: 1
-                //    ),
-                //  );
-
-                DebugLogger.debug("USER(${userModel?.patID} : ${userModel?.name} : ${userModel?.id} : ${userModel?.phone})");
-                DebugLogger.debug("ABONNEMENT(${_formule?.id}:${_formule?.libelle}:${_formule?.prix}:${_formule?.bonus})");
-                DebugLogger.debug("TYPEABONNEMENT(${_typeAbonnement?.id}:${_typeAbonnement?.libelle})");
-                DebugLogger.debug("YEAR(${_abonYears})");
-              },
-              onError: (error) {
-                // Gestion des erreurs
-                DebugLogger.error("INFOS CINETPAY ERROR $error");
-                // Fermer le dialogue
-                ctxDialg.pop(false);
-                // Traiter l'erreur
-              },
-            ),
-          ),
-        );
-      },
-    );
   }
 
 
@@ -157,11 +88,8 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
               type: MessageType.error,
             );
           }
-
-          if (state is ExecutingPaymentSouscriptionState) {
-            _showCinetPayDialog(context, user);
-          }
         },
+        buildWhen: (previous, current) => current is SouscriptionLoading || current is SouscriptionSuccess || current is SouscriptionFailure || current is SouscriptionLoaded,
         builder: (context, state) {
           if (state is SouscriptionFailure) {
             return Center(
@@ -303,8 +231,80 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                             //  }
 
                             if (_formKey.currentState!.validate() && state.selectedTypeAbo != null && state.selectedFormule != null) {
-                              final result = await context.push(CinetPayCheckoutScreen.path);
-                              DebugLogger.log("result payment: $result");
+
+                              /*
+                              'transaction_id': _transactionId,
+                              'amount': 100,
+                              'currency': 'XOF',
+                              "alternative_currency": "",
+                              'channels': 'ALL',
+                              'description': 'Abonnement',
+                              'customer_id': "23021",
+                              'customer_name': 'BOKA',
+                              'customer_surname': 'KADJO SERGE DIDIER CEDRIC',
+                              'customer_city': 'ABIDJAN',
+                              'customer_email': "didierboka.developer@gmail.com",
+                              'customer_address': 'BP 10',
+                              'customer_country': 'CI',
+                              'customer_zip_code': '00225',
+                              'customer_phone_number': "+2250757187963"
+                               */
+
+                              final String transactionId = DateTime.now().millisecondsSinceEpoch.toString();
+
+                              DebugLogger.log("TRANSACTION_ID => $transactionId");
+                              DebugLogger.log("AMOUNT => 1_000 F");
+                              DebugLogger.log("CURRENCY => XOF");
+                              DebugLogger.log("CHANNELS => ALL");
+                              DebugLogger.log("LABEL => Abonnement");
+                              DebugLogger.log("CUSTOMER_ID => ${user.patID}");
+                              DebugLogger.log("NOM => ${user.name}");
+                              DebugLogger.log("PRENOMS => ${user.surname}");
+                              DebugLogger.log("CITY => CI");
+                              DebugLogger.log("EMAIL => ${user.email ?? "privacy@opisms.org"}");
+                              DebugLogger.log("ADRESSE => 01 BP 10 ABIDJAN 10");
+                              DebugLogger.log("COUNTRY => CI");
+                              DebugLogger.log("ZIP_CODE => 00225");
+                              DebugLogger.log("PHONE_NUMBER => +${user.phone}");
+
+                             final paymentModel = SouscriptionPaymentModel(
+                               customerId: user.patID,
+                               customerName: user.name,
+                               customerSurname: user.surname,
+                               customerCity: "CI",
+                               customerEmail: user.email ?? "privacy@opisms.org",
+                               customerAddress: "01 BP 10 ABIDJAN 10",
+                               customerCountry: "CI",
+                               customerZipCode: "00225",
+                               customerMetadata: "${user.patID}-${state.total.toInt()}-$transactionId-${user.phone}",
+                               customerPhoneNumber: user.phone,
+                               amount: state.total.toInt(),
+                               alternativeCurrency: "",
+                               transactionId: transactionId,
+                             );
+
+                              final result = await context.push(CinetPayCheckoutScreen.path, extra: paymentModel.toMap());
+
+                              if (Platform.isAndroid && result != null) {
+                                if (result == "REFUSED") {
+                                  showSnackbar(
+                                    message: "Impossible de valider votre paiement",
+                                    type: MessageType.error,
+                                    context
+                                  );
+
+                                  context.go(HomeScreen.path);
+                                } else {
+                                  showSnackbar(
+                                      message: "Paiement effectue avec succes !",
+                                      type: MessageType.success,
+                                      context,
+                                  );
+
+                                }
+                              } else {
+                                DebugLogger.info("Call api for checking payment infos");
+                              }
                             }
                           },
                         ),

@@ -1,97 +1,93 @@
+import 'dart:convert';
 
 import 'package:cinetpay/cinetpay.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/helpers/debug_logger.dart';
 
 import '../../../../core/constants/api_url.dart';
-
-
+import '../../data/models/souscription_payment_model.dart';
 
 class CinetPayCheckoutScreen extends StatefulWidget {
-
   static const String path = '/checkout-abonnement';
 
-  final int? ticketsTotal;
-  final String name;
-  final String email;
-  final String mobileNo;
-  final bool isAcceptTerms;
-  final int? totalAmount;
+  final SouscriptionPaymentModel paymentModel;
 
-  CinetPayCheckoutScreen({super.key, this.ticketsTotal, required this.name, required this.email, required this.mobileNo, required this.isAcceptTerms, this.totalAmount});
+  const CinetPayCheckoutScreen({super.key, required this.paymentModel});
 
   @override
   State<CinetPayCheckoutScreen> createState() => _CinetPayCheckoutScreenState();
 }
 
-
 class _CinetPayCheckoutScreenState extends State<CinetPayCheckoutScreen> {
-
-
   final String? _transactionId = DateTime.now().millisecondsSinceEpoch.toString();
+  SouscriptionPaymentModel? _paymentModel;
 
+  Map<String, dynamic>? configData;
+  Map<String, dynamic>? paymentData;
+  Function(Map<String, dynamic> result)? onSuccess;
+  Function(String error)? onError;
 
-  // void _processToBookEvent(dynamic paymentStatus) async {
-  //   print('this is payment status: ${paymentStatus['status']}');
-  //
-  //
-  //   if (paymentStatus['status'] == 'ACCEPTED') {
-  //
-  //     await AttendeeEventsViewModel().saveBookingsInEvent(attendeeBookingModel, context, []).then((v) async {
-  //       showDialog(
-  //           context: context,
-  //           barrierDismissible: false,
-  //           builder: (_) {
-  //             return CustomDialog(
-  //               subtitle: '${AppLocalizations.of(context)!.youHaveBookedAnOrder} ${AppLocalizations.of(context)!.forText}\n ${widget.eventModel.eventTitle}.',
-  //               Title: AppLocalizations.of(context)!.allBookedForYou,
-  //               image: 'images/DoneLogo.png',
-  //               subtitleTwo: AppLocalizations.of(context)!.enjoyTheEvent,
-  //               child: Column(
-  //                 children: [
-  //                   PrimaryButtonTwo(
-  //                     title: AppLocalizations.of(context)!.viewETicket,
-  //                     onPressed: () {
-  //                       context.goNamed(
-  //                         ETicketQRCodeScreen.routeName,
-  //                         extra: widget.eventModel,
-  //                         queryParameters: {
-  //                           "eventId": attendeeBookingModel.eventId,
-  //                           "attendeeName": attendeeBookingModel.attendeeName,
-  //                           "bookedTickets": json.encode(widget.bookTickets),
-  //                           "mobileNo": widget.mobileNo,
-  //                           "totalTickets": widget.ticketsTotal.toString(),
-  //                         }
-  //                       );
-  //                     },
-  //                   ),
-  //                   SizedBox(height: 10),
-  //                   CustomButton(
-  //                     title: AppLocalizations.of(context)!.goToHomeScreen,
-  //                     onPressed: () {
-  //                       context.go(AttendeeBottomNavBar.routeName);
-  //                     },
-  //                   )
-  //                 ],
-  //               ),
-  //             );
-  //           });
-  //
-  //       DocumentSnapshot snap = await FirebaseFirestore.instance.collection("attendees").doc(FirebaseAuth.instance.currentUser!.uid).get();
-  //
-  //       NotificationServices().sendPushNotification(userId: widget.eventModel.uId, body: "${widget.name} has booked tickets in your event: ${widget.eventModel.eventTitle}", title: widget.eventModel.eventTitle);
-  //       NotificationServices().addNotificationInDB(context: context, toUserId: widget.eventModel.uId, title: "${widget.name} has booked tickets in your event: ${widget.eventModel.eventTitle}", userImage: snap["photo"]);
-  //     });
-  //
-  //     EasyLoading.showInfo("Paiement effectuer avec success...");
-  //   }
-  // }
-
+  InAppWebViewController? webController;
+  bool started = false;
 
   @override
   void initState() {
     super.initState();
+    _paymentModel = widget.paymentModel.copyWith(transactionId: _transactionId);
+
+    configData = {
+      "site_id": ApiUrl.cinetPaySiteId,
+      "apikey": ApiUrl.cinetPayApiKey,
+      "notify_url": "https://opisms.net/opisms-ws/api/v1/user/cinetpay/callback",
+    };
+
+    paymentData = {
+      "transaction_id": _paymentModel!.transactionId,
+      //  "amount": _paymentModel!.amount,
+      "amount": 100,
+      "currency": "XOF",
+      "alternative_currency": "",
+      "channels": "ALL",
+      "description": "OPISMS FROM OPICARE",
+      "customer_id": _paymentModel!.customerId,
+      "customer_name": _paymentModel!.customerName,
+      "customer_surname": _paymentModel!.customerSurname,
+      "customer_city": "ABIDJAN",
+      "customer_email": _paymentModel!.customerEmail,
+      "metadata": _paymentModel!.customerMetadata,
+      "customer_phone_number": "+${_paymentModel!.customerPhoneNumber}",
+      "customer_state": "CI",
+      //  "customer_country": "CI",
+      //  "customer_address": "BP 10",
+      //  "customer_zip_code": "00225",
+    };
+
+    DebugLogger.log("CONFIG DATA => ${configData.toString()}");
+    DebugLogger.log("PAYMENT DATA => ${paymentData.toString()}");
+
+    onSuccess = (data) {
+      DebugLogger.success("SUCCESS: $data");
+    };
+
+    onError = (String error) {
+      DebugLogger.error("ERROR: $error");
+    };
+  }
+
+
+  // String getLocalHtmlPath() {
+  //   if (defaultTargetPlatform == TargetPlatform.iOS) {
+  //     return "file:///flutter_assets/assets/files/cinetpay.html";
+  //   } else {
+  //     return "file:///android_asset/flutter_assets/assets/files/cinetpay.html";
+  //   }
+  // }
+
+  String _escapeForJS(String jsonString) {
+    return jsonString.replaceAll(r'\', r'\\').replaceAll('`', r'\`').replaceAll('\$', r'\$');
   }
 
 
@@ -105,24 +101,11 @@ class _CinetPayCheckoutScreenState extends State<CinetPayCheckoutScreen> {
           child: CinetPayCheckout(
               title: 'OPICARE',
               titleBackgroundColor: null,
-              configData: <String, Object?>{
-                'site_id': ApiUrl.cinetPaySiteId,
-                'apikey': ApiUrl.cinetPayApiKey,
-                'notify_url': 'https://www.google.com',
-              },
-              paymentData: <String, Object?>{
-                'transaction_id': _transactionId,
-                'amount': 100,
-                'currency': 'XOF',
-                'channels': 'ALL',
-                'description': 'Abonnement'
-
-              },
+              configData: configData,
+              paymentData: paymentData,
               waitResponse: (response) {
-               //  _processToBookEvent(response);
-
-                DebugLogger.success("PAIEMENT OKOKOKOK");
-                context.pop("success;");
+                DebugLogger.success("PAIEMENT OKOKOKOK => $response");
+                context.pop(response["status"]);
               },
               onError: (error) {
                 print('UNE ERREUR EST SURVENUE => ${error}');

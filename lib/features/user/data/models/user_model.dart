@@ -66,4 +66,36 @@ class UserModel {
       'LIBELLE': abonnementLabel
     };
   }
+
+  UserModel copyWith({
+    String? id,
+    String? patID,
+    String? name,
+    String? surname,
+    String? email,
+    String? phone,
+    String? sex,
+    String? birthdate,
+    String? carnetPhoto,
+    String? userPic,
+    String? dateAbon,
+    String? dateExpiration,
+    String? abonnementLabel,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      patID: patID ?? this.patID,
+      name: name ?? this.name,
+      surname: surname ?? this.surname,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      sex: sex ?? this.sex,
+      birthdate: birthdate ?? this.birthdate,
+      carnetPhoto: carnetPhoto ?? this.carnetPhoto,
+      userPic: userPic ?? this.userPic,
+      dateAbon: dateAbon ?? this.dateAbon,
+      dateExpiration: dateExpiration ?? this.dateExpiration,
+      abonnementLabel: abonnementLabel ?? this.abonnementLabel,
+    );
+  }
 }

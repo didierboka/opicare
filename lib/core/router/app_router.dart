@@ -51,6 +51,7 @@ import '../../features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart'
 import '../../features/change_password/domain/repositories/change_pwd_repository.dart';
 import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import '../../features/profile/presentation/pages/profile_screen.dart';
+import '../../features/souscribtion/data/models/souscription_payment_model.dart';
 import '../../features/souscribtion/domain/repositories/souscription_repository.dart';
 import '../../features/jours_vaccins/domain/repositories/jour_vaccin_repository.dart';
 import '../../features/souscribtion/presentation/pages/cinetpay_checkout_screen.dart';
@@ -121,9 +122,19 @@ final appRouter = GoRouter(
       },
     ),
     GoRoute(
+      path: '${CarnetSanteScreen.path}/:patientId',
+      builder: (context, state) {
+        final patientId = state.pathParameters['patientId'] as String;
+
+        return CarnetSanteScreen(patId: patientId);
+      },
+    ),
+
+    GoRoute(
       path: CarnetSanteScreen.path,
       builder: (context, state) => CarnetSanteScreen(),
     ),
+
     GoRoute(
       path: VaccineDetailsScreen.path,
       builder: (context, state) {
@@ -142,6 +153,7 @@ final appRouter = GoRouter(
         );
       },
     ),
+
     GoRoute(
       path: RescheduleVaccineScreen.path,
       builder: (context, state) {
@@ -286,7 +298,10 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: CinetPayCheckoutScreen.path,
-      builder: (context, state) => CinetPayCheckoutScreen(name: "name", email: "email", mobileNo: "mobileNo", isAcceptTerms: true),
+      builder: (context, state) {
+        final paymentMap = SouscriptionPaymentModel.fromMap(state.extra as Map<String, dynamic>);
+        return CinetPayCheckoutScreen(paymentModel: paymentMap);
+      },
     ),
     GoRoute(
       path: CguPage.path,

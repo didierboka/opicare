@@ -5,6 +5,7 @@ import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/carnet_sante/data/models/upcoming_vaccine.dart';
 
 class UpcomingVaccineCard extends StatelessWidget {
+
   final UpcomingVaccine upcomingVaccine;
 
   const UpcomingVaccineCard({super.key, required this.upcomingVaccine});

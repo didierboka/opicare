@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cinetpay/cinetpay.dart';
 import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:opicare/core/constants/api_url.dart';
@@ -17,6 +16,8 @@ import 'package:opicare/features/souscribtion/domain/repositories/souscription_r
 import '../../domain/entities/formule_entity.dart';
 
 class SouscriptionRepositoryImpl implements SouscriptionRepository {
+
+
   @override
   Future<List<TypeAboEntity>> getTypeAbos() async {
     final ApiService<TypeAboModel> apiService = ApiService(fromJson: (json) => TypeAboModel.fromJson(json));
@@ -31,6 +32,7 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
     return models.map((model) => model.toEntity()).toList();
   }
 
+
   @override
   Future<List<FormuleEntity>> getFormules(String typeAboId) async {
     final ApiService<FormuleModel> apiService = ApiService(fromJson: (json) => FormuleModel.fromJson(json));
@@ -42,6 +44,7 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
     final models = response.datas ?? [];
     return models.map((model) => model.toEntity()).toList();
   }
+
 
   Future<CustomResponse<dynamic>> submitSouscription({
     required String typeAbonnement,
@@ -78,13 +81,11 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
   }
 
 
-
   @override
   Future<Either<Failure, SouscriptionPaymentEntity>> makePayment({required transactionId, required amount, description, required designation}) async {
 
     bool successPayment = false;
 
-    return successPayment ? Right(SouscriptionPaymentEntity(transactionId: transactionId)) : Left(PaymentFailure("Echec de paiement..."));
-
+    return successPayment ? Right(SouscriptionPaymentEntity(transactionId: transactionId, metadata: '', montant: 10)) : Left(PaymentFailure("Echec de paiement..."));
   }
 }

@@ -9,10 +9,14 @@ import 'package:opicare/features/profile/presentation/pages/profile_screen.dart'
 import 'package:opicare/features/user/data/models/user_model.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
+
+
   final bool isSubscriptionExpired;
   final VoidCallback? onDisabledTap;
   final VoidCallback? onCarnetAccessDenied;
   final UserModel? user;
+  final String patId;
+
 
   const CustomBottomNavBar({
     super.key,
@@ -20,6 +24,7 @@ class CustomBottomNavBar extends StatelessWidget {
     this.onDisabledTap,
     this.onCarnetAccessDenied,
     this.user,
+    this.patId = '',
   });
 
   @override
