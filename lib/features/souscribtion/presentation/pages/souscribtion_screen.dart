@@ -46,6 +46,7 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
     super.initState();
     context.read<SouscriptionBloc>().add(LoadTypeAbos());
 
+    // Merci de faire le test de la base donnees
     _formule = FormuleEntity(id: "", libelle: "", prix: 0, bonus: 0);
   }
 

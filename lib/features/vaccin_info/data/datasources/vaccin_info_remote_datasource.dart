@@ -12,7 +12,7 @@ class VaccinInfoRemoteDataSourceImpl implements VaccinInfoRemoteDataSource {
   @override
   Future<VaccinDetailModel> getVaccinInfo(String vaccinId) async {
     try {
-      const String baseUrl = 'https://e-sante.ci/api/orange/ussd';
+      const String baseUrl = 'https://opisms.net/api/orange/ussd';
       const String endpoint = '/vaccin/vaccinsInfos';
       const String url = '$baseUrl$endpoint';
       

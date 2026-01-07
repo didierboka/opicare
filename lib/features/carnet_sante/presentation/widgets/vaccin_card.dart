@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/constants/api_url.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
@@ -81,7 +82,7 @@ class VaccineCard extends StatelessWidget {
   }
 
   Widget _buildPhotoSection() {
-    final cleanBase64 = vaccine.photoPath!.replaceAll(RegExp(r'\s+'), '');
+    final cleanBase64 = (vaccine.photoPath ?? ApiUrl.base64Default).replaceAll(RegExp(r'\s+'), '');
 
     return Builder(
       builder: (context) => Column(

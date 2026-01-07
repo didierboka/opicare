@@ -48,13 +48,13 @@ class MonProfilScreen extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Annuler'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.go(SouscriptionScreen.path);
-              },
-              child: const Text('Renouveler'),
-            ),
+            //  ElevatedButton(
+            //    onPressed: () {
+            //      Navigator.of(context).pop();
+            //      context.go(SouscriptionScreen.path);
+            //    },
+            //    child: const Text('Renouveler'),
+            //  ),
           ],
         );
       },

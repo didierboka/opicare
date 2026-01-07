@@ -42,15 +42,15 @@ class FamilyMemberCard extends StatelessWidget {
         onTap: () {
           // goto carnet screen with path parameter
 
-          if (SubscriptionHelper.isSubscriptionExpired(UserModel(id: member.id, dateExpiration: SubscriptionHelper.convertDate(member.expirationDate), patID: member.id, phone: '', abonnementLabel: member.formula, birthdate: member.birthdate, carnetPhoto: '', dateAbon: member.subscriptionDate, email: '', name: member.name, sex: member.sex, surname: '', userPic: ''))) {
-            SubscriptionHelper.showSubscriptionExpiredDialog(context);
-            return ;
-          }
+          //  if (SubscriptionHelper.isSubscriptionExpired(UserModel(id: member.id, dateExpiration: SubscriptionHelper.convertDate(member.expirationDate), patID: member.id, phone: '', abonnementLabel: member.formula, birthdate: member.birthdate, carnetPhoto: '', dateAbon: member.subscriptionDate, email: '', name: member.name, sex: member.sex, surname: '', userPic: ''))) {
+          //    SubscriptionHelper.showSubscriptionExpiredDialog(context);
+          //    return ;
+          //  }
 
-          if (!SubscriptionHelper.canAccessCarnet(UserModel(id: member.id, dateExpiration: SubscriptionHelper.convertDate(member.expirationDate), patID: member.id, phone: '', abonnementLabel: member.formula, birthdate: member.birthdate, carnetPhoto: '', dateAbon: member.subscriptionDate, email: '', name: member.name, sex: member.sex, surname: '', userPic: ''))) {
-            SubscriptionHelper.showCarnetAccessDeniedDialog(context);
-            return;
-          }
+          //  if (!SubscriptionHelper.canAccessCarnet(UserModel(id: member.id, dateExpiration: SubscriptionHelper.convertDate(member.expirationDate), patID: member.id, phone: '', abonnementLabel: member.formula, birthdate: member.birthdate, carnetPhoto: '', dateAbon: member.subscriptionDate, email: '', name: member.name, sex: member.sex, surname: '', userPic: ''))) {
+          //    SubscriptionHelper.showCarnetAccessDeniedDialog(context);
+          //    return;
+          //  }
 
           context.push('${CarnetSanteScreen.path}/${member.id}');
         },
