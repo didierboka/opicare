@@ -192,13 +192,13 @@ class HomeScreen extends StatelessWidget {
                           isDisabled: SubscriptionHelper.shouldDisableOption('Informations sur les vaccins', isSubscriptionExpired),
                           onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
                         ),
-                        OptionCard(
-                          title: 'Mon abonnement',
-                          imageAsset: Media.subscriptionIconGif,
-                          onTap: () => context.go(SouscriptionScreen.path),
-                          isDisabled: SubscriptionHelper.shouldDisableOption('Mon abonnement', isSubscriptionExpired),
-                          onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
-                        ),
+                        //  OptionCard(
+                        //    title: 'Mon abonnement',
+                        //    imageAsset: Media.subscriptionIconGif,
+                        //    onTap: () => context.go(SouscriptionScreen.path),
+                        //    isDisabled: SubscriptionHelper.shouldDisableOption('Mon abonnement', isSubscriptionExpired),
+                        //    onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
+                        //  ),
                         OptionCard(
                           title: 'Ma famille',
                           imageAsset: Media.familyIconGif,

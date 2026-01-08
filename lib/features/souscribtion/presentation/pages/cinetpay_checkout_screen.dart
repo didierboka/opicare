@@ -78,14 +78,6 @@ class _CinetPayCheckoutScreenState extends State<CinetPayCheckoutScreen> {
   }
 
 
-  // String getLocalHtmlPath() {
-  //   if (defaultTargetPlatform == TargetPlatform.iOS) {
-  //     return "file:///flutter_assets/assets/files/cinetpay.html";
-  //   } else {
-  //     return "file:///android_asset/flutter_assets/assets/files/cinetpay.html";
-  //   }
-  // }
-
   String _escapeForJS(String jsonString) {
     return jsonString.replaceAll(r'\', r'\\').replaceAll('`', r'\`').replaceAll('\$', r'\$');
   }
@@ -93,8 +85,6 @@ class _CinetPayCheckoutScreenState extends State<CinetPayCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print("TRANSAC-ID : $_transactionId");
-
     return Scaffold(
       body: Container(
         child: Center(
