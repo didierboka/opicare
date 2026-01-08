@@ -62,6 +62,30 @@ class SouscriptionFailure extends SouscriptionState {
 }
 
 
+class SubscriptionCinetPayInitializingState extends SouscriptionState {
+  SubscriptionCinetPayInitializingState();
+}
+
+
+class SubscriptionCinetPayInitializedState extends SouscriptionState {
+
+  final String code;
+
+  SubscriptionCinetPayInitializedState(this.code);
+}
+
+
+class SubscriptionCinetPayFailedState extends SouscriptionState {
+
+  final String code;
+
+  SubscriptionCinetPayFailedState(this.code);
+}
+
+
+
+
+
 class ExecutingPaymentSouscriptionState extends SouscriptionState {
   ExecutingPaymentSouscriptionState();
 }

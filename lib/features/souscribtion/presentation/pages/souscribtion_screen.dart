@@ -283,7 +283,11 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                                transactionId: transactionId,
                              );
 
-                              final result = await context.push(CinetPayCheckoutScreen.path, extra: paymentModel.toMap());
+
+                              context.read<SouscriptionBloc>().add(SubscriptionCinetPayInitEvent(amount: 100, clientId: "216", clientNumber: "0757187963", transactionId: transactionId, metadatas: paymentModel.customerMetadata));
+                              return;
+
+                             final result = await context.push(CinetPayCheckoutScreen.path, extra: paymentModel.toMap());
 
                               if (Platform.isAndroid && result != null) {
                                 if (result == "REFUSED") {

@@ -8,7 +8,6 @@ import 'souscription_event.dart';
 import 'souscription_state.dart';
 
 //part of 'souscription_bloc.dart';
-
 //part of 'souscription_bloc.dart';
 
 class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
@@ -23,6 +22,7 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     on<DecrementYears>(_onDecrementYears);
     on<SubmitSouscription>(_onSubmitSouscription);
     on<ExecutePaymentSouscriptionEvent>(_onExecutePaymentSouscription);
+    on<SubscriptionCinetPayInitEvent>(_onSubscriptionCinetPayInit);
   }
 
   Future<void> _onLoadTypeAbos(LoadTypeAbos event, Emitter<SouscriptionState> emit) async {
@@ -183,6 +183,11 @@ class SouscriptionBloc extends Bloc<SouscriptionEvent, SouscriptionState> {
     DebugLogger.log(event.toString());
     emit(ExecutingPaymentSouscriptionState());
   }
+
+  void _onSubscriptionCinetPayInit(SubscriptionCinetPayInitEvent event, Emitter<SouscriptionState> emit) async {
+    emit(SubscriptionCinetPayInitializingState());
+  }
+
 
   @override
   Future<void> close() {
