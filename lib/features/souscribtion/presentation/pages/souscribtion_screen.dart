@@ -268,6 +268,9 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                               DebugLogger.log("ZIP_CODE => 00225");
                               DebugLogger.log("PHONE_NUMBER => +${user.phone}");
 
+                              // Merci de faire la base de donnnes dans les moindfre details concernant ce qui s est passe au buiold precedent.
+
+
                              final paymentModel = SouscriptionPaymentModel(
                                customerId: user.patID,
                                customerName: user.name,
@@ -283,7 +286,6 @@ class _SouscriptionScreenState extends State<SouscriptionScreen> {
                                alternativeCurrency: "",
                                transactionId: transactionId,
                              );
-
 
                               context.read<SouscriptionBloc>().add(SubscriptionCinetPayInitEvent(amount: 100, clientId: "216", clientNumber: "0757187963", transactionId: transactionId, metadatas: paymentModel.customerMetadata));
                               return;

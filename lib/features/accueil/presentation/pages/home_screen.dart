@@ -18,6 +18,7 @@ import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
+import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 import 'package:opicare/features/profile/presentation/pages/profile_screen.dart';
 import 'package:opicare/features/sante_infos/presentation/bloc/sante_info_bloc.dart';
 import 'package:opicare/features/sante_infos/presentation/widgets/sante_info_card.dart';
@@ -170,7 +171,8 @@ class HomeScreen extends StatelessWidget {
                           title: 'Vaccins voyage',
                           imageAsset: Media.travelIconGif,
                           onTap: () {
-                            context.push(DestinationsScreen.routeName);
+                            //  context.push(DestinationsScreen.routeName);
+                            context.push(IapScreen.path);
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Vaccins voyage', isSubscriptionExpired),
                           onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),

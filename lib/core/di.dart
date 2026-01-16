@@ -87,6 +87,17 @@ import 'package:opicare/features/carnet_sante/domain/usecases/submit_vaccine_use
 import '../features/vaccins_conseils/data/datasources/vaccin_conseil_remote_datasource.dart';
 import '../features/vaccins_conseils/data/models/cible_vaccin_model.dart';
 
+// IAP
+import 'package:opicare/features/iap/data/datasources/iap_local_datasource.dart';
+import 'package:opicare/features/iap/data/datasources/iap_remote_datasource.dart';
+import 'package:opicare/features/iap/data/repositories/iap_repository_impl.dart';
+import 'package:opicare/features/iap/domain/repositories/iap_repository.dart';
+import 'package:opicare/features/iap/domain/usecases/get_products_usecase.dart';
+import 'package:opicare/features/iap/domain/usecases/purchase_product_usecase.dart';
+import 'package:opicare/features/iap/domain/usecases/restore_purchases_usecase.dart';
+import 'package:opicare/features/iap/domain/usecases/verify_purchase_usecase.dart';
+import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
+
 /// * Jun, 2025
 /// * Created by didierboka on 18/06/2025.
 /// * Author: Didier BOKA <didierboka.developer@gmail.com>
@@ -517,6 +528,53 @@ class Di {
     _getIt.registerLazySingleton<SubmitVaccineUseCase>(
       () => SubmitVaccineUseCase(_getIt<CarnetRepository>()),
     );
+
+    // region IAP (In-App Purchases)
+    // Data Sources
+    _getIt.registerLazySingleton<IapRemoteDataSource>(
+      () => IapRemoteDataSourceImpl(
+        apiService: _getIt<ApiService<dynamic>>(),
+      ),
+    );
+
+    _getIt.registerLazySingleton<IapLocalDataSource>(
+      () => IapLocalDataSourceImpl(),
+    );
+
+    // Repository
+    _getIt.registerLazySingleton<IapRepository>(
+      () => IapRepositoryImpl(
+        remoteDataSource: _getIt<IapRemoteDataSource>(),
+      ),
+    );
+
+    // Use Cases
+    _getIt.registerLazySingleton<GetProductsUseCase>(
+      () => GetProductsUseCase(_getIt<IapRepository>()),
+    );
+
+    _getIt.registerLazySingleton<PurchaseProductUseCase>(
+      () => PurchaseProductUseCase(_getIt<IapRepository>()),
+    );
+
+    _getIt.registerLazySingleton<RestorePurchasesUseCase>(
+      () => RestorePurchasesUseCase(_getIt<IapRepository>()),
+    );
+
+    _getIt.registerLazySingleton<VerifyPurchaseUseCase>(
+      () => VerifyPurchaseUseCase(_getIt<IapRepository>()),
+    );
+
+    // Bloc
+    _getIt.registerFactory<IapBloc>(
+      () => IapBloc(
+        getProductsUseCase: _getIt<GetProductsUseCase>(),
+        purchaseProductUseCase: _getIt<PurchaseProductUseCase>(),
+        restorePurchasesUseCase: _getIt<RestorePurchasesUseCase>(),
+        verifyPurchaseUseCase: _getIt<VerifyPurchaseUseCase>(),
+      ),
+    );
+    // endregion
   }
 
   /// Méthodes utilitaires pour accéder aux dépendances
