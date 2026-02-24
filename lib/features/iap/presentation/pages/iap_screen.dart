@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_event.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_state.dart';
 import 'package:opicare/features/iap/presentation/widgets/product_card.dart';
+
+import '../../../../core/helpers/ui_helpers.dart';
 
 /// * Jan, 2025
 /// * Created by didierboka
@@ -24,10 +27,10 @@ class IapScreen extends StatelessWidget {
   const IapScreen({
     super.key,
     this.productIds = const [
-      'opicare_sub_standard_yearly',
-      'opicare_sub_premium_yearly',
-      'opicare_sub_business_yearly',
-      'opicare_sub_serenity_yearly',
+      'opicare_abnmt_standard_yearly',
+      'opicare_abnmt_premium_yearly',
+      'opicare_abnmt_business_yearly',
+      'opicare_abnmt_serenity_yearly',
     ],
   });
 
@@ -35,15 +38,18 @@ class IapScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Achats In-App'),
+        title: const Text('Souscription'),
         backgroundColor: Colours.background,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.restore),
-            onPressed: () {
-              context.read<IapBloc>().add(const RestorePurchases());
-            },
-            tooltip: 'Restaurer les achats',
+          Visibility(
+            visible: true,
+            child: IconButton(
+              icon: const Icon(Icons.restore),
+              onPressed: () {
+                context.read<IapBloc>().add(const RestorePurchases());
+              },
+              tooltip: 'Restaurer les achats',
+            ),
           ),
         ],
       ),
@@ -56,21 +62,27 @@ class IapScreen extends StatelessWidget {
                 backgroundColor: Colors.red,
               ),
             );
-          } else if (state is IapPurchaseSuccess) {
+          }
+
+          if (state is IapPurchaseSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Achat réussi !'),
                 backgroundColor: Colors.green,
               ),
             );
-          } else if (state is IapRestoreSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('${state.purchases.length} achat(s) restauré(s)'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          } else if (state is IapVerificationSuccess) {
+          }
+
+           if (state is IapRestoreSuccess) {
+             ScaffoldMessenger.of(context).showSnackBar(
+               SnackBar(
+                 content: Text('${state.purchases.length} achat(s) restauré(s)'),
+                 backgroundColor: Colors.green,
+               ),
+             );
+           }
+
+          if (state is IapVerificationSuccess) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text('Achat vérifié avec succès !'),
@@ -80,11 +92,17 @@ class IapScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          if (state is IapLoading || state is IapPurchasing || state is IapRestoring || state is IapVerifying) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+          //  if (state is IapLoading || state is IapPurchasing || state is IapRestoring || state is IapVerifying) {
+          //    WidgetsBinding.instance.addPostFrameCallback((_) {
+          //      showLoader(context, true);
+          //    });
+          //  }
+
+          // if (state is IapVerifying) {
+          //   WidgetsBinding.instance.addPostFrameCallback((_) {
+          //     showLoader(context, true);
+          //   });
+          // }
 
           if (state is IapProductsLoaded) {
             if (state.products.isEmpty) {
@@ -92,6 +110,8 @@ class IapScreen extends StatelessWidget {
                 child: Text('Aucun produit disponible'),
               );
             }
+
+            // showLoader(context, false);
 
             return ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -104,6 +124,7 @@ class IapScreen extends StatelessWidget {
                     product: product,
                     onPurchase: () {
                       context.read<IapBloc>().add(PurchaseProduct(productId: product.id));
+                      // DebugLogger.info("Which subscription => ${product.id} : ${product.price} : ${product.priceString}");
                     },
                   ),
                 );
@@ -130,9 +151,7 @@ class IapScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<IapBloc>().add(
-                            LoadProducts(productIds: productIds),
-                          );
+                      context.read<IapBloc>().add(LoadProducts(productIds: productIds));
                     },
                     child: const Text('Réessayer'),
                   ),
@@ -146,10 +165,11 @@ class IapScreen extends StatelessWidget {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.read<IapBloc>().add(LoadProducts(productIds: productIds));
             });
+
           }
 
           return const Center(
-            child: Text('Chargement...'),
+            child: Text('Chargement des abonnements...'),
           );
         },
       ),

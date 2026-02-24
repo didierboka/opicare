@@ -15,15 +15,18 @@ class LoginForm extends StatefulWidget {
   @override
   State<LoginForm> createState() => _LoginFormState();
 }
+
+
 class _LoginFormState extends State<LoginForm> {
+
 
   final formKey = GlobalKey<FormState>();
   //  final emailOrPhoneController = TextEditingController(text: 'noeletc@yahoo.fr');
   //  final passwordController = TextEditingController(text: '1963');
-
   final emailOrPhoneController = TextEditingController();
   final passwordController = TextEditingController();
   bool rememberMe = false;
+
 
   @override
   void dispose() {
@@ -31,6 +34,7 @@ class _LoginFormState extends State<LoginForm> {
     passwordController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -111,4 +115,5 @@ class _LoginFormState extends State<LoginForm> {
       ),
     );
   }
+
 }

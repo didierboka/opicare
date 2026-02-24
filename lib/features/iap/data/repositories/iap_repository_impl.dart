@@ -19,21 +19,38 @@ import 'package:opicare/features/iap/domain/repositories/iap_repository.dart';
 ///
 /// Implémentation du repository pour la gestion des achats in-app
 
+/// Message utilisateur lorsque aucun compte Apple/Sandbox n'est connecté (évite l'erreur 509).
+const String _noActiveAccountMessage =
+    'Les achats in-app ne sont pas disponibles. Connectez-vous avec un compte Apple dans Réglages > App Store (ou utilisez un compte de test Sandbox).';
+
 class IapRepositoryImpl implements IapRepository {
   final iap.InAppPurchase _inAppPurchase;
   final IapRemoteDataSource _remoteDataSource;
-  
-  final StreamController<PurchaseEntity> _purchaseUpdatesController =
-      StreamController<PurchaseEntity>.broadcast();
-  
+
+  final StreamController<PurchaseEntity> _purchaseUpdatesController = StreamController<PurchaseEntity>.broadcast();
+
   StreamSubscription<List<iap.PurchaseDetails>>? _purchaseSubscription;
 
-  IapRepositoryImpl({
-    required IapRemoteDataSource remoteDataSource,
-    iap.InAppPurchase? inAppPurchase,
-  })  : _inAppPurchase = inAppPurchase ?? iap.InAppPurchase.instance,
-        _remoteDataSource = remoteDataSource {
+  /// Stream initialisé uniquement quand nécessaire (évite l'erreur 509 au démarrage).
+  bool _purchaseStreamInitialized = false;
+  /// Mis à true si le stream signale "No active account" (iOS).
+  bool _storeUnavailableNoAccount = false;
+
+  IapRepositoryImpl({required IapRemoteDataSource remoteDataSource, iap.InAppPurchase? inAppPurchase})  : _inAppPurchase = inAppPurchase ?? iap.InAppPurchase.instance, _remoteDataSource = remoteDataSource {}
+
+  /// S'abonne au stream des achats seulement si le store est disponible et pas encore initialisé.
+  Future<void> _ensurePurchaseStreamInitialized() async {
+    if (_purchaseStreamInitialized) return;
+    if (_storeUnavailableNoAccount) return;
+    final bool available = await _inAppPurchase.isAvailable();
+    if (!available) return;
     _initPurchaseUpdates();
+    _purchaseStreamInitialized = true;
+  }
+
+  static bool _isNoActiveAccountError(Object error) {
+    final String s = error.toString();
+    return s.contains('No active account') || s.contains('509');
   }
 
   void _initPurchaseUpdates() {
@@ -43,13 +60,12 @@ class IapRepositoryImpl implements IapRepository {
         DebugLogger.info('📨 ${purchases.length} mise(s) à jour d\'achat(s) reçue(s)');
         for (final purchase in purchases) {
           DebugLogger.info('   Produit: ${purchase.productID}, Statut: ${purchase.status}');
-          
+
           final purchaseModel = PurchaseModel.fromPurchaseDetails(purchase);
           _purchaseUpdatesController.add(purchaseModel.toEntity());
-          
+
           // Finaliser l'achat si nécessaire
-          if (purchase.status == iap.PurchaseStatus.purchased ||
-              purchase.status == iap.PurchaseStatus.pending) {
+          if (purchase.status == iap.PurchaseStatus.purchased || purchase.status == iap.PurchaseStatus.pending) {
             DebugLogger.info('✅ Finalisation de l\'achat pour: ${purchase.productID}');
             _inAppPurchase.completePurchase(purchase);
           } else if (purchase.status == iap.PurchaseStatus.error) {
@@ -60,32 +76,58 @@ class IapRepositoryImpl implements IapRepository {
         }
       },
       onError: (error) {
-        DebugLogger.error('❌ Erreur dans le stream des achats: $error');
-        _purchaseUpdatesController.addError(error);
+        if (_isNoActiveAccountError(error)) {
+          _storeUnavailableNoAccount = true;
+          DebugLogger.warning(
+            '⚠️ Compte App Store non connecté (No active account). '
+            'Connectez-vous dans Réglages > App Store ou utilisez un compte Sandbox.',
+          );
+        } else {
+          DebugLogger.error('❌ Erreur dans le stream des achats: $error');
+          _purchaseUpdatesController.addError(error);
+        }
       },
     );
   }
 
   @override
-  Future<Either<Failure, List<ProductEntity>>> getProducts({
-    required List<String> productIds,
-  }) async {
+  Future<Either<Failure, List<ProductEntity>>> getProducts({required List<String> productIds}) async {
     try {
+      if (_storeUnavailableNoAccount) {
+        return const Left(NetworkFailure(_noActiveAccountMessage));
+      }
+
       DebugLogger.info('🔍 Vérification de la disponibilité des achats in-app...');
       final bool available = await _inAppPurchase.isAvailable();
+
       if (!available) {
         DebugLogger.error('❌ Les achats in-app ne sont pas disponibles sur cet appareil');
-        return const Left(NetworkFailure('Les achats in-app ne sont pas disponibles'));
+        return const Left(NetworkFailure(_noActiveAccountMessage));
+      }
+
+      await _ensurePurchaseStreamInitialized();
+
+      if (_storeUnavailableNoAccount) {
+        return const Left(NetworkFailure(_noActiveAccountMessage));
       }
 
       DebugLogger.info('✅ Achats in-app disponibles');
       DebugLogger.info('📦 Demande de ${productIds.length} produit(s): ${productIds.join(", ")}');
-      
-      final iap.ProductDetailsResponse response =
-          await _inAppPurchase.queryProductDetails(productIds.toSet());
+
+      DebugLogger.info("Products passed on params => ${productIds.toSet()}");
+
+      final iap.ProductDetailsResponse response = await _inAppPurchase.queryProductDetails(productIds.toSet());
+
+      DebugLogger.info('🆔 => ${response.productDetails.join(", ")}');
+      DebugLogger.info('🆔 => ${response.productDetails}');
+      DebugLogger.info('notFoundIDs => ${response.notFoundIDs}');
 
       if (response.error != null) {
         final errorMessage = response.error?.message ?? 'Erreur lors de la récupération des produits';
+        if (_isNoActiveAccountError(errorMessage)) {
+          _storeUnavailableNoAccount = true;
+          return const Left(NetworkFailure(_noActiveAccountMessage));
+        }
         DebugLogger.error('❌ Erreur lors de la récupération des produits: $errorMessage');
         DebugLogger.error('   Code d\'erreur: ${response.error?.code}');
         return Left(ServerFailure(errorMessage));
@@ -102,15 +144,20 @@ class IapRepositoryImpl implements IapRepository {
 
       DebugLogger.success('✅ ${products.length} produit(s) récupéré(s) avec succès');
       for (final product in products) {
-        DebugLogger.info('   - ${product.id}: ${product.title} (${product.priceString})');
+        DebugLogger.info('   - ${product.id}: ${product.description} ${product.title} (${product.priceString})');
       }
       
       return Right(products);
     } catch (e) {
+      if (_isNoActiveAccountError(e)) {
+        _storeUnavailableNoAccount = true;
+        return const Left(NetworkFailure(_noActiveAccountMessage));
+      }
       DebugLogger.error('❌ Exception lors de la récupération des produits: $e');
       return Left(ServerFailure('Erreur lors de la récupération des produits: $e'));
     }
   }
+
 
   @override
   Future<Either<Failure, PurchaseEntity>> purchaseProduct({
@@ -118,11 +165,20 @@ class IapRepositoryImpl implements IapRepository {
   }) async {
     try {
       DebugLogger.info('🛒 Initiation de l\'achat pour le produit: $productId');
-      
+
+      if (_storeUnavailableNoAccount) {
+        return const Left(NetworkFailure(_noActiveAccountMessage));
+      }
+
       final bool available = await _inAppPurchase.isAvailable();
       if (!available) {
         DebugLogger.error('❌ Les achats in-app ne sont pas disponibles');
-        return const Left(NetworkFailure('Les achats in-app ne sont pas disponibles'));
+        return const Left(NetworkFailure(_noActiveAccountMessage));
+      }
+
+      await _ensurePurchaseStreamInitialized();
+      if (_storeUnavailableNoAccount) {
+        return const Left(NetworkFailure(_noActiveAccountMessage));
       }
 
       final iap.ProductDetailsResponse response =
@@ -170,15 +226,26 @@ class IapRepositoryImpl implements IapRepository {
     }
   }
 
+
   @override
   Future<Either<Failure, List<PurchaseEntity>>> restorePurchases() async {
     try {
       DebugLogger.info('🔄 Restauration des achats...');
-      
+
+      if (_storeUnavailableNoAccount) {
+        return const Left(NetworkFailure(_noActiveAccountMessage));
+      }
+
       final bool available = await _inAppPurchase.isAvailable();
       if (!available) {
         DebugLogger.error('❌ Les achats in-app ne sont pas disponibles');
-        return const Left(NetworkFailure('Les achats in-app ne sont pas disponibles'));
+        return const Left(NetworkFailure(_noActiveAccountMessage));
+      }
+
+      await _ensurePurchaseStreamInitialized();
+
+      if (_storeUnavailableNoAccount) {
+        return const Left(NetworkFailure(_noActiveAccountMessage));
       }
 
       await _inAppPurchase.restorePurchases();
@@ -195,6 +262,7 @@ class IapRepositoryImpl implements IapRepository {
     }
   }
 
+
   @override
   Future<Either<Failure, bool>> verifyPurchase({
     required String purchaseId,
@@ -208,8 +276,10 @@ class IapRepositoryImpl implements IapRepository {
     );
   }
 
+
   @override
   Stream<PurchaseEntity> get purchaseUpdates => _purchaseUpdatesController.stream;
+
 
   void dispose() {
     _purchaseSubscription?.cancel();

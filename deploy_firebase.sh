@@ -90,7 +90,7 @@ prepare_build() {
 
 # Fonction de vérification IPA
 verify_ipa() {
-    local ipa_path="build/ios/ipa/technicien.ipa"
+    local ipa_path="build/ios/ipa/opicare.ipa"
 
     print_step "Vérification de l'IPA..."
 
@@ -137,12 +137,12 @@ build_ios() {
     # Build obligatoirement avec ad-hoc pour Firebase App Distribution
     if fvm flutter build ipa --release --export-method ad-hoc; then
         if verify_ipa; then
-            IPA_SIZE=$(du -h build/ios/ipa/technicien.ipa | cut -f1)
+            IPA_SIZE=$(du -h build/ios/ipa/opicare.ipa | cut -f1)
             print_success "Build iOS réussi avec AD-HOC (Taille: $IPA_SIZE)"
 
             # Vérifier que c'est bien un build ad-hoc
             print_step "Vérification du type de build..."
-            if unzip -p build/ios/ipa/technicien.ipa Payload/technicien.app/embedded.mobileprovision 2>/dev/null | strings | grep -q "get-task-allow.*false"; then
+            if unzip -p build/ios/ipa/opicare.ipa Payload/opicare.app/embedded.mobileprovision 2>/dev/null | strings | grep -q "get-task-allow.*false"; then
                 print_success "Profil AD-HOC confirmé"
             else
                 print_warning "Le profil pourrait ne pas être AD-HOC"
@@ -189,7 +189,7 @@ deploy_ios() {
 
     if get_release_notes; then
         # Utiliser le fichier de release notes
-        if firebase appdistribution:distribute build/ios/ipa/technicien.ipa \
+        if firebase appdistribution:distribute build/ios/ipa/opicare.ipa \
             --app "$IOS_APP_ID" \
             --groups "$TESTER_GROUPS" \
             --release-notes-file "$RELEASE_NOTES_FILE" \
@@ -202,7 +202,7 @@ deploy_ios() {
         fi
     else
         # Utiliser les release notes par défaut
-        if firebase appdistribution:distribute build/ios/ipa/technicien.ipa \
+        if firebase appdistribution:distribute build/ios/ipa/opicare.ipa \
             --app "$IOS_APP_ID" \
             --groups "$TESTER_GROUPS" \
             --release-notes "$DEFAULT_RELEASE_NOTES" \

@@ -96,6 +96,7 @@ import 'package:opicare/features/iap/domain/usecases/get_products_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/purchase_product_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/restore_purchases_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/verify_purchase_usecase.dart';
+import 'package:opicare/features/iap/domain/usecases/listen_purchase_updates_usecase.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
 
 /// * Jun, 2025
@@ -565,6 +566,10 @@ class Di {
       () => VerifyPurchaseUseCase(_getIt<IapRepository>()),
     );
 
+    _getIt.registerLazySingleton<ListenPurchaseUpdatesUseCase>(
+      () => ListenPurchaseUpdatesUseCase(_getIt<IapRepository>()),
+    );
+
     // Bloc
     _getIt.registerFactory<IapBloc>(
       () => IapBloc(
@@ -572,6 +577,7 @@ class Di {
         purchaseProductUseCase: _getIt<PurchaseProductUseCase>(),
         restorePurchasesUseCase: _getIt<RestorePurchasesUseCase>(),
         verifyPurchaseUseCase: _getIt<VerifyPurchaseUseCase>(),
+        listenPurchaseUpdatesUseCase: _getIt<ListenPurchaseUpdatesUseCase>(),
       ),
     );
     // endregion

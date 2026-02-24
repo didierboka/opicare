@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:opicare/features/iap/domain/entities/purchase_entity.dart';
 
 /// * Jan, 2025
 /// * Created by didierboka
@@ -39,6 +40,16 @@ class PurchaseProduct extends IapEvent {
 /// Restaure les achats précédents
 class RestorePurchases extends IapEvent {
   const RestorePurchases();
+}
+
+/// Événement émis lorsqu'un achat est restauré via le stream purchaseUpdates
+class PurchaseRestored extends IapEvent {
+  final PurchaseEntity purchase;
+
+  const PurchaseRestored({required this.purchase});
+
+  @override
+  List<Object?> get props => [purchase];
 }
 
 /// Vérifie un achat avec le serveur

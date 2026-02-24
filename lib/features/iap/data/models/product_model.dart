@@ -1,4 +1,5 @@
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/features/iap/domain/entities/product_entity.dart';
 
 /// * Jan, 2025
@@ -23,11 +24,15 @@ class ProductModel extends ProductEntity {
 
   /// Convertit un ProductDetails (in_app_purchase) en ProductModel
   factory ProductModel.fromProductDetails(ProductDetails productDetails) {
+
+    //  DebugLogger.log("PRODUCT PRICE -> ${productDetails.price}");
+    //  DebugLogger.log("PRODUCT RAW PRICE -> ${productDetails.rawPrice}");
+
     return ProductModel(
       id: productDetails.id,
       title: productDetails.title,
       description: productDetails.description,
-      price: double.tryParse(productDetails.price) ?? 0.0,
+      price: productDetails.rawPrice,
       priceString: productDetails.price,
       currencyCode: productDetails.currencyCode,
       productType: _getProductType(productDetails),
@@ -46,6 +51,7 @@ class ProductModel extends ProductEntity {
 
   /// Convertit en entité
   ProductEntity toEntity() {
+
     return ProductEntity(
       id: id,
       title: title,

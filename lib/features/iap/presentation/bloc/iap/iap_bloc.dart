@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/error/failures.dart';
+import 'package:opicare/features/iap/domain/entities/purchase_entity.dart';
 import 'package:opicare/features/iap/domain/usecases/get_products_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/purchase_product_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/restore_purchases_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/verify_purchase_usecase.dart';
+import 'package:opicare/features/iap/domain/usecases/listen_purchase_updates_usecase.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_event.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_state.dart';
 
@@ -23,19 +25,31 @@ class IapBloc extends Bloc<IapEvent, IapState> {
   final RestorePurchasesUseCase restorePurchasesUseCase;
   final VerifyPurchaseUseCase verifyPurchaseUseCase;
 
+  final ListenPurchaseUpdatesUseCase listenPurchaseUpdatesUseCase;
+
   StreamSubscription? _purchaseUpdatesSubscription;
+  final List<PurchaseEntity> _restoredPurchases = [];
 
   IapBloc({
     required this.getProductsUseCase,
     required this.purchaseProductUseCase,
     required this.restorePurchasesUseCase,
     required this.verifyPurchaseUseCase,
+    required this.listenPurchaseUpdatesUseCase,
   }) : super(const IapInitial()) {
     on<LoadProducts>(_onLoadProducts);
     on<PurchaseProduct>(_onPurchaseProduct);
     on<RestorePurchases>(_onRestorePurchases);
     on<VerifyPurchase>(_onVerifyPurchase);
     on<ResetIapState>(_onResetIapState);
+
+    _purchaseUpdatesSubscription = listenPurchaseUpdatesUseCase().listen(
+      (purchase) {
+        if (purchase.status == PurchaseStatus.restored) {
+          add(PurchaseRestored(purchase: purchase));
+        }
+      },
+    );
   }
 
   Future<void> _onLoadProducts(
@@ -123,6 +137,14 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     Emitter<IapState> emit,
   ) {
     emit(const IapInitial());
+  }
+
+  void _onPurchaseRestored(
+    PurchaseRestored event,
+    Emitter<IapState> emit,
+  ) {
+    _restoredPurchases.add(event.purchase);
+    emit(IapRestoreSuccess(purchases: List<PurchaseEntity>.from(_restoredPurchases)));
   }
 
   @override

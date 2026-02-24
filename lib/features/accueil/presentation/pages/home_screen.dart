@@ -171,8 +171,7 @@ class HomeScreen extends StatelessWidget {
                           title: 'Vaccins voyage',
                           imageAsset: Media.travelIconGif,
                           onTap: () {
-                            //  context.push(DestinationsScreen.routeName);
-                            context.push(IapScreen.path);
+                            context.push(DestinationsScreen.routeName);
                           },
                           isDisabled: SubscriptionHelper.shouldDisableOption('Vaccins voyage', isSubscriptionExpired),
                           onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
@@ -194,13 +193,13 @@ class HomeScreen extends StatelessWidget {
                           isDisabled: SubscriptionHelper.shouldDisableOption('Informations sur les vaccins', isSubscriptionExpired),
                           onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
                         ),
-                        //  OptionCard(
-                        //    title: 'Mon abonnement',
-                        //    imageAsset: Media.subscriptionIconGif,
-                        //    onTap: () => context.go(SouscriptionScreen.path),
-                        //    isDisabled: SubscriptionHelper.shouldDisableOption('Mon abonnement', isSubscriptionExpired),
-                        //    onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
-                        //  ),
+                         OptionCard(
+                           title: 'Mon abonnement',
+                           imageAsset: Media.subscriptionIconGif,
+                           onTap: () => context.push(IapScreen.path),
+                           isDisabled: SubscriptionHelper.shouldDisableOption('Mon abonnement', isSubscriptionExpired),
+                           onDisabledTap: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
+                         ),
                         OptionCard(
                           title: 'Ma famille',
                           imageAsset: Media.familyIconGif,
