@@ -20,13 +20,14 @@ class PurchaseModel extends PurchaseEntity {
     super.errorMessage,
   });
 
-  /// Convertit un PurchaseDetails (in_app_purchase) en PurchaseModel
+  /// Convertit un PurchaseDetails (in_app_purchase) en PurchaseModel.
+  /// serverVerificationData = purchase token (Google) ou receipt (Apple) pour la vérification serveur.
   factory PurchaseModel.fromPurchaseDetails(iap.PurchaseDetails purchaseDetails) {
     return PurchaseModel(
       productId: purchaseDetails.productID,
       purchaseId: purchaseDetails.purchaseID ?? '',
       transactionDate: purchaseDetails.transactionDate ?? DateTime.now().toIso8601String(),
-      verificationData: purchaseDetails.verificationData.source,
+      verificationData: purchaseDetails.verificationData.serverVerificationData,
       status: _mapPurchaseStatus(purchaseDetails.status),
       errorMessage: purchaseDetails.error?.message,
     );
@@ -41,9 +42,10 @@ class PurchaseModel extends PurchaseEntity {
         return PurchaseStatus.purchased;
       case iap.PurchaseStatus.error:
         return PurchaseStatus.error;
-      default:
-        // Pour les autres cas (restored, etc.)
-        return PurchaseStatus.purchased;
+      case iap.PurchaseStatus.restored:
+        return PurchaseStatus.restored;
+      case iap.PurchaseStatus.canceled:
+        return PurchaseStatus.cancelled;
     }
   }
 

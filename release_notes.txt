@@ -1,8 +1,7 @@
-🚀 Version 1.0.16 version 16
+🚀 Version 1.0.1 version 5
 
 🎉 Fonctionnalites
-✅ Paiement CinetPay officiel
-✅ Abonnement par CARTE DE CREDIT effectif.
+✅ Integration In App Purchases (IAP)
 
 ✏️ Corrections
 

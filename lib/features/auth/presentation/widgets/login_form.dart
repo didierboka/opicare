@@ -23,8 +23,8 @@ class _LoginFormState extends State<LoginForm> {
   final formKey = GlobalKey<FormState>();
   //  final emailOrPhoneController = TextEditingController(text: 'noeletc@yahoo.fr');
   //  final passwordController = TextEditingController(text: '1963');
-  final emailOrPhoneController = TextEditingController();
-  final passwordController = TextEditingController();
+  final emailOrPhoneController = TextEditingController(text: "22064240");
+  final passwordController = TextEditingController(text: "8672");
   bool rememberMe = false;
 
 

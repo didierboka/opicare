@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:opicare/core/error/failures.dart';
+import 'package:opicare/features/iap/domain/entities/active_subscription_entity.dart';
 import 'package:opicare/features/iap/domain/entities/product_entity.dart';
 import 'package:opicare/features/iap/domain/entities/purchase_entity.dart';
 
@@ -29,6 +30,21 @@ class IapLoading extends IapState {
   const IapLoading();
 }
 
+/// Abonnement déjà actif : afficher la vue "déjà abonné" avec jours restants.
+/// [fromRestoreOrFirstPurchase] true = après achat/restauration (bouton → login, pas de croix).
+class IapActiveSubscription extends IapState {
+  final ActiveSubscriptionEntity subscription;
+  final bool fromRestoreOrFirstPurchase;
+
+  const IapActiveSubscription({
+    required this.subscription,
+    this.fromRestoreOrFirstPurchase = false,
+  });
+
+  @override
+  List<Object?> get props => [subscription, fromRestoreOrFirstPurchase];
+}
+
 /// Produits chargés avec succès
 class IapProductsLoaded extends IapState {
   final List<ProductEntity> products;
@@ -49,14 +65,25 @@ class IapPurchasing extends IapState {
   List<Object?> get props => [productId];
 }
 
-/// Achat réussi
+/// Achat réussi (après validation serveur). [daysRemaining] pour affichage sur l'écran de félicitations.
 class IapPurchaseSuccess extends IapState {
   final PurchaseEntity purchase;
+  final int daysRemaining;
 
-  const IapPurchaseSuccess({required this.purchase});
+  const IapPurchaseSuccess({required this.purchase, this.daysRemaining = 0});
 
   @override
-  List<Object?> get props => [purchase];
+  List<Object?> get props => [purchase, daysRemaining];
+}
+
+/// Achat annulé ou échoué (vue dédiée, pas l'écran d'erreur générique)
+class IapPurchaseFailed extends IapState {
+  final String message;
+
+  const IapPurchaseFailed({required this.message});
+
+  @override
+  List<Object?> get props => [message];
 }
 
 /// Restauration en cours

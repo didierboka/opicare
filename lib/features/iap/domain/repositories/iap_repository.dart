@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:opicare/core/error/error.dart';
+import 'package:opicare/features/iap/domain/entities/active_subscription_entity.dart';
 import 'package:opicare/features/iap/domain/entities/product_entity.dart';
 import 'package:opicare/features/iap/domain/entities/purchase_entity.dart';
 
@@ -13,6 +14,9 @@ import 'package:opicare/features/iap/domain/entities/purchase_entity.dart';
 /// Interface du repository pour la gestion des achats in-app
 
 abstract class IapRepository {
+  /// Récupère l'abonnement actif enregistré (s'il existe et n'est pas expiré)
+  Future<Either<Failure, ActiveSubscriptionEntity?>> getActiveSubscription();
+
   /// Récupère la liste des produits disponibles
   Future<Either<Failure, List<ProductEntity>>> getProducts({
     required List<String> productIds,
@@ -31,6 +35,8 @@ abstract class IapRepository {
     required String purchaseId,
     required String productId,
     required String verificationData,
+    double? amount,
+    String? currencyCode,
   });
 
   /// Écoute les mises à jour des achats

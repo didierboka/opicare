@@ -30,11 +30,17 @@ class LoadProducts extends IapEvent {
 /// Effectue un achat
 class PurchaseProduct extends IapEvent {
   final String productId;
+  final double amount;
+  final String currencyCode;
 
-  const PurchaseProduct({required this.productId});
+  const PurchaseProduct({
+    required this.productId,
+    required this.amount,
+    required this.currencyCode,
+  });
 
   @override
-  List<Object?> get props => [productId];
+  List<Object?> get props => [productId, amount, currencyCode];
 }
 
 /// Restaure les achats précédents
@@ -52,20 +58,38 @@ class PurchaseRestored extends IapEvent {
   List<Object?> get props => [purchase];
 }
 
-/// Vérifie un achat avec le serveur
+/// Événement émis à chaque mise à jour d'achat (stream) pour gérer purchased / cancelled / error
+class PurchaseUpdateReceived extends IapEvent {
+  final PurchaseEntity purchase;
+
+  const PurchaseUpdateReceived({required this.purchase});
+
+  @override
+  List<Object?> get props => [purchase];
+}
+
+/// Vérifie un achat avec le serveur (validation backend).
+/// Si [purchase] est fourni, c'est le flow "completion" : on n'affiche l'écran de félicitations qu'après succès API.
 class VerifyPurchase extends IapEvent {
   final String purchaseId;
   final String productId;
   final String verificationData;
+  final double? amount;
+  final String? currencyCode;
+  /// Purchase concerné (flow completion) : après succès API on émet IapPurchaseSuccess(purchase).
+  final PurchaseEntity? purchase;
 
   const VerifyPurchase({
     required this.purchaseId,
     required this.productId,
     required this.verificationData,
+    this.amount,
+    this.currencyCode,
+    this.purchase,
   });
 
   @override
-  List<Object?> get props => [purchaseId, productId, verificationData];
+  List<Object?> get props => [purchaseId, productId, verificationData, amount, currencyCode, purchase];
 }
 
 /// Réinitialise l'état

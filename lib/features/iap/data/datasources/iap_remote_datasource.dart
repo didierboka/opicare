@@ -1,7 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/core/helpers/debug_logger.dart';
+import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/core/network/api_service.dart';
+import 'package:opicare/core/utils/currency_converter.dart';
 
 /// * Jan, 2025
 /// * Created by didierboka
@@ -18,37 +20,66 @@ abstract class IapRemoteDataSource {
     required String purchaseId,
     required String productId,
     required String verificationData,
+    double? amount,
+    String? currencyCode,
   });
 }
 
 class IapRemoteDataSourceImpl implements IapRemoteDataSource {
   final ApiService<dynamic> apiService;
+  final LocalStorageService localStorageService;
 
-  IapRemoteDataSourceImpl({required this.apiService});
+  IapRemoteDataSourceImpl({
+    required this.apiService,
+    required this.localStorageService,
+  });
 
   @override
   Future<Either<Failure, bool>> verifyPurchase({
     required String purchaseId,
     required String productId,
     required String verificationData,
+    double? amount,
+    String? currencyCode,
   }) async {
     try {
       DebugLogger.info('Vérification de l\'achat: $productId');
-      
+
+      int idpat = 0;
+      final user = await localStorageService.getSavedUser();
+      if (user != null && user.patID.isNotEmpty) {
+        idpat = int.tryParse(user.patID) ?? 0;
+      }
+
       // Préparer les données à envoyer au backend
-      final requestData = {
+      final requestData = <String, dynamic>{
         'purchase_id': purchaseId,
         'product_id': productId,
         'verification_data': verificationData,
-        // Ajoutez d'autres données si nécessaire (ex: user_id, timestamp, etc.)
+        'idpat': idpat,
       };
-      
-      // Appel API pour vérifier l'achat avec le backend
-      // Remplacez '/api/iap/verify' par l'endpoint réel de votre API
+
+      // Montant attendu côté backend.
+      // On tente de convertir en FCFA (XOF). Si échec, on envoie le montant original.
+      if (amount != null) {
+        final from = (currencyCode ?? '').toUpperCase().trim();
+        final double? xof = from.isEmpty
+            ? null
+            : await CurrencyConverter.instance.convertToXof(
+                amount: amount,
+                fromCurrency: from,
+              );
+        requestData['montant'] = (xof ?? amount).round();
+      }
+      DebugLogger.info('Payload /iap/verify: $requestData');
+
+      // API officielle de validation après paiement store (sans /user dans le path).
+      // baseUrl IAP = api/v1/ → URL finale: .../api/v1/iap/verify
+      const verifyEndpoint = 'iap/verify';
       final response = await apiService.post(
-        '/api/iap/verify', // TODO: Remplacer par votre endpoint réel
+        verifyEndpoint,
         requestData,
-        useFormData: false, // Utiliser JSON au lieu de form-data
+        useFormData: false,
       );
       
       // Vérifier le statut de la réponse
@@ -58,11 +89,11 @@ class IapRemoteDataSourceImpl implements IapRemoteDataSource {
       } else {
         final errorMessage = response.message ?? 'Échec de la vérification de l\'achat';
         DebugLogger.error('Échec de la vérification: $errorMessage');
-        return Left(ServerFailure(errorMessage));
+        return const Left(ServerFailure('Impossible de vérifier l\'achat. Réessayez plus tard.'));
       }
     } catch (e) {
       DebugLogger.error('Erreur lors de la vérification de l\'achat: $e');
-      return Left(ServerFailure('Erreur lors de la vérification de l\'achat: $e'));
+      return const Left(ServerFailure('Impossible de vérifier l\'achat. Réessayez plus tard.'));
     }
   }
 }

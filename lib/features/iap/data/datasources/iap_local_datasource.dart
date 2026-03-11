@@ -21,10 +21,18 @@ abstract class IapLocalDataSource {
 
   /// Supprime un achat
   Future<void> deletePurchase(String purchaseId);
+
+  /// Enregistre l'abonnement actif (produit + date d'expiration)
+  Future<void> saveActiveSubscription({required String productId, required DateTime expiryDate});
+
+  /// Récupère l'abonnement actif s'il existe et n'est pas expiré
+  Future<({String productId, DateTime expiryDate})?> getActiveSubscription();
 }
 
 class IapLocalDataSourceImpl implements IapLocalDataSource {
   static const String _purchasesKey = 'iap_purchases';
+  static const String _activeProductIdKey = 'iap_active_product_id';
+  static const String _activeExpiryKey = 'iap_active_expiry_iso';
 
   IapLocalDataSourceImpl();
 
@@ -91,6 +99,39 @@ class IapLocalDataSourceImpl implements IapLocalDataSource {
     } catch (e) {
       DebugLogger.error('Erreur lors de la suppression de l\'achat: $e');
       rethrow;
+    }
+  }
+
+  @override
+  Future<void> saveActiveSubscription({required String productId, required DateTime expiryDate}) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_activeProductIdKey, productId);
+      await prefs.setString(_activeExpiryKey, expiryDate.toIso8601String());
+      DebugLogger.info('Abonnement actif enregistré: $productId jusqu\'au ${expiryDate.toIso8601String()}');
+    } catch (e) {
+      DebugLogger.error('Erreur sauvegarde abonnement actif: $e');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<({String productId, DateTime expiryDate})?> getActiveSubscription() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final productId = prefs.getString(_activeProductIdKey);
+      final expiryStr = prefs.getString(_activeExpiryKey);
+      if (productId == null || productId.isEmpty || expiryStr == null || expiryStr.isEmpty) {
+        return null;
+      }
+      final expiryDate = DateTime.tryParse(expiryStr);
+      if (expiryDate == null || expiryDate.isBefore(DateTime.now())) {
+        return null;
+      }
+      return (productId: productId, expiryDate: expiryDate);
+    } catch (e) {
+      DebugLogger.error('Erreur récupération abonnement actif: $e');
+      return null;
     }
   }
 }

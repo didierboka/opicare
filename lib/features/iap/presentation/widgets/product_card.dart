@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opicare/core/res/styles/colours.dart';
+import 'package:opicare/core/utils/currency_converter.dart';
 import 'package:opicare/features/iap/domain/entities/product_entity.dart';
 
 /// * Jan, 2025
@@ -58,14 +59,32 @@ class ProductCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Text(
-                  product.priceString,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      product.priceString,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    _CfaPriceLine(product: product),
+                    IconButton(
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Produit : ${product.title}'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        },
+                        icon: Icon(Icons.info)
+                    )
+                  ],
+                )
               ],
             ),
             const SizedBox(height: 16),
@@ -74,7 +93,7 @@ class ProductCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: onPurchase,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colours.secondaryText,
+                  backgroundColor: Colours.homeCardSecondaryBlue,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -93,6 +112,51 @@ class ProductCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _CfaPriceLine extends StatelessWidget {
+  final ProductEntity product;
+
+  const _CfaPriceLine({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final currency = product.currencyCode.toUpperCase().trim();
+    final isAlreadyCfa = currency == 'XOF' || currency == 'XAF';
+
+    if (isAlreadyCfa) {
+      return Text(
+        CurrencyConverter.formatFcfa(product.price),
+        style: TextStyle(
+          fontSize: 13,
+          color: Colors.grey[700],
+          fontWeight: FontWeight.w600,
+        ),
+      );
+    }
+
+    return FutureBuilder<double?>(
+      future: CurrencyConverter.instance.convertToXof(
+        amount: product.price,
+        fromCurrency: currency,
+      ),
+      builder: (context, snapshot) {
+        final xof = snapshot.data;
+        if (xof == null) {
+          return const SizedBox.shrink();
+        }
+
+        return Text(
+          '≈ ${CurrencyConverter.formatFcfa(xof)}',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey[700],
+            fontWeight: FontWeight.w600,
+          ),
+        );
+      },
     );
   }
 }

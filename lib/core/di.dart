@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/core/network/api_service.dart';
+import 'package:opicare/core/constants/api_url.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
 import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
@@ -92,6 +93,7 @@ import 'package:opicare/features/iap/data/datasources/iap_local_datasource.dart'
 import 'package:opicare/features/iap/data/datasources/iap_remote_datasource.dart';
 import 'package:opicare/features/iap/data/repositories/iap_repository_impl.dart';
 import 'package:opicare/features/iap/domain/repositories/iap_repository.dart';
+import 'package:opicare/features/iap/domain/usecases/get_active_subscription_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/get_products_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/purchase_product_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/restore_purchases_usecase.dart';
@@ -531,10 +533,19 @@ class Di {
     );
 
     // region IAP (In-App Purchases)
+    // ApiService pour IAP (base sans /user → .../api/v1/iap/verify)
+    _getIt.registerLazySingleton<ApiService<dynamic>>(
+      () => ApiService<dynamic>(
+        fromJson: (json) => true,
+        baseUrl: ApiUrl.prodApiV1,
+      ),
+      instanceName: 'iap',
+    );
     // Data Sources
     _getIt.registerLazySingleton<IapRemoteDataSource>(
       () => IapRemoteDataSourceImpl(
-        apiService: _getIt<ApiService<dynamic>>(),
+        apiService: _getIt<ApiService<dynamic>>(instanceName: 'iap'),
+        localStorageService: _getIt<LocalStorageService>(),
       ),
     );
 
@@ -546,6 +557,7 @@ class Di {
     _getIt.registerLazySingleton<IapRepository>(
       () => IapRepositoryImpl(
         remoteDataSource: _getIt<IapRemoteDataSource>(),
+        localDataSource: _getIt<IapLocalDataSource>(),
       ),
     );
 
@@ -570,10 +582,15 @@ class Di {
       () => ListenPurchaseUpdatesUseCase(_getIt<IapRepository>()),
     );
 
+    _getIt.registerLazySingleton<GetActiveSubscriptionUseCase>(
+      () => GetActiveSubscriptionUseCase(_getIt<IapRepository>()),
+    );
+
     // Bloc
     _getIt.registerFactory<IapBloc>(
       () => IapBloc(
         getProductsUseCase: _getIt<GetProductsUseCase>(),
+        getActiveSubscriptionUseCase: _getIt<GetActiveSubscriptionUseCase>(),
         purchaseProductUseCase: _getIt<PurchaseProductUseCase>(),
         restorePurchasesUseCase: _getIt<RestorePurchasesUseCase>(),
         verifyPurchaseUseCase: _getIt<VerifyPurchaseUseCase>(),
