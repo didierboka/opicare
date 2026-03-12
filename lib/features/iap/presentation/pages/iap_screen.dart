@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/constants/app_legal_urls.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
@@ -8,6 +9,7 @@ import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_event.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_state.dart';
 import 'package:opicare/features/iap/presentation/widgets/product_card.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// * Jan, 2025
 /// * Created by didierboka
@@ -91,6 +93,7 @@ class IapScreen extends StatelessWidget {
         buildWhen: (previous, current) =>
             current is IapInitial ||
             current is IapLoading ||
+            current is IapPurchasing ||
             current is IapVerifying ||
             current is IapProductsLoaded ||
             current is IapError ||
@@ -98,6 +101,9 @@ class IapScreen extends StatelessWidget {
             current is IapPurchaseFailed ||
             current is IapActiveSubscription,
         builder: (context, state) {
+          if (state is IapPurchasing) {
+            return const _PurchasingContent();
+          }
           if (state is IapVerifying) {
             return const _ValidatingPurchaseContent();
           }
@@ -137,26 +143,36 @@ class IapScreen extends StatelessWidget {
 
             // showLoader(context, false);
 
-            return ListView.builder(
+            return ListView(
               padding: const EdgeInsets.all(16),
-              itemCount: state.products.length,
-              itemBuilder: (context, index) {
-                final product = state.products[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: ProductCard(
-                    product: product,
-                    onPurchase: () {
-                      context.read<IapBloc>().add(PurchaseProduct(
-                            productId: product.id,
-                            amount: product.price,
-                            currencyCode: product.currencyCode,
-                          ));
-                      // DebugLogger.info("Which subscription => ${product.id} : ${product.price} : ${product.priceString}");
-                    },
-                  ),
-                );
-              },
+              children: [
+                ...List.generate(
+                  state.products.length,
+                  (index) {
+                    final product = state.products[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: ProductCard(
+                        product: product,
+                        onPurchase: () {
+                          // Délai d'une frame pour que l'UI se mette à jour (feedback visuel)
+                          // et que le contexte de présentation soit correct sur iPad.
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (context.mounted) {
+                              context.read<IapBloc>().add(PurchaseProduct(
+                                    productId: product.id,
+                                    amount: product.price,
+                                    currencyCode: product.currencyCode,
+                                  ));
+                            }
+                          });
+                        },
+                      ),
+                    );
+                  },
+                ),
+                const _LegalLinksFooter(),
+              ],
             );
           }
 
@@ -207,6 +223,30 @@ class IapScreen extends StatelessWidget {
   }
 }
 
+/// Vue affichée pendant l'ouverture du flux d'achat (bouton « Souscrire » appuyé).
+/// Requis pour que l'utilisateur ait un retour visuel immédiat, notamment sur iPad.
+class _PurchasingContent extends StatelessWidget {
+  const _PurchasingContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 24),
+          Text(
+            'Ouverture du paiement...',
+            style: TextStyle(fontSize: 16, color: Colours.secondaryText),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Vue affichée pendant la validation du paiement côté serveur (avant l'écran de félicitations).
 class _ValidatingPurchaseContent extends StatelessWidget {
   const _ValidatingPurchaseContent();
@@ -223,6 +263,69 @@ class _ValidatingPurchaseContent extends StatelessWidget {
             'Validation du paiement en cours...',
             style: TextStyle(fontSize: 16, color: Colours.secondaryText),
             textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pied de page avec liens Conditions d'utilisation et Politique de confidentialité (Guideline 3.1.2(c)).
+class _LegalLinksFooter extends StatelessWidget {
+  const _LegalLinksFooter();
+
+  Future<void> _openUrl(BuildContext context, String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null || !await canLaunchUrl(uri)) return;
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24, bottom: 16),
+      child: Column(
+        children: [
+          Text(
+            'En souscrivant, vous acceptez nos :',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colours.secondaryText,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              InkWell(
+                onTap: () => _openUrl(context, AppLegalUrls.termsOfUse),
+                child: Text(
+                  'Conditions d\'utilisation (EULA)',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colours.primaryBlue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              Text(
+                '•',
+                style: TextStyle(fontSize: 12, color: Colours.secondaryText),
+              ),
+              InkWell(
+                onTap: () => _openUrl(context, AppLegalUrls.privacyPolicy),
+                child: Text(
+                  'Politique de confidentialité',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colours.primaryBlue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
