@@ -22,6 +22,93 @@ class ProductCard extends StatelessWidget {
     required this.onPurchase,
   });
 
+  String _planLabelFromProductId(String productId) {
+    switch (productId) {
+      case 'opicare_abnmt_standard_yearly':
+        return 'STANDARD';
+      case 'opicare_abnmt_premium_yearly':
+        return 'PREMIUM';
+      case 'opicare_abnmt_business_yearly':
+        return 'BUSINESS';
+      case 'opicare_abnmt_serenity_yearly':
+        return 'SERENITY';
+      default:
+        return product.title.toUpperCase();
+    }
+  }
+
+  List<String> _benefitsFromProductId(String productId) {
+    switch (productId) {
+      case 'opicare_abnmt_standard_yearly':
+        return const [
+          '1 an',
+        ];
+      case 'opicare_abnmt_premium_yearly':
+        return const [
+          '1 an',
+          'Accès en ligne',
+          '2 SMS de rappel',
+          'Info santé',
+        ];
+      case 'opicare_abnmt_business_yearly':
+        return const [
+          '1 an',
+          'Accès en ligne',
+          '3 SMS de rappel',
+          'Info santé',
+          'Appel vocal',
+        ];
+      case 'opicare_abnmt_serenity_yearly':
+        return const [
+          '1 an',
+          'Accès en ligne',
+          '3 SMS de rappel',
+          'Info santé',
+          'Appel vocal',
+          'Duplicata offert en cas de perte',
+          'Livraison offerte (Abidjan)',
+        ];
+      default:
+        return const [
+          'Détails de la formule indisponibles.',
+        ];
+    }
+  }
+
+  Future<void> _showSubscriptionBenefits(BuildContext context) async {
+    final planLabel = _planLabelFromProductId(product.id);
+    final benefits = _benefitsFromProductId(product.id);
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text('Avantages - $planLabel'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: benefits
+                  .map(
+                    (benefit) => Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Text('• $benefit'),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Fermer'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -73,16 +160,10 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     _CfaPriceLine(product: product),
                     IconButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Produit : ${product.title}'),
-                              backgroundColor: Colors.green,
-                            ),
-                          );
-                        },
-                        icon: Icon(Icons.info)
-                    )
+                      onPressed: () => _showSubscriptionBenefits(context),
+                      icon: const Icon(Icons.info_outline),
+                      tooltip: 'Voir les avantages',
+                    ),
                   ],
                 )
               ],

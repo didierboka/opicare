@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:opicare/core/res/media.dart';
 import '../enums/app_enums.dart';
 import 'package:intl/intl.dart';
-import 'package:opicare/core/constants/messages.dart';
 
 void showSnackbar(BuildContext context, {String message = '', MessageType? type}) {
   Color backgroundColor;
@@ -52,20 +50,41 @@ void showSnackbar(BuildContext context, {String message = '', MessageType? type}
 }
 
 
+OverlayEntry? _loaderOverlayEntry;
+
 void showLoader(BuildContext context, bool show) {
   if (show) {
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (_) => Center(child: getLoader()),
+    // Evite d'empiler plusieurs loaders.
+    if (_loaderOverlayEntry != null) return;
+
+    final overlay = Overlay.maybeOf(context, rootOverlay: true);
+    if (overlay == null) return;
+
+    _loaderOverlayEntry = OverlayEntry(
+      builder: (_) => const Stack(
+        children: [
+          ModalBarrier(dismissible: false, color: Colors.black38),
+          Center(child: _LoaderContainer()),
+        ],
+      ),
     );
-  } else {
-    // Ne ferme que si un Dialog est ouvert
-    //  if (Navigator.of(context, rootNavigator: true).canPop()) {
-    if (context.canPop()) {
-      //  Navigator.of(context, rootNavigator: true).pop();
-      context.pop();
-    }
+    overlay.insert(_loaderOverlayEntry!);
+    return;
+  }
+
+  _loaderOverlayEntry?.remove();
+  _loaderOverlayEntry = null;
+}
+
+class _LoaderContainer extends StatelessWidget {
+  const _LoaderContainer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      type: MaterialType.transparency,
+      child: getLoader(),
+    );
   }
 }
 

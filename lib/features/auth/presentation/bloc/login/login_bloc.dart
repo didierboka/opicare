@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
@@ -27,6 +29,13 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         emailOrPhone: event.emailOrPhone,
         password: event.password,
         //rememberMe: event.rememberMe,
+      ).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw TimeoutException(
+            'Login request timed out',
+          );
+        },
       );
       if (!res.status) {
         emit(LoginFailure(res.message!));
@@ -41,6 +50,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       authBloc.add(AuthUserChanged(res.data));
       emit(LoginSuccess(user: res.data!));
+    } on TimeoutException {
+      emit(LoginFailure('Le serveur met trop de temps à répondre. Veuillez réessayer.'));
     } catch (e) {
       print("Erreur LoginBloc: ${e.toString()}");
       emit(LoginFailure(e.toString()));
