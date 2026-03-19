@@ -1,7 +1,6 @@
 // local_storage_service.dart
 import 'dart:convert';
 
-import 'package:logger/logger.dart';
 import 'package:opicare/core/constants/log.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,11 +34,11 @@ class SharedPreferencesStorage implements LocalStorageService {
       if (userData != null && userData.isNotEmpty) {
         final jsonData = jsonDecode(userData);
 
-        // Validate that essential fields exist
-        if (jsonData['ID'] != null && jsonData['ID'].toString().isNotEmpty) {
-          UserModel user = UserModel.fromJson(jsonData);
-          mylog.logger.i("Valid user data found in SharedPreferences: ${user.name}");
-          return UserModel.fromJson(jsonData);
+        // On valide sur l'identifiant patient (IDPAT), qui est la clé utilisée par l'app.
+        final user = UserModel.fromJson(jsonData);
+        if (user.patID.isNotEmpty) {
+          mylog.logger.i("Valid user data found in SharedPreferences: ${user.name} (${user.patID})");
+          return user;
         }
       }
 

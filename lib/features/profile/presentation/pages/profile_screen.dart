@@ -18,7 +18,7 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
-import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_screen.dart';
+import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 import '../../../../shared/widgets/image_b64_widget.dart';
 
 class MonProfilScreen extends StatelessWidget {
@@ -48,13 +48,6 @@ class MonProfilScreen extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Annuler'),
             ),
-            //  ElevatedButton(
-            //    onPressed: () {
-            //      Navigator.of(context).pop();
-            //      context.go(SouscriptionScreen.path);
-            //    },
-            //    child: const Text('Renouveler'),
-            //  ),
           ],
         );
       },
@@ -78,7 +71,7 @@ class MonProfilScreen extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                context.go(SouscriptionScreen.path);
+                context.go(IapScreen.path);
               },
               child: const Text('Souscrire'),
             ),

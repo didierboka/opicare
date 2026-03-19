@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/constants/app_legal_urls.dart';
 import 'package:opicare/core/res/styles/colours.dart';
+import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
+import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_event.dart';
@@ -64,12 +66,23 @@ class IapScreen extends StatelessWidget {
                 ),
             ],
           ),
+          bottomNavigationBar: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SafeArea(
+                top: false,
+                bottom: false,
+                child: _LegalLinksFooter(),
+              ),
+              CustomBottomNavBar(),
+            ],
+          ),
           body: BlocConsumer<IapBloc, IapState>(
         listenWhen: (previous, current) =>
             (previous is IapRestoring && current is IapRestoreSuccess) ||
             current is IapVerificationSuccess,
         listener: (context, state) {
-          if (state is IapRestoreSuccess) {
+          if (state is IapRestoreSuccess && !state.subscriptionExpired) {
             final message = state.purchases.isEmpty
                 ? 'Aucun achat à restaurer'
                 : '${state.purchases.length} achat(s) restauré(s)';
@@ -94,15 +107,23 @@ class IapScreen extends StatelessWidget {
             current is IapInitial ||
             current is IapLoading ||
             current is IapPurchasing ||
+            current is IapPendingPayment ||
             current is IapVerifying ||
             current is IapProductsLoaded ||
             current is IapError ||
             current is IapPurchaseSuccess ||
             current is IapPurchaseFailed ||
-            current is IapActiveSubscription,
+            current is IapActiveSubscription ||
+            current is IapRestoreSuccess,
         builder: (context, state) {
           if (state is IapPurchasing) {
             return const _PurchasingContent();
+          }
+          if (state is IapPendingPayment) {
+            return _PendingPaymentContent(
+              onRestore: () => context.read<IapBloc>().add(const RestorePurchases()),
+              onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
+            );
           }
           if (state is IapVerifying) {
             return const _ValidatingPurchaseContent();
@@ -134,6 +155,15 @@ class IapScreen extends StatelessWidget {
             );
           }
 
+          if (state is IapRestoreSuccess) {
+            return _RestoreResultContent(
+              subscriptionExpired: state.subscriptionExpired,
+              purchaseCount: state.purchases.length,
+              onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
+              onGoToDashboard: () => context.go(HomeScreen.path),
+            );
+          }
+
           if (state is IapProductsLoaded) {
             if (state.products.isEmpty) {
               return const Center(
@@ -155,23 +185,21 @@ class IapScreen extends StatelessWidget {
                       child: ProductCard(
                         product: product,
                         onPurchase: () {
-                          // Délai d'une frame pour que l'UI se mette à jour (feedback visuel)
-                          // et que le contexte de présentation soit correct sur iPad.
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (context.mounted) {
-                              context.read<IapBloc>().add(PurchaseProduct(
-                                    productId: product.id,
-                                    amount: product.price,
-                                    currencyCode: product.currencyCode,
-                                  ));
-                            }
-                          });
+                          context.read<IapBloc>().add(
+                                PurchaseProduct(
+                                  productId: product.id,
+                                  amount: product.price,
+                                  currencyCode: product.currencyCode,
+                                  patientId: context.read<AuthBloc>().state is AuthAuthenticated
+                                      ? (context.read<AuthBloc>().state as AuthAuthenticated).user.patID
+                                      : '',
+                                ),
+                              );
                         },
                       ),
                     );
                   },
                 ),
-                const _LegalLinksFooter(),
               ],
             );
           }
@@ -247,6 +275,68 @@ class _PurchasingContent extends StatelessWidget {
   }
 }
 
+class _PendingPaymentContent extends StatelessWidget {
+  final VoidCallback onRestore;
+  final VoidCallback onSeePlans;
+
+  const _PendingPaymentContent({
+    required this.onRestore,
+    required this.onSeePlans,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(flex: 2),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 24),
+            const Text(
+              'Paiement en attente...',
+              style: TextStyle(fontSize: 16, color: Colours.secondaryText),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Si vous avez déjà validé le paiement, utilisez « Restaurer les achats ».\nSinon, terminez la validation dans l’App Store puis revenez ici.',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colours.secondaryText,
+                    height: 1.4,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const Spacer(flex: 2),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onRestore,
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colours.primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Restaurer les achats'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: onSeePlans,
+              child: const Text('Recharger les forfaits'),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// Vue affichée pendant la validation du paiement côté serveur (avant l'écran de félicitations).
 class _ValidatingPurchaseContent extends StatelessWidget {
   const _ValidatingPurchaseContent();
@@ -276,15 +366,23 @@ class _LegalLinksFooter extends StatelessWidget {
 
   Future<void> _openUrl(BuildContext context, String url) async {
     final uri = Uri.tryParse(url);
-    if (uri == null || !await canLaunchUrl(uri)) return;
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (uri == null) return;
+    final opened = await launchUrl(uri, mode: LaunchMode.platformDefault);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Impossible d\'ouvrir le lien. Veuillez réessayer.'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 16),
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 14),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             'En souscrivant, vous acceptez nos :',
@@ -427,6 +525,88 @@ class _PurchaseSuccessContent extends StatelessWidget {
                 ),
                 child: const Text('Se reconnecter'),
               ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Vue affichée après restauration : abonnement actif (succès) ou expiré (renouveler).
+class _RestoreResultContent extends StatelessWidget {
+  final bool subscriptionExpired;
+  final int purchaseCount;
+  final VoidCallback onSeePlans;
+  final VoidCallback onGoToDashboard;
+
+  const _RestoreResultContent({
+    required this.subscriptionExpired,
+    required this.purchaseCount,
+    required this.onSeePlans,
+    required this.onGoToDashboard,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(flex: 2),
+            Icon(
+              subscriptionExpired ? Icons.event_busy_rounded : Icons.restore_rounded,
+              size: 80,
+              color: subscriptionExpired
+                  ? Colours.secondaryText
+                  : Colours.primaryBlue,
+            ),
+            const SizedBox(height: 32),
+            Text(
+              subscriptionExpired
+                  ? 'Abonnement restauré mais expiré'
+                  : 'Restauration réussie',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colours.primaryText,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              subscriptionExpired
+                  ? 'Votre abonnement a été retrouvé mais la date d\'expiration est dépassée. Veuillez renouveler pour continuer.'
+                  : (purchaseCount == 0
+                      ? 'Aucun achat à restaurer.'
+                      : '$purchaseCount achat(s) restauré(s).'),
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colours.secondaryText,
+                    height: 1.4,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const Spacer(flex: 2),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onSeePlans,
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colours.primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(subscriptionExpired ? 'Renouveler l\'abonnement' : 'Voir les forfaits'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: onGoToDashboard,
+              child: const Text('Retour au tableau de bord'),
             ),
             const SizedBox(height: 24),
           ],

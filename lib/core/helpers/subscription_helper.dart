@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
-
-import '../../features/souscribtion/presentation/pages/souscribtion_screen.dart';
 
 class SubscriptionHelper {
   /// Vérifie si l'abonnement de l'utilisateur a expiré
@@ -81,9 +80,10 @@ class SubscriptionHelper {
 
 
   static void showSubscriptionExpiredDialog(BuildContext context) {
+    final rootContext = context;
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
+      context: rootContext,
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Abonnement expiré'),
           content: const Text(
@@ -91,13 +91,13 @@ class SubscriptionHelper {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('Annuler'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                context.go(SouscriptionScreen.path);
+                Navigator.of(dialogContext).pop();
+                rootContext.push(IapScreen.path);
               },
               child: const Text('Renouveler'),
             ),
@@ -109,9 +109,10 @@ class SubscriptionHelper {
 
 
   static showCarnetAccessDeniedDialog(BuildContext context) {
+    final rootContext = context;
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
+      context: rootContext,
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Accès refusé'),
           content: const Text(
@@ -119,13 +120,13 @@ class SubscriptionHelper {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: const Text('Annuler'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                context.go(SouscriptionScreen.path);
+                Navigator.of(dialogContext).pop();
+                rootContext.push(IapScreen.path);
               },
               child: const Text('Souscrire'),
             ),

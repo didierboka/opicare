@@ -3,7 +3,7 @@ import 'package:dartz/dartz.dart';
 import 'package:in_app_purchase/in_app_purchase.dart' as iap;
 import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/core/helpers/debug_logger.dart';
-import 'package:opicare/features/iap/data/datasources/iap_local_datasource.dart';
+import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/features/iap/data/datasources/iap_remote_datasource.dart';
 import 'package:opicare/features/iap/data/models/product_model.dart';
 import 'package:opicare/features/iap/data/models/purchase_model.dart';
@@ -55,13 +55,10 @@ String _toUserFriendlyMessage(Object error, {String fallback = 'Une erreur est s
   return fallback;
 }
 
-/// Durée d'un abonnement annuel en jours (pour calcul de l'expiration)
-const int _yearlySubscriptionDays = 365;
-
 class IapRepositoryImpl implements IapRepository {
   final iap.InAppPurchase _inAppPurchase;
   final IapRemoteDataSource _remoteDataSource;
-  final IapLocalDataSource _localDataSource;
+  final LocalStorageService _localStorageService;
 
   final StreamController<PurchaseEntity> _purchaseUpdatesController = StreamController<PurchaseEntity>.broadcast();
 
@@ -74,11 +71,11 @@ class IapRepositoryImpl implements IapRepository {
 
   IapRepositoryImpl({
     required IapRemoteDataSource remoteDataSource,
-    required IapLocalDataSource localDataSource,
+    required LocalStorageService localStorageService,
     iap.InAppPurchase? inAppPurchase,
   })  : _inAppPurchase = inAppPurchase ?? iap.InAppPurchase.instance,
         _remoteDataSource = remoteDataSource,
-        _localDataSource = localDataSource {}
+        _localStorageService = localStorageService {}
 
   /// S'abonne au stream des achats seulement si le store est disponible et pas encore initialisé.
   Future<void> _ensurePurchaseStreamInitialized() async {
@@ -95,36 +92,63 @@ class IapRepositoryImpl implements IapRepository {
     return s.contains('No active account') || s.contains('509');
   }
 
-  /// Enregistre l'abonnement actif en local (expiration = date transaction + 1 an pour achat, now + 1 an pour restauration).
-  Future<void> _saveActiveSubscriptionFromPurchase(iap.PurchaseDetails purchase, {required bool isRestored}) async {
-    try {
-      final DateTime expiry;
-      if (isRestored) {
-        expiry = DateTime.now().add(const Duration(days: _yearlySubscriptionDays));
-      } else {
-        final transactionDate = purchase.transactionDate != null
-            ? DateTime.tryParse(purchase.transactionDate!)
-            : null;
-        final start = transactionDate ?? DateTime.now();
-        expiry = start.add(const Duration(days: _yearlySubscriptionDays));
-      }
-      await _localDataSource.saveActiveSubscription(
-        productId: purchase.productID,
-        expiryDate: expiry,
-      );
-    } catch (e) {
-      DebugLogger.error('Erreur enregistrement abonnement actif: $e');
+  DateTime? _parseUserExpiryDate(String rawDate) {
+    final value = rawDate.trim();
+    if (value.isEmpty || value.toUpperCase() == 'N/A' || value.toLowerCase() == 'null') {
+      return null;
     }
+
+    final parsedIso = DateTime.tryParse(value);
+    if (parsedIso != null) {
+      return parsedIso;
+    }
+
+    final parts = value.split('-');
+    if (parts.length == 3) {
+      final day = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      final year = int.tryParse(parts[2]);
+      if (day != null && month != null && year != null) {
+        return DateTime(year, month, day);
+      }
+    }
+
+    return null;
+  }
+
+  bool _isSubscriptionStillActive(DateTime expiryDate) {
+    final expiryDateOnly = DateTime(expiryDate.year, expiryDate.month, expiryDate.day, 23, 59, 59);
+    final now = DateTime.now();
+    return !now.isAfter(expiryDateOnly);
   }
 
   @override
   Future<Either<Failure, ActiveSubscriptionEntity?>> getActiveSubscription() async {
     try {
-      final sub = await _localDataSource.getActiveSubscription();
-      if (sub == null) return const Right(null);
+      final user = await _localStorageService.getSavedUser();
+      if (user == null || user.patID.isEmpty) {
+        return const Right(null);
+      }
+
+      final expiryDate = _parseUserExpiryDate(user.dateExpiration);
+      if (expiryDate == null || !_isSubscriptionStillActive(expiryDate)) {
+        return const Right(null);
+      }
+
+      final productId = user.abonnementLabel.trim().isEmpty || user.abonnementLabel.toUpperCase() == 'N/A'
+          ? 'active_subscription'
+          : user.abonnementLabel;
+
       return Right(ActiveSubscriptionEntity(
-        productId: sub.productId,
-        expiryDate: sub.expiryDate,
+        productId: productId,
+        expiryDate: DateTime(
+          expiryDate.year,
+          expiryDate.month,
+          expiryDate.day,
+          23,
+          59,
+          59,
+        ),
       ));
     } catch (e) {
       DebugLogger.error('Erreur getActiveSubscription: $e');
@@ -143,17 +167,18 @@ class IapRepositoryImpl implements IapRepository {
           final purchaseModel = PurchaseModel.fromPurchaseDetails(purchase);
           _purchaseUpdatesController.add(purchaseModel.toEntity());
 
-          // Finaliser l'achat si nécessaire
-          if (purchase.status == iap.PurchaseStatus.purchased || purchase.status == iap.PurchaseStatus.pending) {
+          // Finaliser l'achat seulement quand le store le demande
+          // et uniquement après un statut terminal (purchased/restored).
+          if (purchase.pendingCompletePurchase &&
+              (purchase.status == iap.PurchaseStatus.purchased ||
+                  purchase.status == iap.PurchaseStatus.restored)) {
             DebugLogger.info('✅ Finalisation de l\'achat pour: ${purchase.productID}');
             _inAppPurchase.completePurchase(purchase);
-            _saveActiveSubscriptionFromPurchase(purchase, isRestored: false);
           } else if (purchase.status == iap.PurchaseStatus.error) {
             DebugLogger.error('❌ Erreur d\'achat: ${purchase.error?.message}');
           } else if (purchase.status == iap.PurchaseStatus.restored) {
             DebugLogger.success('🔄 Abonnement deja effectue !');
             DebugLogger.success('🔄 Achat restauré: ${purchase.productID}');
-            _saveActiveSubscriptionFromPurchase(purchase, isRestored: true);
           }
         }
       },
@@ -366,6 +391,7 @@ class IapRepositoryImpl implements IapRepository {
     required String verificationData,
     double? amount,
     String? currencyCode,
+    String? patientId,
   }) async {
     return await _remoteDataSource.verifyPurchase(
       purchaseId: purchaseId,
@@ -373,6 +399,7 @@ class IapRepositoryImpl implements IapRepository {
       verificationData: verificationData,
       amount: amount,
       currencyCode: currencyCode,
+      patientId: patientId,
     );
   }
 

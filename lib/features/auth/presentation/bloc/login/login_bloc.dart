@@ -42,9 +42,10 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         return;
       }
 
-      if (event.rememberMe && res.data != null) {
+      if (res.data != null) {
+        // On persiste toujours l'utilisateur pour que les flows (IAP, abonnement, etc.)
+        // disposent du patID même si "remember me" est décoché.
         await authBloc.localStorage.saveUser(res.data!);
-        // Rafraîchir l'état d'authentification
         authBloc.add(AuthCheckRequested());
       }
 

@@ -37,6 +37,7 @@ abstract class IapRepository {
     required String verificationData,
     double? amount,
     String? currencyCode,
+    String? patientId,
   });
 
   /// Écoute les mises à jour des achats

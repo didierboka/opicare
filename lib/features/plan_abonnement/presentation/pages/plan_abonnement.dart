@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/plan_abonnement/data/repositories/formule_repository.dart';
+import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 import 'package:opicare/features/plan_abonnement/presentation/bloc/formule_bloc.dart';
 import 'package:opicare/features/plan_abonnement/presentation/widgets/plan_card.dart';
 
@@ -55,6 +57,7 @@ class PlanAbonnementScreen extends StatelessWidget {
                           description: formule.description,
                           price: 'CFA ${formule.tarif}',
                           note: '⭐ ${formule.bonus}/5',
+                          onSubscribeTap: () => context.push(IapScreen.path),
                         );
                       },
                     );

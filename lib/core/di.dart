@@ -557,7 +557,7 @@ class Di {
     _getIt.registerLazySingleton<IapRepository>(
       () => IapRepositoryImpl(
         remoteDataSource: _getIt<IapRemoteDataSource>(),
-        localDataSource: _getIt<IapLocalDataSource>(),
+        localStorageService: _getIt<LocalStorageService>(),
       ),
     );
 

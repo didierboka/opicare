@@ -65,6 +65,16 @@ class IapPurchasing extends IapState {
   List<Object?> get props => [productId];
 }
 
+/// Paiement en attente côté store (ex: validation Apple ID / sandbox).
+class IapPendingPayment extends IapState {
+  final String productId;
+
+  const IapPendingPayment({required this.productId});
+
+  @override
+  List<Object?> get props => [productId];
+}
+
 /// Achat réussi (après validation serveur). [daysRemaining] pour affichage sur l'écran de félicitations.
 class IapPurchaseSuccess extends IapState {
   final PurchaseEntity purchase;
@@ -91,14 +101,19 @@ class IapRestoring extends IapState {
   const IapRestoring();
 }
 
-/// Achats restaurés avec succès
+/// Achats restaurés avec succès.
+/// [subscriptionExpired] true = la date d'expiration (login) est dépassée, il faut renouveler.
 class IapRestoreSuccess extends IapState {
   final List<PurchaseEntity> purchases;
+  final bool subscriptionExpired;
 
-  const IapRestoreSuccess({required this.purchases});
+  const IapRestoreSuccess({
+    required this.purchases,
+    this.subscriptionExpired = false,
+  });
 
   @override
-  List<Object?> get props => [purchases];
+  List<Object?> get props => [purchases, subscriptionExpired];
 }
 
 /// Vérification en cours

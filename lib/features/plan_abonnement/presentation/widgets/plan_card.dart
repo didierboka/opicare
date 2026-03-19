@@ -6,6 +6,7 @@ class PlanCard extends StatelessWidget {
   final String description;
   final String price;
   final String note;
+  final VoidCallback onSubscribeTap;
 
   const PlanCard({
     super.key,
@@ -13,6 +14,7 @@ class PlanCard extends StatelessWidget {
     required this.description,
     required this.price,
     required this.note,
+    required this.onSubscribeTap,
   });
 
   @override
@@ -42,20 +44,24 @@ class PlanCard extends StatelessWidget {
           ),
           Flexible(
             fit: FlexFit.loose, // 💡 Permet de rester flexible sans overflow
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-              decoration: BoxDecoration(
-                color: Colours.homeCardSecondaryButtonBlue,
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
-              ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text("S'ABONNER", style: TextStyle(color: Colors.white)),
-                  SizedBox(width: 5),
-                  Icon(Icons.check, color: Colors.white),
-                ],
+            child: InkWell(
+              onTap: onSubscribeTap,
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colours.homeCardSecondaryButtonBlue,
+                  borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("S'ABONNER", style: TextStyle(color: Colors.white)),
+                    SizedBox(width: 5),
+                    Icon(Icons.check, color: Colors.white),
+                  ],
+                ),
               ),
             ),
           ),

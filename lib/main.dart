@@ -12,17 +12,62 @@ import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 
 import 'core/helpers/local_storage_service.dart';
 
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//
+//   // Initialisation Firebase
+//   await Firebase.initializeApp();
+//
+//   // Initialiser la dependency injection
+//   await Di.init();
+//
+//   runApp(
+//     MultiBlocProvider(
+//       providers: [
+//         BlocProvider(
+//           create: (context) => AuthBloc(
+//             localStorage: Di.get<LocalStorageService>(),
+//             authRepository: Di.get<AuthRepository>(),
+//           )..add(AuthCheckRequested()),
+//         ),
+//         BlocProvider(
+//           create: (context) => LoginBloc(
+//             authRepository: Di.get<AuthRepository>(),
+//             authBloc: context.read<AuthBloc>(),
+//           ),
+//         ),
+//       ],
+//       child: const MyApp(),
+//     ),
+//   );
+// }
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialisation Firebase
-  await Firebase.initializeApp();
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    debugPrint("Firebase init error: $e");
+  }
 
-  // Initialiser la dependency injection
-  await Di.init();
+  try {
+    await Di.init();
+  } catch (e) {
+    debugPrint("DI init error: $e");
+  }
 
-  runApp(
-    MultiBlocProvider(
+  runApp(const MyRoot());
+}
+
+
+class MyRoot extends StatelessWidget {
+  const MyRoot({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
       providers: [
         BlocProvider(
           create: (context) => AuthBloc(
@@ -38,9 +83,10 @@ void main() async {
         ),
       ],
       child: const MyApp(),
-    ),
-  );
+    );
+  }
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

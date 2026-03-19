@@ -32,15 +32,17 @@ class PurchaseProduct extends IapEvent {
   final String productId;
   final double amount;
   final String currencyCode;
+  final String patientId;
 
   const PurchaseProduct({
     required this.productId,
     required this.amount,
     required this.currencyCode,
+    required this.patientId,
   });
 
   @override
-  List<Object?> get props => [productId, amount, currencyCode];
+  List<Object?> get props => [productId, amount, currencyCode, patientId];
 }
 
 /// Restaure les achats précédents
@@ -76,6 +78,7 @@ class VerifyPurchase extends IapEvent {
   final String verificationData;
   final double? amount;
   final String? currencyCode;
+  final String? patientId;
   /// Purchase concerné (flow completion) : après succès API on émet IapPurchaseSuccess(purchase).
   final PurchaseEntity? purchase;
 
@@ -85,11 +88,12 @@ class VerifyPurchase extends IapEvent {
     required this.verificationData,
     this.amount,
     this.currencyCode,
+    this.patientId,
     this.purchase,
   });
 
   @override
-  List<Object?> get props => [purchaseId, productId, verificationData, amount, currencyCode, purchase];
+  List<Object?> get props => [purchaseId, productId, verificationData, amount, currencyCode, patientId, purchase];
 }
 
 /// Réinitialise l'état

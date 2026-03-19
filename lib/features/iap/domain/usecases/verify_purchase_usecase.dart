@@ -22,6 +22,7 @@ class VerifyPurchaseUseCase {
     required String verificationData,
     double? amount,
     String? currencyCode,
+    String? patientId,
   }) async {
     return await repository.verifyPurchase(
       purchaseId: purchaseId,
@@ -29,6 +30,7 @@ class VerifyPurchaseUseCase {
       verificationData: verificationData,
       amount: amount,
       currencyCode: currencyCode,
+      patientId: patientId,
     );
   }
 }

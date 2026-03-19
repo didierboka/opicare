@@ -24,7 +24,6 @@ import 'package:opicare/features/notifications/domain/usecases/get_sms_recus_use
 import 'package:opicare/features/notifications/presentation/bloc/sms_bloc.dart';
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
-import 'package:opicare/features/souscribtion/presentation/bloc/souscription/souscription_bloc.dart';
 import 'package:opicare/features/souscribtion/presentation/pages/souscribtion_screen.dart';
 import 'package:opicare/features/welcome/app_wrapper.dart';
 import 'package:opicare/features/welcome/welcome.dart';
@@ -54,7 +53,6 @@ import '../../features/change_password/domain/repositories/change_pwd_repository
 import '../../features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import '../../features/profile/presentation/pages/profile_screen.dart';
 import '../../features/souscribtion/data/models/souscription_payment_model.dart';
-import '../../features/souscribtion/domain/repositories/souscription_repository.dart';
 import '../../features/jours_vaccins/domain/repositories/jour_vaccin_repository.dart';
 import '../../features/souscribtion/presentation/pages/cinetpay_checkout_screen.dart';
 
@@ -281,12 +279,11 @@ final appRouter = GoRouter(
       ),
     ),
     GoRoute(
+      // Legacy route conservée pour compatibilité : redirection vers le flow IAP unique.
       path: SouscriptionScreen.path,
       builder: (context, state) => BlocProvider(
-        create: (context) => SouscriptionBloc(
-          souscriptionRepository: Di.get<SouscriptionRepository>(),
-        ),
-        child: SouscriptionScreen(),
+        create: (context) => Di.get<IapBloc>(),
+        child: const IapScreen(),
       ),
     ),
     GoRoute(

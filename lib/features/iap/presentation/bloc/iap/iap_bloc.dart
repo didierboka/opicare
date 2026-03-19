@@ -34,6 +34,24 @@ class IapBloc extends Bloc<IapEvent, IapState> {
   final List<PurchaseEntity> _restoredPurchases = [];
   double? _pendingAmount;
   String? _pendingCurrencyCode;
+  String? _pendingPatientId;
+  Timer? _purchaseWatchdog;
+  static const Duration _purchaseTimeout = Duration(seconds: 90);
+
+  void _startPurchaseWatchdog({required String productId}) {
+    _purchaseWatchdog?.cancel();
+    _purchaseWatchdog = Timer(_purchaseTimeout, () {
+      final s = state;
+      if (s is IapPurchasing || s is IapPendingPayment || s is IapVerifying) {
+        add(const ResetIapState());
+      }
+    });
+  }
+
+  void _stopPurchaseWatchdog() {
+    _purchaseWatchdog?.cancel();
+    _purchaseWatchdog = null;
+  }
 
   IapBloc({
     required this.getProductsUseCase,
@@ -73,14 +91,14 @@ class IapBloc extends Bloc<IapEvent, IapState> {
         final subResult = await getActiveSubscriptionUseCase.execute();
         subResult.fold(
           (_) => emit(const IapPurchaseFailed(
-            message: 'Vous avez déjà un abonnement actif. Rendez-vous sur le tableau de bord.',
+            message: 'Votre abonnement a été retrouvé mais il est expiré. Veuillez renouveler pour continuer.',
           )),
           (sub) {
             if (sub != null && sub.isActive) {
               emit(IapActiveSubscription(subscription: sub, fromRestoreOrFirstPurchase: true));
             } else {
               emit(const IapPurchaseFailed(
-                message: 'Cet abonnement semble déjà actif. Utilisez « Restaurer les achats » si nécessaire.',
+                message: 'Votre abonnement a été retrouvé mais il est expiré. Veuillez renouveler pour continuer.',
               ));
             }
           },
@@ -89,58 +107,79 @@ class IapBloc extends Bloc<IapEvent, IapState> {
       }
 
       _restoredPurchases.add(purchase);
+      final restoredList = List<PurchaseEntity>.from(_restoredPurchases);
       if (currentState is IapRestoring) {
         final subResult = await getActiveSubscriptionUseCase.execute();
         subResult.fold(
-          (_) => emit(IapRestoreSuccess(purchases: List<PurchaseEntity>.from(_restoredPurchases))),
+          (_) => emit(IapRestoreSuccess(purchases: restoredList, subscriptionExpired: true)),
           (sub) {
             if (sub != null && sub.isActive) {
               emit(IapActiveSubscription(subscription: sub, fromRestoreOrFirstPurchase: true));
             } else {
-              emit(IapRestoreSuccess(purchases: List<PurchaseEntity>.from(_restoredPurchases)));
+              emit(IapRestoreSuccess(purchases: restoredList, subscriptionExpired: true));
             }
           },
         );
       } else if (currentState is! IapActiveSubscription ||
-          !(currentState as IapActiveSubscription).fromRestoreOrFirstPurchase) {
-        emit(IapRestoreSuccess(purchases: List<PurchaseEntity>.from(_restoredPurchases)));
+          !currentState.fromRestoreOrFirstPurchase) {
+        final subResult = await getActiveSubscriptionUseCase.execute();
+        final expired = subResult.fold((_) => true, (sub) => sub == null || !sub.isActive);
+        emit(IapRestoreSuccess(
+          purchases: restoredList,
+          subscriptionExpired: expired,
+        ));
       }
       return;
     }
 
     final currentState = state;
-    final isCurrentPurchase = currentState is IapPurchasing &&
-        (purchase.productId == currentState.productId || purchase.productId.isEmpty);
+    final String currentProductId = currentState is IapPurchasing
+        ? currentState.productId
+        : currentState is IapPendingPayment
+            ? currentState.productId
+            : '';
+    final isCurrentPurchase = currentProductId.isNotEmpty &&
+        (purchase.productId == currentProductId || purchase.productId.isEmpty);
 
     if (!isCurrentPurchase) return;
 
     switch (purchase.status) {
       case PurchaseStatus.purchased:
-        // Nécessite un productId pour la validation (Android envoie parfois un productId vide en erreur uniquement).
-        if (purchase.productId.isEmpty) return;
+        _stopPurchaseWatchdog();
+        final resolvedProductId = purchase.productId.isNotEmpty ? purchase.productId : currentProductId;
+        if (resolvedProductId.isEmpty) {
+          emit(const IapPurchaseFailed(
+            message: 'Le paiement a été reçu mais le produit est introuvable. Veuillez réessayer.',
+          ));
+          return;
+        }
         // Loggue le retour du store au format attendu (platform, idpat, productId, etc.).
         IapCompletionLogger.logPurchaseCompletion(purchase);
         // Ne pas afficher l'écran de félicitations tout de suite : on appelle d'abord l'API de validation.
         add(VerifyPurchase(
           purchaseId: purchase.purchaseId,
-          productId: purchase.productId,
+          productId: resolvedProductId,
           verificationData: purchase.verificationData ?? '',
           amount: _pendingAmount,
           currencyCode: _pendingCurrencyCode,
+          patientId: _pendingPatientId,
           purchase: purchase,
         ));
         break;
       case PurchaseStatus.cancelled:
+        _stopPurchaseWatchdog();
         emit(const IapPurchaseFailed(message: 'Vous avez annulé l\'achat.'));
         break;
       case PurchaseStatus.error:
+        _stopPurchaseWatchdog();
         final msg = purchase.errorMessage ?? 'L\'achat n\'a pas abouti. Réessayez.';
         emit(IapPurchaseFailed(message: msg));
         break;
       case PurchaseStatus.pending:
-        // Toujours en cours, ne rien changer
+        emit(IapPendingPayment(productId: currentProductId));
         break;
       default:
+        _stopPurchaseWatchdog();
         emit(IapPurchaseFailed(message: 'L\'achat n\'a pas abouti. Réessayez.'));
         break;
     }
@@ -178,16 +217,27 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     PurchaseProduct event,
     Emitter<IapState> emit,
   ) async {
+    if (event.patientId.trim().isEmpty) {
+      emit(const IapPurchaseFailed(
+        message: 'Session invalide. Veuillez vous reconnecter puis réessayer.',
+      ));
+      return;
+    }
     emit(IapPurchasing(productId: event.productId));
+    _startPurchaseWatchdog(productId: event.productId);
     _pendingAmount = event.amount;
     _pendingCurrencyCode = event.currencyCode;
+    _pendingPatientId = event.patientId;
 
     final result = await purchaseProductUseCase.execute(
       productId: event.productId,
     );
 
     result.fold(
-      (failure) => emit(IapError(failure: failure)),
+      (failure) {
+        _stopPurchaseWatchdog();
+        emit(IapError(failure: failure));
+      },
       (_) {
         // Ne pas émettre IapPurchaseSuccess ici : le résultat réel (purchased / cancelled / error)
         // arrive via le stream purchaseUpdates. On reste en IapPurchasing jusqu'à réception.
@@ -207,7 +257,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
         // Les achats restaurés réels arrivent via le stream → PurchaseRestored.
         // Si le store ne renvoie rien (liste vide), on émet quand même pour sortir de IapRestoring
         // et afficher "Aucun achat à restaurer" (géré dans l'UI).
-        emit(IapRestoreSuccess(purchases: purchases));
+        emit(IapRestoreSuccess(purchases: purchases, subscriptionExpired: false));
       },
     );
   }
@@ -224,6 +274,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
       verificationData: event.verificationData,
       amount: event.amount,
       currencyCode: event.currencyCode,
+      patientId: event.patientId,
     );
 
     Failure? fail;
@@ -233,6 +284,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
       (v) => isValid = v,
     );
     if (fail != null) {
+      _stopPurchaseWatchdog();
       if (event.purchase != null) {
         emit(IapPurchaseFailed(message: fail!.message));
       } else {
@@ -241,6 +293,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
       return;
     }
     if (isValid != true) {
+      _stopPurchaseWatchdog();
       if (event.purchase != null) {
         emit(const IapPurchaseFailed(
           message: 'La validation du paiement a échoué. Réessayez ou contactez le support.',
@@ -251,6 +304,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
       return;
     }
     if (event.purchase == null) {
+      _stopPurchaseWatchdog();
       emit(const IapVerificationSuccess());
       return;
     }
@@ -259,6 +313,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
       (_) => 0,
       (sub) => sub?.daysRemaining ?? 0,
     );
+    _stopPurchaseWatchdog();
     emit(IapPurchaseSuccess(purchase: event.purchase!, daysRemaining: daysRemaining));
   }
 
@@ -266,6 +321,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     ResetIapState event,
     Emitter<IapState> emit,
   ) {
+    _stopPurchaseWatchdog();
     emit(const IapInitial());
   }
 
@@ -274,12 +330,13 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     Emitter<IapState> emit,
   ) {
     _restoredPurchases.add(event.purchase);
-    emit(IapRestoreSuccess(purchases: List<PurchaseEntity>.from(_restoredPurchases)));
+    emit(IapRestoreSuccess(purchases: List<PurchaseEntity>.from(_restoredPurchases), subscriptionExpired: false));
   }
 
   @override
   Future<void> close() {
     _purchaseUpdatesSubscription?.cancel();
+    _stopPurchaseWatchdog();
     return super.close();
   }
 }

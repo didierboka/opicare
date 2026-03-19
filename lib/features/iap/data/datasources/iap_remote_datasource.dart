@@ -22,6 +22,7 @@ abstract class IapRemoteDataSource {
     required String verificationData,
     double? amount,
     String? currencyCode,
+    String? patientId,
   });
 }
 
@@ -41,14 +42,23 @@ class IapRemoteDataSourceImpl implements IapRemoteDataSource {
     required String verificationData,
     double? amount,
     String? currencyCode,
+    String? patientId,
   }) async {
     try {
       DebugLogger.info('Vérification de l\'achat: $productId');
 
-      int idpat = 0;
-      final user = await localStorageService.getSavedUser();
-      if (user != null && user.patID.isNotEmpty) {
-        idpat = int.tryParse(user.patID) ?? 0;
+
+      final explicitId = patientId?.trim() ?? '';
+      String idpat = explicitId;
+      if (idpat.isEmpty) {
+        final user = await localStorageService.getSavedUser();
+        if (user != null && user.patID.isNotEmpty) {
+          idpat = user.patID.trim();
+        }
+      }
+      if (idpat.isEmpty) {
+        DebugLogger.error('ID patient introuvable pour la vérification IAP');
+        return const Left(ServerFailure('Session utilisateur introuvable. Veuillez vous reconnecter puis réessayer.'));
       }
 
       // Préparer les données à envoyer au backend
@@ -71,7 +81,9 @@ class IapRemoteDataSourceImpl implements IapRemoteDataSource {
               );
         requestData['montant'] = (xof ?? amount).round();
       }
-      DebugLogger.info('Payload /iap/verify: $requestData');
+
+      //  DebugLogger.info('Payload /iap/verify: $requestData');
+      DebugLogger.log('Payload /iap/verify: $requestData');
 
       // API officielle de validation après paiement store (sans /user dans le path).
       // baseUrl IAP = api/v1/ → URL finale: .../api/v1/iap/verify

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
@@ -41,7 +42,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      final user = await localStorage.getSavedUser();
+      // Protection contre un blocage potentiel du storage au lancement (iPad/App Review).
+      final user = await localStorage
+          .getSavedUser()
+          .timeout(const Duration(seconds: 10));
       if (user != null) {
         // Validate user has essential data
         if (user.patID.isNotEmpty) {
@@ -51,6 +55,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
       }
       logger.i("No valid user found, redirecting to login");
+      emit(AuthUnauthenticated());
+    } on TimeoutException {
+      logger.w("Auth check timed out, fallback to unauthenticated");
       emit(AuthUnauthenticated());
     } catch (e) {
       logger.e("Auth check failed: $e");
