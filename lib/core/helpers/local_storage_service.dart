@@ -37,7 +37,7 @@ class SharedPreferencesStorage implements LocalStorageService {
         // On valide sur l'identifiant patient (IDPAT), qui est la clé utilisée par l'app.
         final user = UserModel.fromJson(jsonData);
         if (user.patID.isNotEmpty) {
-          mylog.logger.i("Valid user data found in SharedPreferences: ${user.name} (${user.patID})");
+          mylog.logger.i("Valid user data found in SharedPreferences: ${user.name} ${user.surname} (${user.patID})");
           return user;
         }
       }

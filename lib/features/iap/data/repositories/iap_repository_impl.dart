@@ -126,6 +126,7 @@ class IapRepositoryImpl implements IapRepository {
   Future<Either<Failure, ActiveSubscriptionEntity?>> getActiveSubscription() async {
     try {
       final user = await _localStorageService.getSavedUser();
+
       if (user == null || user.patID.isEmpty) {
         return const Right(null);
       }
@@ -139,17 +140,7 @@ class IapRepositoryImpl implements IapRepository {
           ? 'active_subscription'
           : user.abonnementLabel;
 
-      return Right(ActiveSubscriptionEntity(
-        productId: productId,
-        expiryDate: DateTime(
-          expiryDate.year,
-          expiryDate.month,
-          expiryDate.day,
-          23,
-          59,
-          59,
-        ),
-      ));
+      return Right(ActiveSubscriptionEntity(productId: productId, expiryDate: DateTime(expiryDate.year, expiryDate.month, expiryDate.day, 23, 59, 59)));
     } catch (e) {
       DebugLogger.error('Erreur getActiveSubscription: $e');
       return Left(ServerFailure('Impossible de récupérer l\'abonnement.'));

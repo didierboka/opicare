@@ -79,6 +79,7 @@ class VerifyPurchase extends IapEvent {
   final double? amount;
   final String? currencyCode;
   final String? patientId;
+
   /// Purchase concerné (flow completion) : après succès API on émet IapPurchaseSuccess(purchase).
   final PurchaseEntity? purchase;
 

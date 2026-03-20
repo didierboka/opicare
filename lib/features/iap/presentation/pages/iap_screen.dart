@@ -43,8 +43,7 @@ class IapScreen extends StatelessWidget {
     return BlocBuilder<IapBloc, IapState>(
       buildWhen: (previous, current) => true,
       builder: (context, state) {
-        final showCloseButton = state is IapActiveSubscription &&
-            !state.fromRestoreOrFirstPurchase;
+        final showCloseButton = state is IapActiveSubscription && !state.fromRestoreOrFirstPurchase;
 
         return Scaffold(
           appBar: AppBar(
@@ -78,173 +77,153 @@ class IapScreen extends StatelessWidget {
             ],
           ),
           body: BlocConsumer<IapBloc, IapState>(
-        listenWhen: (previous, current) =>
-            (previous is IapRestoring && current is IapRestoreSuccess) ||
-            current is IapVerificationSuccess,
-        listener: (context, state) {
-          if (state is IapRestoreSuccess && !state.subscriptionExpired) {
-            final message = state.purchases.isEmpty
-                ? 'Aucun achat à restaurer'
-                : '${state.purchases.length} achat(s) restauré(s)';
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(message),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
+            listenWhen: (previous, current) => (previous is IapRestoring && current is IapRestoreSuccess) || current is IapVerificationSuccess,
+            listener: (context, state) {
+              if (state is IapRestoreSuccess && !state.subscriptionExpired) {
+                final message = state.purchases.isEmpty ? 'Aucun achat à restaurer' : '${state.purchases.length} achat(s) restauré(s)';
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(message),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
 
-          if (state is IapVerificationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Achat vérifié avec succès !'),
-                backgroundColor: Colors.green,
-              ),
-            );
-          }
-        },
-        buildWhen: (previous, current) =>
-            current is IapInitial ||
-            current is IapLoading ||
-            current is IapPurchasing ||
-            current is IapPendingPayment ||
-            current is IapVerifying ||
-            current is IapProductsLoaded ||
-            current is IapError ||
-            current is IapPurchaseSuccess ||
-            current is IapPurchaseFailed ||
-            current is IapActiveSubscription ||
-            current is IapRestoreSuccess,
-        builder: (context, state) {
-          if (state is IapPurchasing) {
-            return const _PurchasingContent();
-          }
-          if (state is IapPendingPayment) {
-            return _PendingPaymentContent(
-              onRestore: () => context.read<IapBloc>().add(const RestorePurchases()),
-              onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
-            );
-          }
-          if (state is IapVerifying) {
-            return const _ValidatingPurchaseContent();
-          }
+              if (state is IapVerificationSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Achat vérifié avec succès !'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            buildWhen: (previous, current) => current is IapInitial || current is IapLoading || current is IapPurchasing || current is IapPendingPayment || current is IapVerifying || current is IapProductsLoaded || current is IapError || current is IapPurchaseSuccess || current is IapPurchaseFailed || current is IapActiveSubscription || current is IapRestoreSuccess,
+            builder: (context, state) {
+              if (state is IapPurchasing) {
+                return const _PurchasingContent();
+              }
+              if (state is IapPendingPayment) {
+                return _PendingPaymentContent(
+                  onRestore: () => context.read<IapBloc>().add(const RestorePurchases()),
+                  onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
+                );
+              }
+              if (state is IapVerifying) {
+                return const _ValidatingPurchaseContent();
+              }
 
-          if (state is IapPurchaseSuccess) {
-            return _PurchaseSuccessContent(
-              daysRemaining: state.daysRemaining,
-              onReconnect: () => context.go(LoginPage.path),
-            );
-          }
+              if (state is IapPurchaseSuccess) {
+                return _PurchaseSuccessContent(
+                  daysRemaining: state.daysRemaining,
+                  onReconnect: () => context.go(LoginPage.path),
+                );
+              }
 
-          if (state is IapPurchaseFailed) {
-            return _PurchaseFailedContent(
-              message: state.message,
-              onSeePlans: () {
-                context.read<IapBloc>().add(LoadProducts(productIds: productIds));
-              },
-            );
-          }
-
-          if (state is IapActiveSubscription) {
-            return _AlreadySubscribedContent(
-              daysRemaining: state.subscription.daysRemaining,
-              productId: state.subscription.productId,
-              fromRestoreOrFirstPurchase: state.fromRestoreOrFirstPurchase,
-              onReconnect: () => context.go(LoginPage.path),
-              onGoToDashboard: () => context.go(HomeScreen.path),
-            );
-          }
-
-          if (state is IapRestoreSuccess) {
-            return _RestoreResultContent(
-              subscriptionExpired: state.subscriptionExpired,
-              purchaseCount: state.purchases.length,
-              onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
-              onGoToDashboard: () => context.go(HomeScreen.path),
-            );
-          }
-
-          if (state is IapProductsLoaded) {
-            if (state.products.isEmpty) {
-              return const Center(
-                child: Text('Aucun produit disponible'),
-              );
-            }
-
-            // showLoader(context, false);
-
-            return ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                ...List.generate(
-                  state.products.length,
-                  (index) {
-                    final product = state.products[index];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: ProductCard(
-                        product: product,
-                        onPurchase: () {
-                          context.read<IapBloc>().add(
-                                PurchaseProduct(
-                                  productId: product.id,
-                                  amount: product.price,
-                                  currencyCode: product.currencyCode,
-                                  patientId: context.read<AuthBloc>().state is AuthAuthenticated
-                                      ? (context.read<AuthBloc>().state as AuthAuthenticated).user.patID
-                                      : '',
-                                ),
-                              );
-                        },
-                      ),
-                    );
+              if (state is IapPurchaseFailed) {
+                return _PurchaseFailedContent(
+                  message: state.message,
+                  onSeePlans: () {
+                    context.read<IapBloc>().add(LoadProducts(productIds: productIds));
                   },
-                ),
-              ],
-            );
-          }
+                );
+              }
 
-          if (state is IapError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    size: 64,
-                    color: Colors.red,
+              if (state is IapActiveSubscription) {
+                return _AlreadySubscribedContent(
+                  daysRemaining: state.subscription.daysRemaining,
+                  productId: state.subscription.productId,
+                  fromRestoreOrFirstPurchase: state.fromRestoreOrFirstPurchase,
+                  onReconnect: () => context.go(LoginPage.path),
+                  onGoToDashboard: () => context.go(HomeScreen.path),
+                );
+              }
+
+              if (state is IapRestoreSuccess) {
+                return _RestoreResultContent(
+                  subscriptionExpired: state.subscriptionExpired,
+                  purchaseCount: state.purchases.length,
+                  onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
+                  onGoToDashboard: () => context.go(HomeScreen.path),
+                );
+              }
+
+              if (state is IapProductsLoaded) {
+                if (state.products.isEmpty) {
+                  return const Center(
+                    child: Text('Aucun produit disponible'),
+                  );
+                }
+
+                return ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    ...List.generate(
+                      state.products.length,
+                      (index) {
+                        final product = state.products[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: ProductCard(
+                            product: product,
+                            onPurchase: () {
+                              context.read<IapBloc>().add(
+                                    PurchaseProduct(
+                                      productId: product.id,
+                                      amount: product.price,
+                                      currencyCode: product.currencyCode,
+                                      patientId: context.read<AuthBloc>().state is AuthAuthenticated ? (context.read<AuthBloc>().state as AuthAuthenticated).user.patID : '',
+                                    ),
+                                  );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              }
+
+              if (state is IapError) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        state.failure.message,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<IapBloc>().add(LoadProducts(productIds: productIds));
+                        },
+                        child: const Text('Réessayer'),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    state.failure.message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<IapBloc>().add(LoadProducts(productIds: productIds));
-                    },
-                    child: const Text('Réessayer'),
-                  ),
-                ],
-              ),
-            );
-          }
+                );
+              }
 
-          // État initial - charger les produits
-          if (state is IapInitial) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              context.read<IapBloc>().add(LoadProducts(productIds: productIds));
-            });
+              // État initial - charger les produits
+              if (state is IapInitial) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  context.read<IapBloc>().add(LoadProducts(productIds: productIds));
+                });
+              }
 
-          }
-
-          return const Center(
-            child: Text('Chargement des abonnements...'),
-          );
-        },
-      ),
+              return const Center(
+                child: Text('Chargement des abonnements...'),
+              );
+            },
+          ),
         );
       },
     );
@@ -560,15 +539,11 @@ class _RestoreResultContent extends StatelessWidget {
             Icon(
               subscriptionExpired ? Icons.event_busy_rounded : Icons.restore_rounded,
               size: 80,
-              color: subscriptionExpired
-                  ? Colours.secondaryText
-                  : Colours.primaryBlue,
+              color: subscriptionExpired ? Colours.secondaryText : Colours.primaryBlue,
             ),
             const SizedBox(height: 32),
             Text(
-              subscriptionExpired
-                  ? 'Abonnement restauré mais expiré'
-                  : 'Restauration réussie',
+              subscriptionExpired ? 'Abonnement restauré mais expiré' : 'Restauration réussie',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Colours.primaryText,
@@ -577,11 +552,7 @@ class _RestoreResultContent extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              subscriptionExpired
-                  ? 'Votre abonnement a été retrouvé mais la date d\'expiration est dépassée. Veuillez renouveler pour continuer.'
-                  : (purchaseCount == 0
-                      ? 'Aucun achat à restaurer.'
-                      : '$purchaseCount achat(s) restauré(s).'),
+              subscriptionExpired ? 'Votre abonnement a été retrouvé mais la date d\'expiration est dépassée. Veuillez renouveler pour continuer.' : (purchaseCount == 0 ? 'Aucun achat à restaurer.' : '$purchaseCount achat(s) restauré(s).'),
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Colours.secondaryText,
                     height: 1.4,

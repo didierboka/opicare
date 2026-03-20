@@ -120,8 +120,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
             }
           },
         );
-      } else if (currentState is! IapActiveSubscription ||
-          !currentState.fromRestoreOrFirstPurchase) {
+      } else if (currentState is! IapActiveSubscription || !currentState.fromRestoreOrFirstPurchase) {
         final subResult = await getActiveSubscriptionUseCase.execute();
         final expired = subResult.fold((_) => true, (sub) => sub == null || !sub.isActive);
         emit(IapRestoreSuccess(
@@ -138,8 +137,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
         : currentState is IapPendingPayment
             ? currentState.productId
             : '';
-    final isCurrentPurchase = currentProductId.isNotEmpty &&
-        (purchase.productId == currentProductId || purchase.productId.isEmpty);
+    final isCurrentPurchase = currentProductId.isNotEmpty && (purchase.productId == currentProductId || purchase.productId.isEmpty);
 
     if (!isCurrentPurchase) return;
 
@@ -185,13 +183,11 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     }
   }
 
-  Future<void> _onLoadProducts(
-    LoadProducts event,
-    Emitter<IapState> emit,
-  ) async {
+  Future<void> _onLoadProducts(LoadProducts event, Emitter<IapState> emit) async {
     emit(const IapLoading());
 
     final subResult = await getActiveSubscriptionUseCase.execute();
+
     subResult.fold(
       (failure) => null,
       (sub) {
@@ -201,6 +197,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
         }
       },
     );
+
     if (state is IapActiveSubscription) return;
 
     final result = await getProductsUseCase.execute(
@@ -213,18 +210,16 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     );
   }
 
-  Future<void> _onPurchaseProduct(
-    PurchaseProduct event,
-    Emitter<IapState> emit,
-  ) async {
-    if (event.patientId.trim().isEmpty) {
-      emit(const IapPurchaseFailed(
-        message: 'Session invalide. Veuillez vous reconnecter puis réessayer.',
-      ));
+  Future<void> _onPurchaseProduct(PurchaseProduct event, Emitter<IapState> emit) async {
+    if (event.patientId.trim().isEmpty) { // Unable to purchase without patient ID
+      emit(const IapPurchaseFailed(message: 'Session invalide. Veuillez vous reconnecter puis réessayer.'));
       return;
     }
+
     emit(IapPurchasing(productId: event.productId));
+
     _startPurchaseWatchdog(productId: event.productId);
+
     _pendingAmount = event.amount;
     _pendingCurrencyCode = event.currencyCode;
     _pendingPatientId = event.patientId;
@@ -317,10 +312,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     emit(IapPurchaseSuccess(purchase: event.purchase!, daysRemaining: daysRemaining));
   }
 
-  void _onResetIapState(
-    ResetIapState event,
-    Emitter<IapState> emit,
-  ) {
+  void _onResetIapState(ResetIapState event, Emitter<IapState> emit,) {
     _stopPurchaseWatchdog();
     emit(const IapInitial());
   }

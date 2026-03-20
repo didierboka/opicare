@@ -24,14 +24,14 @@ class _LoginFormState extends State<LoginForm> {
   //  final emailOrPhoneController = TextEditingController(text: 'noeletc@yahoo.fr');
   //  final passwordController = TextEditingController(text: '1963');
 
-  final emailOrPhoneController = TextEditingController(text: "22064240");
-  final passwordController = TextEditingController(text: "8607");
+  //  final emailOrPhoneController = TextEditingController(text: "22064240");
+  //  final passwordController = TextEditingController(text: "8607");
 
   //  final emailOrPhoneController = TextEditingController(text: "4015180");
   //  final passwordController = TextEditingController(text: "4791");
 
-  //  final emailOrPhoneController = TextEditingController(text: "etchenoel@gmail.com");
-  //  final passwordController = TextEditingController(text: "9258");
+  final emailOrPhoneController = TextEditingController(text: "etchenoel@gmail.com");
+  final passwordController = TextEditingController(text: "9258");
 
   //  final emailOrPhoneController = TextEditingController();
   //  final passwordController = TextEditingController();
@@ -56,9 +56,7 @@ class _LoginFormState extends State<LoginForm> {
             showLoader(context, state is LoginLoading);
 
             if (state is LoginFailure) {
-              showSnackbar(context,
-                  message: state.message,
-                  type: MessageType.error);
+              showSnackbar(context, message: state.message, type: MessageType.error);
             }
           },
         ),
@@ -109,11 +107,7 @@ class _LoginFormState extends State<LoginForm> {
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
                       context.read<LoginBloc>().add(
-                        LoginSubmitted(
-                          emailOrPhone: emailOrPhoneController.text,
-                          password: passwordController.text,
-                          rememberMe: rememberMe,
-                        ),
+                        LoginSubmitted(emailOrPhone: emailOrPhoneController.text, password: passwordController.text, rememberMe: rememberMe),
                       );
                     }
                   },
