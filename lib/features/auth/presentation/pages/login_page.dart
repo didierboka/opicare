@@ -1,11 +1,11 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/auth/presentation/pages/register_page.dart';
 import 'package:opicare/features/auth/presentation/widgets/login_form.dart';
+import 'package:opicare/features/auth/presentation/widgets/partner_logos_row.dart';
 
 class LoginPage extends StatelessWidget {
 
@@ -24,16 +24,7 @@ class LoginPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              //  Image.asset(Media.user, height: 40),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(child: Image.asset(Media.logoINHP, height: 80)),
-                  const SizedBox(width: 20),
-                  Flexible(child: Image.asset(Media.logoMS, height: 70)),
-                ],
-              ),
+              const PartnerLogosRow(),
 
               const SizedBox(height: 20),
 

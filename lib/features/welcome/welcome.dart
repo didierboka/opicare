@@ -7,6 +7,8 @@ import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
 import 'package:opicare/features/auth/presentation/pages/register_page.dart';
 
+import '../auth/presentation/widgets/partner_logos_row.dart';
+
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -22,14 +24,7 @@ class WelcomeScreen extends StatelessWidget {
           children: [
             //  Image.asset(Media.logo, height: 150),
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(child: Image.asset(Media.logoINHP, height: 80)),
-                const SizedBox(width: 20),
-                Flexible(child: Image.asset(Media.logoMS, height: 80)),
-              ],
-            ),
+            const PartnerLogosRow(),
 
             const SizedBox(height: 20),
 
