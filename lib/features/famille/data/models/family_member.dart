@@ -1,4 +1,11 @@
 class FamilyMember {
+  /// Formules affichées dans l’écran Famille (abonnement payant).
+  static const Set<String> familyListedFormulas = {
+    'PREMIUM',
+    'BUSINESS',
+    'SERENITY',
+  };
+
   final String id;
   final String name;
   final String surname;
@@ -7,6 +14,10 @@ class FamilyMember {
   final String subscriptionDate;
   final String expirationDate;
   final String formula;
+
+  /// Indique si le membre a une formule éligible pour la liste Famille.
+  bool get hasSubscribedFormula =>
+      familyListedFormulas.contains(formula.trim().toUpperCase());
 
   FamilyMember({
     required this.id,

@@ -2,7 +2,6 @@
 //part of 'famille_bloc.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:opicare/core/di.dart';
 import 'package:opicare/features/famille/data/models/family_member.dart';
 import 'package:opicare/features/famille/data/repositories/family_repository.dart';
 
@@ -69,7 +68,9 @@ class FamilleBloc extends Bloc<FamilleEvent, FamilleState> {
         emit(FamilleError(res.message!));
         return;
       }
-      emit(FamilleLoaded(res.datas!));
+      final subscribedMembers =
+          res.datas!.where((m) => m.hasSubscribedFormula).toList();
+      emit(FamilleLoaded(subscribedMembers));
     } catch (e) {
       emit(FamilleError(e.toString()));
     }
