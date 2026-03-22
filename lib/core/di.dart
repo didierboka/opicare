@@ -17,6 +17,8 @@ import 'package:opicare/features/disponibilite_vaccins/data/models/vaccin_model.
 import 'package:opicare/features/disponibilite_vaccins/data/repositories/dispo_vaccin_repository.dart';
 import 'package:opicare/features/famille/data/models/family_member.dart';
 import 'package:opicare/features/famille/data/repositories/family_repository.dart';
+import 'package:opicare/features/famille/domain/repositories/family_repository.dart';
+import 'package:opicare/features/famille/domain/usecases/add_family_member_usecase.dart';
 import 'package:opicare/features/hopitaux/data/models/responsable_model.dart';
 import 'package:opicare/features/hopitaux/data/models/type_visite_model.dart';
 import 'package:opicare/features/hopitaux/data/repositories/hopitaux_repository.dart';
@@ -299,6 +301,9 @@ class Di {
     // Family Repository - Gestion des membres de famille
     _getIt.registerLazySingleton<FamilyRepository>(
       () => FamilyRepositoryImpl(),
+    );
+    _getIt.registerLazySingleton<AddFamilyMemberUseCase>(
+      () => AddFamilyMemberUseCase(_getIt<FamilyRepository>()),
     );
 
     // Dispo Vaccin Repository - Disponibilité des vaccins

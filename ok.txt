@@ -17,3 +17,51 @@
     -   le ID du district
     -   le ID de region
 
+
+
+---------------------------------- FEATURES ----------------------------------------
+NOUVELLE FEATURE : Ajouter un membre a la famille (icon: +)
+Nous allons ajouter une nouvelle feature :
+- Sur la page de famille, un bouton (flotant) pour ajouter un membre (+)
+- Au click sur ce bouton, redirigeons le user sur une page d ajout du membre
+- Sur cette nouvelle page, il y a 2 champs, un pour le login et l autre pour le mot de passe et un bouton de soumission (Rechercher)
+- Au clic sur le bouton de recherche, utiliser l api de "login" afin de lancer une requete de login et de mot de passe puis utilise.
+- Un popup (bien style) s ouvre afin de afficher le user appartenant aux infos de (login/mot de passe) ou un message d inconnu dans le popup
+- L api de login existe deja dans le projet. branchons la feature sur cette api afin d avoir le retour de response.
+
+- Pour repository, les blocs, usecases de l ajout de membre inspire des existants des autres features
+
+- Sur le page de connexion en bas du bouton de connexion (au dessus de l action de Creation de compte) et aligner a droite de l ecran
+- Au clic sur action de mot de passe oublie, redirigeons le user sur une page.
+- Sur cette page, il y a un bouton de retour, un titre (pour l action), un champs de saisie d une adresse mail, un bouton pour la soumission de la reinitialisation
+- Pour repository, les blocs, usecases de la reinitialisation analyse le logique deja existante et inspire toi
+	- API (https://opisms.net/opisms-ws/api/v1/user/password/reset/v1)
+	- Body :
+		{
+	    	"d": "PROD",
+	    	"email": "didierboka.developer@gmail.com"
+		}
+	- Response :
+		{
+	  		"code": 0,
+	  		"msg": "Votre demande a bien été prise en compte !"
+		}
+
+	- pour les entities et les models (inspire des existants ou regarde le rule du projet)
+
+Maintenant ajoutons le membre retrouve :
+- Au clic sur le bouton "Ajouter" du membre retrouve, on recupere le login et le mot de passe (du membre retrouve) et le PatID du user connecte (qui a fait la recherche pour l ajout)
+- Pour repository, les blocs, usecases de l ajout de membre inspire des existants des autres features.
+- Voici les infos :
+    - API :     https://opisms.net/opisms-ws/api/v1/user/ajoutfamille
+    - Body :
+        {
+          "login": "22064240",
+          "password": "8607",
+          "id": "216",
+          "d": "PROD"
+        }
+    - Response :
+        comme les existants (code & msg)
+
+- On affichera un dialog pour le retour avec le message (de msg) et un bouton de retour "OK" qui retournera sur la liste de famille

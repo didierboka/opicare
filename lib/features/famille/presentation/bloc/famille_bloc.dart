@@ -3,7 +3,7 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/features/famille/data/models/family_member.dart';
-import 'package:opicare/features/famille/data/repositories/family_repository.dart';
+import 'package:opicare/features/famille/domain/repositories/family_repository.dart';
 
 abstract class FamilleEvent {}
 

@@ -18,6 +18,8 @@ import 'package:opicare/features/change_password/presentation/bloc/change_pwd_bl
 import 'package:opicare/features/change_password/presentation/pages/change_password_screen.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/bloc/dispo_vaccin_bloc.dart';
 import 'package:opicare/features/disponibilite_vaccins/presentation/pages/disponibilite_vaccin_screen.dart';
+import 'package:opicare/features/famille/presentation/bloc/add_family_member_lookup_cubit.dart';
+import 'package:opicare/features/famille/presentation/pages/add_family_member_page.dart';
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/hopitaux/presentation/bloc/hopitaux_bloc.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
@@ -209,6 +211,15 @@ final appRouter = GoRouter(
       path: FamilleScreen.path,
       builder: (context, state) => FamilleScreen(
         key: ValueKey(state.uri.queryParameters['refresh'] ?? 'famille'),
+      ),
+    ),
+    GoRoute(
+      path: AddFamilyMemberPage.path,
+      builder: (context, state) => BlocProvider(
+        create: (_) => AddFamilyMemberLookupCubit(
+          authRepository: Di.get<AuthRepository>(),
+        ),
+        child: const AddFamilyMemberPage(),
       ),
     ),
     GoRoute(
