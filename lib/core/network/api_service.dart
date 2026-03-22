@@ -10,7 +10,12 @@ import 'package:opicare/core/helpers/debug_logger.dart';
 import '../constants/api_url.dart';
 
 class ApiService<T> {
+  /// Timeout HTTP par tentative ([get] / [post]) lorsqu'aucun délai n'est passé.
+  static const Duration defaultHttpTimeout = Duration(seconds: 90);
 
+  /// Temps max pour laisser une requête se terminer avec retries côté [ApiService]
+  /// (3 × [defaultHttpTimeout] + pauses entre tentatives). À utiliser pour les `.timeout` des blocs.
+  static const Duration defaultOperationTimeout = Duration(seconds: 300);
 
   final String baseUrl;
   final String baseUrlAgent;
@@ -60,16 +65,17 @@ class ApiService<T> {
       url = Uri.parse('$baseUrl$endpoint');
     }
 
-    DebugLogger.network('GET URL: ${url.toString()} (timeout: ${timeout ?? const Duration(seconds: 30)})');
+    DebugLogger.network('GET URL: ${url.toString()} (timeout: ${timeout ?? defaultHttpTimeout})');
 
     // Timeout global pour toutes les tentatives
+    final perAttempt = timeout ?? defaultHttpTimeout;
     final globalTimeout = Duration(
-      seconds: (timeout ?? const Duration(seconds: 30)).inSeconds * maxRetries,
+      seconds: perAttempt.inSeconds * maxRetries,
     );
 
     try {
       return await Future.any([
-        _performGetWithRetries(url, timeout ?? const Duration(seconds: 30), maxRetries),
+        _performGetWithRetries(url, perAttempt, maxRetries),
         Future.delayed(globalTimeout, () => CustomResponse<T>(
           status: false,
           message: 'Timeout global dépassé après ${globalTimeout.inSeconds} secondes',
@@ -193,17 +199,18 @@ class ApiService<T> {
     }
 
     DebugLogger.network('POST URL: ${url.toString()}');
-    DebugLogger.network('Data being sent (timeout: ${timeout ?? const Duration(seconds: 60)}): ${jsonEncode(data)}');
+    DebugLogger.network('Data being sent (timeout: ${timeout ?? defaultHttpTimeout}): ${jsonEncode(data)}');
     DebugLogger.network('overrideD value: $overrideD');
 
     // Timeout global pour toutes les tentatives
+    final perAttempt = timeout ?? defaultHttpTimeout;
     final globalTimeout = Duration(
-      seconds: (timeout ?? const Duration(seconds: 60)).inSeconds * maxRetries,
+      seconds: perAttempt.inSeconds * maxRetries,
     );
 
     try {
       return await Future.any([
-        _performPostWithRetries(url, data, useFormData, timeout ?? const Duration(seconds: 60), maxRetries),
+        _performPostWithRetries(url, data, useFormData, perAttempt, maxRetries),
 
         Future.delayed(globalTimeout, () => CustomResponse<T>(
           status: false,

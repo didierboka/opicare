@@ -9,6 +9,9 @@ import 'package:opicare/features/auth/presentation/bloc/login/login_bloc.dart';
 import 'package:opicare/features/auth/presentation/bloc/register/register_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
 import 'package:opicare/features/auth/presentation/pages/register_page.dart';
+import 'package:opicare/features/password_reset/domain/usecases/request_password_reset_usecase.dart';
+import 'package:opicare/features/password_reset/presentation/bloc/password_reset_bloc.dart';
+import 'package:opicare/features/password_reset/presentation/pages/forgot_password_page.dart';
 import 'package:opicare/features/cgu/pages/cgu_page.dart';
 import 'package:opicare/features/change_password/presentation/bloc/change_pwd_bloc.dart';
 import 'package:opicare/features/change_password/presentation/pages/change_password_screen.dart';
@@ -93,6 +96,15 @@ final appRouter = GoRouter(
           authRepository: Di.get<AuthRepository>(),
         ),
         child: const RegisterPage(),
+      ),
+    ),
+    GoRoute(
+      path: ForgotPasswordPage.path,
+      builder: (context, state) => BlocProvider(
+        create: (_) => PasswordResetBloc(
+          requestPasswordResetUseCase: Di.get<RequestPasswordResetUseCase>(),
+        ),
+        child: const ForgotPasswordPage(),
       ),
     ),
     GoRoute(

@@ -5,6 +5,7 @@ import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/auth/presentation/pages/register_page.dart';
 import 'package:opicare/features/auth/presentation/widgets/login_form.dart';
+import 'package:opicare/features/password_reset/presentation/pages/forgot_password_page.dart';
 import 'package:opicare/features/auth/presentation/widgets/partner_logos_row.dart';
 
 class LoginPage extends StatelessWidget {
@@ -39,6 +40,20 @@ class LoginPage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               LoginForm(),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerRight,
+                child: GestureDetector(
+                  onTap: () => context.push(ForgotPasswordPage.path),
+                  child: Text(
+                    'Mot de passe oublié ? Réinitialisez !',
+                    style: TextStyles.bodyRegular.copyWith(
+                      color: Colours.primaryBlue,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 20),
               RichText(
                 text: TextSpan(

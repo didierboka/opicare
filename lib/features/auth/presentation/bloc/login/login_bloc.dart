@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
 import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
@@ -27,7 +28,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         password: event.password,
         //rememberMe: event.rememberMe,
       ).timeout(
-        const Duration(seconds: 30),
+        ApiService.defaultOperationTimeout,
         onTimeout: () {
           throw TimeoutException(
             'Login request timed out',

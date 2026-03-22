@@ -29,6 +29,10 @@ import 'package:opicare/features/notifications/data/repositories/sms_repository.
 import 'package:opicare/features/notifications/domain/repositories/sms_repository.dart';
 import 'package:opicare/features/notifications/domain/usecases/get_sms_recus_usecase.dart';
 import 'package:opicare/features/notifications/presentation/bloc/sms_bloc.dart';
+import 'package:opicare/features/password_reset/data/repositories/password_reset_repository_impl.dart';
+import 'package:opicare/features/password_reset/domain/repositories/password_reset_repository.dart';
+import 'package:opicare/features/password_reset/domain/usecases/request_password_reset_usecase.dart';
+import 'package:opicare/features/password_reset/presentation/bloc/password_reset_bloc.dart';
 import 'package:opicare/features/plan_abonnement/data/models/formule_model.dart';
 import 'package:opicare/features/plan_abonnement/data/repositories/formule_repository.dart';
 import 'package:opicare/features/sante_infos/data/datasources/sante_info_remote_datasource.dart';
@@ -336,6 +340,19 @@ class Di {
     // Change Password Repository - Changement de mot de passe
     _getIt.registerLazySingleton<ChangePwdRepository>(
       () => ChangePwdRepositoryImpl(),
+    );
+
+    // Password reset (mot de passe oublié)
+    _getIt.registerLazySingleton<PasswordResetRepository>(
+      () => PasswordResetRepositoryImpl(),
+    );
+    _getIt.registerLazySingleton<RequestPasswordResetUseCase>(
+      () => RequestPasswordResetUseCase(_getIt<PasswordResetRepository>()),
+    );
+    _getIt.registerFactory<PasswordResetBloc>(
+      () => PasswordResetBloc(
+        requestPasswordResetUseCase: _getIt<RequestPasswordResetUseCase>(),
+      ),
     );
 
     // Responsable Model Repository - Gestion des responsables
