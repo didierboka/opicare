@@ -7,6 +7,8 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- **iap**: finalisation & validation inapp purchase ([8cbc559](https://github.com/didierboka/opicare/commit/8cbc559))
+- **iap**: affichage des abonnements OK ([48bc93c](https://github.com/didierboka/opicare/commit/48bc93c))
 - ajout de plusieurs features... ([245a281](https://github.com/didierboka/opicare/commit/245a281))
 - **carnet-photo**: ajout de photo dans visite effectuee ([5f839eb](https://github.com/didierboka/opicare/commit/5f839eb))
 - ajout de la redirection vers une map native de la localisation d un centre ([034c687](https://github.com/didierboka/opicare/commit/034c687))
@@ -35,6 +37,24 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- deploiement version 1.0.4 code 16 aux stores ([3648754](https://github.com/didierboka/opicare/commit/3648754))
+- deploiement version 1.0.3 code 15 aux stores ([28da8fc](https://github.com/didierboka/opicare/commit/28da8fc))
+- **ui**: interchangement des logos partners ([a0f033d](https://github.com/didierboka/opicare/commit/a0f033d))
+- **git**: merge de la branche production ([313b5cc](https://github.com/didierboka/opicare/commit/313b5cc))
+- deploiement version 1.0.2 code 14 aux stores ([ceff42d](https://github.com/didierboka/opicare/commit/ceff42d))
+- deploiement version 1.0.1 code 13 aux stores ([4c4a31b](https://github.com/didierboka/opicare/commit/4c4a31b))
+- version 1.0.1-12 pour stores ([7e9db51](https://github.com/didierboka/opicare/commit/7e9db51))
+- **flutter**: migration de version de flutter et build 1.0.1-10 ([06e382f](https://github.com/didierboka/opicare/commit/06e382f))
+- **flutter**: backup avant changement de version vers 3.35.0 ([f784f48](https://github.com/didierboka/opicare/commit/f784f48))
+- **iap**: ajout partiel des paiements abonnements ([7befa91](https://github.com/didierboka/opicare/commit/7befa91))
+- merge production branch ([cc6c47e](https://github.com/didierboka/opicare/commit/cc6c47e))
+- add subscription init ([aec4f4f](https://github.com/didierboka/opicare/commit/aec4f4f))
+- version for store ([90ebba5](https://github.com/didierboka/opicare/commit/90ebba5))
+- merge des corrections de la branch develop ([6fa7920](https://github.com/didierboka/opicare/commit/6fa7920))
+- config final signature appbundle ([92f49b1](https://github.com/didierboka/opicare/commit/92f49b1))
+- ajout cle de configuration ([213070b](https://github.com/didierboka/opicare/commit/213070b))
+- mise a jour dans le changelog ([4180cea](https://github.com/didierboka/opicare/commit/4180cea))
+- update changelog [skip ci] ([6a1b312](https://github.com/didierboka/opicare/commit/6a1b312))
 - stashed avant la configuration de firebase ([54e9438](https://github.com/didierboka/opicare/commit/54e9438))
 - fake pour gagner quelques jours de dev jusqu au mercredi ([ca3c18b](https://github.com/didierboka/opicare/commit/ca3c18b))
 - wip implementation de l api de CinetPay ([6fa9b09](https://github.com/didierboka/opicare/commit/6fa9b09))
@@ -73,6 +93,11 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - add GitHub Actions for changelog automation ([f855a1a](https://github.com/didierboka/opicare/commit/f855a1a))
 
 ### Fixed
+- **ui**: reactivation controle carnet/abonnement dans famille ([7946517](https://github.com/didierboka/opicare/commit/7946517))
+- **ui**: revision liste de famille avec formule PREMIUM ([7e6f364](https://github.com/didierboka/opicare/commit/7e6f364))
+- correction du flow abonnement google/apple ([b52dfb3](https://github.com/didierboka/opicare/commit/b52dfb3))
+- **apple**: revision du retour de Apple du 11/03/2026 a 14h36 ([5bff989](https://github.com/didierboka/opicare/commit/5bff989))
+- correction selection du genre ([12cc73d](https://github.com/didierboka/opicare/commit/12cc73d))
 - wip ajout du paiement CinetPay ([093dee1](https://github.com/didierboka/opicare/commit/093dee1))
 - statbilisation & revision de logics ([34efab8](https://github.com/didierboka/opicare/commit/34efab8))
 - ajout de photo dans visite effectuee ([802db75](https://github.com/didierboka/opicare/commit/802db75))
