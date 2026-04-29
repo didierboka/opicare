@@ -1,6 +1,7 @@
 class FamilyMember {
   /// Formules affichées dans l’écran Famille (abonnement payant).
   static const Set<String> familyListedFormulas = {
+    'STANDARD',
     'PREMIUM',
     'BUSINESS',
     'SERENITY',
