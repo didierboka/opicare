@@ -16,7 +16,6 @@ import 'package:opicare/features/jours_vaccins/presentation/pages/jours_vaccin_s
 import 'package:opicare/features/notifications/presentation/pages/notifications_screens.dart';
 import 'package:opicare/features/plan_abonnement/presentation/pages/plan_abonnement.dart';
 
-import 'package:opicare/core/di.dart';
 import 'package:opicare/features/welcome/welcome.dart';
 
 class CustomDrawer extends StatelessWidget {

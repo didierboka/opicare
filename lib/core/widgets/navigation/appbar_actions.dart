@@ -38,8 +38,8 @@ class AppBarActions extends StatelessWidget {
                   },
           ),
         IconButton(
-          icon: Icon(Icons.menu, color: isSubscriptionExpired ? Colors.grey.withOpacity(0.5) : Colours.homeCardSecondaryButtonBlue),
-          onPressed: isSubscriptionExpired ? onDisabledTap : () => scaffoldKey.currentState?.openDrawer(),
+          icon: Icon(Icons.menu, color: Colours.homeCardSecondaryButtonBlue),
+          onPressed: () => scaffoldKey.currentState?.openDrawer(),
         ),
       ],
     );
