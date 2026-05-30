@@ -24,7 +24,8 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
-    final isSubscriptionExpired = SubscriptionHelper.isSubscriptionExpired(user);
+    final isSubscriptionExpired =
+        SubscriptionHelper.isSubscriptionExpired(user);
 
     return BlocConsumer<AuthBloc, AuthState>(listener: (context, state) {
       if (state is AuthUnauthenticated) {
@@ -49,13 +50,19 @@ class CustomDrawer extends StatelessWidget {
                   const SizedBox(height: 15),
                   Row(
                     children: [
-                      CircleAvatar(radius: 30, backgroundImage: AssetImage(Media.userProfil)),
+                      CircleAvatar(
+                          radius: 30,
+                          backgroundImage: AssetImage(Media.userProfil)),
                       const SizedBox(width: 10),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(user.surname, style: TextStyles.bodyBold.copyWith(color: Colours.background)),
-                          Text(user.phone, style: TextStyles.bodyRegular.copyWith(color: Colours.background)),
+                          Text(user.surname,
+                              style: TextStyles.bodyBold
+                                  .copyWith(color: Colours.background)),
+                          Text(user.phone,
+                              style: TextStyles.bodyRegular
+                                  .copyWith(color: Colours.background)),
                         ],
                       )
                     ],
@@ -79,41 +86,56 @@ class CustomDrawer extends StatelessWidget {
                   _buildDrawerItem(
                       icon: Icons.vaccines,
                       text: 'Mon carnet de santé',
-                      isDisabled: SubscriptionHelper.shouldDisableOption('Mon carnet de santé', isSubscriptionExpired) || !SubscriptionHelper.canAccessCarnet(user),
+                      isDisabled: SubscriptionHelper.shouldDisableOption(
+                              'Mon carnet de santé', isSubscriptionExpired) ||
+                          !SubscriptionHelper.canAccessCarnet(user),
                       onTap: () {
                         //  context.go(CarnetSanteScreen.path);
 
                         if (isSubscriptionExpired) {
-                          SubscriptionHelper.showSubscriptionExpiredDialog(context);
+                          SubscriptionHelper.showSubscriptionExpiredDialog(
+                              context);
                           return;
                         }
                         if (SubscriptionHelper.canAccessCarnet(user)) {
                           context.go(CarnetSanteScreen.path);
                         } else {
-                          SubscriptionHelper.showCarnetAccessDeniedDialog(context);
+                          SubscriptionHelper.showCarnetAccessDeniedDialog(
+                              context);
                         }
                       }),
                   _buildDrawerItem(
                       icon: Icons.family_restroom,
-                      isDisabled: SubscriptionHelper.shouldDisableOption('Ma famille', isSubscriptionExpired) || !SubscriptionHelper.canAccessFamily(user),
+                      isDisabled: SubscriptionHelper.shouldDisableOption(
+                              'Ma famille', isSubscriptionExpired) ||
+                          !SubscriptionHelper.canAccessFamily(user),
                       text: 'Ma famille',
                       onTap: () {
                         //  context.go(FamilleScreen.path);
 
                         if (isSubscriptionExpired) {
-                          SubscriptionHelper.showSubscriptionExpiredDialog(context);
+                          SubscriptionHelper.showSubscriptionExpiredDialog(
+                              context);
                           return;
                         }
                         if (SubscriptionHelper.canAccessCarnet(user)) {
                           context.go(FamilleScreen.path);
                         } else {
-                          SubscriptionHelper.showCarnetAccessDeniedDialog(context);
+                          SubscriptionHelper.showCarnetAccessDeniedDialog(
+                              context);
                         }
                       }),
                   _buildDrawerItem(
                       icon: Icons.notifications,
                       text: 'Notifications',
+                      isDisabled: SubscriptionHelper.shouldDisableOption(
+                          'Notifications', isSubscriptionExpired),
                       onTap: () {
+                        if (isSubscriptionExpired) {
+                          SubscriptionHelper.showSubscriptionExpiredDialog(
+                              context);
+                          return;
+                        }
                         context.go(NotificationScreen.path, extra: user.patID);
                       }),
                   _buildDrawerItem(
@@ -140,9 +162,9 @@ class CustomDrawer extends StatelessWidget {
                       onTap: () {
                         context.go(DisponibiliteVaccinScreen.path);
                       }),
-
-                  SizedBox(height: 20,),
-
+                  SizedBox(
+                    height: 20,
+                  ),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Row(
@@ -155,9 +177,9 @@ class CustomDrawer extends StatelessWidget {
                             width: 50,
                           ),
                         ),
-
-                        SizedBox(width: 10,),
-
+                        SizedBox(
+                          width: 10,
+                        ),
                         Expanded(
                           flex: 2,
                           child: Image.asset(
@@ -198,14 +220,20 @@ class CustomDrawer extends StatelessWidget {
     });
   }
 
-  Widget _buildDrawerItem({required IconData icon, required String text, required VoidCallback onTap, bool isDisabled = false}) {
+  Widget _buildDrawerItem(
+      {required IconData icon,
+      required String text,
+      required VoidCallback onTap,
+      bool isDisabled = false}) {
     return Opacity(
       opacity: isDisabled ? 0.5 : 1.0,
       child: Column(
         children: [
           ListTile(
             leading: Icon(icon, color: Colours.secondaryText),
-            title: Text(text, style: TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
+            title: Text(text,
+                style: TextStyles.bodyRegular
+                    .copyWith(color: Colours.primaryText)),
             onTap: onTap,
           ),
           const Divider(height: 1, color: Colours.inputBorder),
@@ -222,7 +250,9 @@ class CustomDrawer extends StatelessWidget {
         children: [
           Icon(icon, color: Colours.secondaryText),
           const SizedBox(height: 4),
-          Text(label, style: TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
+          Text(label,
+              style:
+                  TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
         ],
       ),
     );
