@@ -51,7 +51,6 @@ class FamilleScreen extends StatelessWidget {
   }
 
 
-
   Widget _buildFamilyMembersList() {
     return BlocBuilder<FamilleBloc, FamilleState>(
       builder: (context, state) {
