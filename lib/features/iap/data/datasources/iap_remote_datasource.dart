@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/core/helpers/debug_logger.dart';
@@ -23,6 +25,7 @@ abstract class IapRemoteDataSource {
     double? amount,
     String? currencyCode,
     String? patientId,
+    String? signedTransactionInfo,
   });
 }
 
@@ -43,6 +46,7 @@ class IapRemoteDataSourceImpl implements IapRemoteDataSource {
     double? amount,
     String? currencyCode,
     String? patientId,
+    String? signedTransactionInfo,
   }) async {
     try {
       DebugLogger.info('Vérification de l\'achat: $productId');
@@ -64,10 +68,15 @@ class IapRemoteDataSourceImpl implements IapRemoteDataSource {
       // Préparer les données à envoyer au backend
       final requestData = <String, dynamic>{
         'purchase_id': purchaseId,
+        'transaction_id': purchaseId,
         'product_id': productId,
         'verification_data': verificationData,
         'idpat': idpat,
+        'platform': Platform.isIOS ? 'apple' : 'google',
       };
+      if (signedTransactionInfo != null && signedTransactionInfo.isNotEmpty) {
+        requestData['signed_transaction_info'] = signedTransactionInfo;
+      }
 
       // Montant attendu côté backend.
       // On tente de convertir en FCFA (XOF). Si échec, on envoie le montant original.

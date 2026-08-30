@@ -41,14 +41,28 @@ class IapScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authState = context.read<AuthBloc>().state;
     final authUser = authState is AuthAuthenticated ? authState.user : null;
-    final beneficiaryPatId = purchaseContext?.beneficiaryPatId ?? authUser?.patID ?? '';
-    final beneficiaryLabel = purchaseContext?.beneficiaryLabel ??
-        [authUser?.name, authUser?.surname]
+    final isFamilyRenewal = purchaseContext?.isFamilyBeneficiary ?? false;
+    // En mode famille, jamais de fallback sur le patID du payeur.
+    final beneficiaryPatId = isFamilyRenewal
+        ? (purchaseContext?.beneficiaryPatId ?? '').trim()
+        : (authUser?.patID ?? '').trim();
+    final beneficiaryLabel = isFamilyRenewal
+        ? (purchaseContext?.beneficiaryLabel ?? '').trim()
+        : [authUser?.name, authUser?.surname]
             .where((value) => (value ?? '').trim().isNotEmpty)
             .join(' ')
             .trim();
-    final displayBeneficiaryLabel = beneficiaryLabel.isEmpty ? 'votre compte' : beneficiaryLabel;
-    final isFamilyRenewal = purchaseContext?.isFamilyBeneficiary ?? false;
+    final displayBeneficiaryLabel =
+        beneficiaryLabel.isEmpty ? 'votre compte' : beneficiaryLabel;
+    final appBarTitle = isFamilyRenewal
+        ? (beneficiaryLabel.isEmpty
+            ? 'Pass famille'
+            : 'Pass pour $displayBeneficiaryLabel')
+        : 'Souscription';
+    final beneficiaryBanner = _BeneficiaryBanner(
+      beneficiaryLabel: displayBeneficiaryLabel,
+      isFamilyRenewal: isFamilyRenewal,
+    );
 
     return BlocBuilder<IapBloc, IapState>(
       buildWhen: (previous, current) => true,
@@ -57,16 +71,17 @@ class IapScreen extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Souscription'),
+            title: Text(appBarTitle, overflow: TextOverflow.ellipsis),
             backgroundColor: Colours.background,
             actions: [
-              IconButton(
-                icon: const Icon(Icons.restore),
-                onPressed: () {
-                  context.read<IapBloc>().add(const RestorePurchases());
-                },
-                tooltip: 'Restaurer les achats',
-              ),
+              if (!isFamilyRenewal)
+                IconButton(
+                  icon: const Icon(Icons.restore),
+                  onPressed: () {
+                    context.read<IapBloc>().add(const RestorePurchases());
+                  },
+                  tooltip: 'Restaurer les achats',
+                ),
               if (showCloseButton)
                 IconButton(
                   icon: const Icon(Icons.close),
@@ -89,7 +104,9 @@ class IapScreen extends StatelessWidget {
           body: BlocConsumer<IapBloc, IapState>(
             listenWhen: (previous, current) => (previous is IapRestoring && current is IapRestoreSuccess) || current is IapVerificationSuccess,
             listener: (context, state) {
-              if (state is IapRestoreSuccess && !state.subscriptionExpired) {
+              if (state is IapRestoreSuccess &&
+                  !state.subscriptionExpired &&
+                  !isFamilyRenewal) {
                 final message = state.purchases.isEmpty ? 'Aucun achat à restaurer' : '${state.purchases.length} achat(s) restauré(s)';
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -110,17 +127,29 @@ class IapScreen extends StatelessWidget {
             },
             buildWhen: (previous, current) => current is IapInitial || current is IapLoading || current is IapPurchasing || current is IapPendingPayment || current is IapVerifying || current is IapProductsLoaded || current is IapError || current is IapPurchaseSuccess || current is IapPurchaseActivationPending || current is IapPurchaseFailed || current is IapActiveSubscription || current is IapRestoreSuccess,
             builder: (context, state) {
+              if (isFamilyRenewal && beneficiaryPatId.isEmpty) {
+                return _PurchaseFailedContent(
+                  message:
+                      'Membre introuvable. Revenez à Ma famille et réessayez.',
+                  onSeePlans: () => context.go('/famille'),
+                );
+              }
+
               if (state is IapPurchasing) {
-                return const _PurchasingContent();
+                return _PurchasingContent(banner: beneficiaryBanner);
               }
               if (state is IapPendingPayment) {
                 return _PendingPaymentContent(
-                  onRestore: () => context.read<IapBloc>().add(const RestorePurchases()),
+                  isFamilyRenewal: isFamilyRenewal,
+                  beneficiaryLabel: displayBeneficiaryLabel,
+                  onRestore: isFamilyRenewal
+                      ? null
+                      : () => context.read<IapBloc>().add(const RestorePurchases()),
                   onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
                 );
               }
               if (state is IapVerifying) {
-                return const _ValidatingPurchaseContent();
+                return _ValidatingPurchaseContent(banner: beneficiaryBanner);
               }
 
               if (state is IapPurchaseSuccess) {
@@ -167,6 +196,26 @@ class IapScreen extends StatelessWidget {
                 );
               }
 
+              if (isFamilyRenewal &&
+                  (state is IapActiveSubscription || state is IapRestoreSuccess)) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  context.read<IapBloc>().add(LoadProducts(productIds: productIds));
+                });
+                return Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      beneficiaryBanner,
+                      const SizedBox(height: 24),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      const Text('Chargement des forfaits...'),
+                    ],
+                  ),
+                );
+              }
+
               if (state is IapActiveSubscription) {
                 return _AlreadySubscribedContent(
                   daysRemaining: state.subscription.daysRemaining,
@@ -209,16 +258,15 @@ class IapScreen extends StatelessWidget {
                           padding: const EdgeInsets.only(bottom: 16),
                           child: ProductCard(
                             product: product,
-                            onPurchase: () {
-                              context.read<IapBloc>().add(
-                                    PurchaseProduct(
-                                      productId: product.id,
-                                      amount: product.price,
-                                      currencyCode: product.currencyCode,
-                                      patientId: beneficiaryPatId,
-                                    ),
-                                  );
-                            },
+                            onPurchase: () => _confirmAndPurchase(
+                              context: context,
+                              productId: product.id,
+                              amount: product.price,
+                              currencyCode: product.currencyCode,
+                              beneficiaryPatId: beneficiaryPatId,
+                              displayBeneficiaryLabel: displayBeneficiaryLabel,
+                              isFamilyRenewal: isFamilyRenewal,
+                            ),
                           ),
                         );
                       },
@@ -262,8 +310,18 @@ class IapScreen extends StatelessWidget {
                 });
               }
 
-              return const Center(
-                child: Text('Chargement des abonnements...'),
+              return Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    beneficiaryBanner,
+                    const SizedBox(height: 24),
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    const Text('Chargement des abonnements...'),
+                  ],
+                ),
               );
             },
           ),
@@ -271,22 +329,81 @@ class IapScreen extends StatelessWidget {
       },
     );
   }
+
+  Future<void> _confirmAndPurchase({
+    required BuildContext context,
+    required String productId,
+    required double amount,
+    required String currencyCode,
+    required String beneficiaryPatId,
+    required String displayBeneficiaryLabel,
+    required bool isFamilyRenewal,
+  }) async {
+    if (isFamilyRenewal && beneficiaryPatId.isEmpty) {
+      return;
+    }
+
+    if (isFamilyRenewal) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: const Text('Confirmer l\'achat'),
+            content: Text(
+              'Vous achetez un pass annuel pour $displayBeneficiaryLabel. Continuer ?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Annuler'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Continuer'),
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed != true || !context.mounted) {
+        return;
+      }
+    }
+
+    debugPrint(
+      'IAP buy beneficiaryPatId=$beneficiaryPatId isFamilyRenewal=$isFamilyRenewal productId=$productId',
+    );
+
+    context.read<IapBloc>().add(
+          PurchaseProduct(
+            productId: productId,
+            amount: amount,
+            currencyCode: currencyCode,
+            patientId: beneficiaryPatId,
+          ),
+        );
+  }
 }
 
 /// Vue affichée pendant l'ouverture du flux d'achat (bouton « Souscrire » appuyé).
 /// Requis pour que l'utilisateur ait un retour visuel immédiat, notamment sur iPad.
 class _PurchasingContent extends StatelessWidget {
-  const _PurchasingContent();
+  final Widget banner;
+
+  const _PurchasingContent({required this.banner});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 24),
-          Text(
+          banner,
+          const SizedBox(height: 24),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 24),
+          const Text(
             'Ouverture du paiement...',
             style: TextStyle(fontSize: 16, color: Colours.secondaryText),
             textAlign: TextAlign.center,
@@ -424,16 +541,24 @@ class _PurchaseActivationPendingContent extends StatelessWidget {
 }
 
 class _PendingPaymentContent extends StatelessWidget {
-  final VoidCallback onRestore;
+  final VoidCallback? onRestore;
   final VoidCallback onSeePlans;
+  final bool isFamilyRenewal;
+  final String beneficiaryLabel;
 
   const _PendingPaymentContent({
     required this.onRestore,
     required this.onSeePlans,
+    required this.isFamilyRenewal,
+    required this.beneficiaryLabel,
   });
 
   @override
   Widget build(BuildContext context) {
+    final pendingMessage = isFamilyRenewal
+        ? 'Terminez le paiement App Store : l’activation se fera pour $beneficiaryLabel.'
+        : 'Si vous avez déjà validé le paiement, utilisez « Restaurer les achats ».\nSinon, terminez la validation dans l’App Store puis revenez ici.';
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -450,7 +575,7 @@ class _PendingPaymentContent extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Si vous avez déjà validé le paiement, utilisez « Restaurer les achats ».\nSinon, terminez la validation dans l’App Store puis revenez ici.',
+              pendingMessage,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colours.secondaryText,
                     height: 1.4,
@@ -458,21 +583,23 @@ class _PendingPaymentContent extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const Spacer(flex: 2),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: onRestore,
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colours.primaryBlue,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            if (!isFamilyRenewal && onRestore != null) ...[
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: onRestore,
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colours.primaryBlue,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
+                  child: const Text('Restaurer les achats'),
                 ),
-                child: const Text('Restaurer les achats'),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
+            ],
             TextButton(
               onPressed: onSeePlans,
               child: const Text('Recharger les forfaits'),
@@ -487,17 +614,22 @@ class _PendingPaymentContent extends StatelessWidget {
 
 /// Vue affichée pendant la validation du paiement côté serveur (avant l'écran de félicitations).
 class _ValidatingPurchaseContent extends StatelessWidget {
-  const _ValidatingPurchaseContent();
+  final Widget banner;
+
+  const _ValidatingPurchaseContent({required this.banner});
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Padding(
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 24),
-          Text(
+          banner,
+          const SizedBox(height: 24),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 24),
+          const Text(
             'Validation du paiement en cours...',
             style: TextStyle(fontSize: 16, color: Colours.secondaryText),
             textAlign: TextAlign.center,

@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:in_app_purchase/in_app_purchase.dart' as iap;
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
+import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/core/helpers/debug_logger.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
@@ -142,14 +146,35 @@ class IapRepositoryImpl implements IapRepository {
   }
 
   void _rememberPendingCompletion(iap.PurchaseDetails purchase) {
-    if (!purchase.pendingCompletePurchase) return;
-
     final key = _completionKey(
       productId: purchase.productID,
       purchaseId: purchase.purchaseID,
       verificationData: purchase.verificationData.serverVerificationData,
     );
     _pendingStoreCompletions[key] = purchase;
+  }
+
+  iap.PurchaseDetails? _takePendingStorePurchase(PurchaseEntity purchase) {
+    final key = _completionKey(
+      productId: purchase.productId,
+      purchaseId: purchase.purchaseId,
+      verificationData: purchase.verificationData,
+    );
+    final exact = _pendingStoreCompletions.remove(key);
+    if (exact != null) return exact;
+
+    final purchaseId = purchase.purchaseId.trim();
+    for (final entry in _pendingStoreCompletions.entries.toList()) {
+      final details = entry.value;
+      final idMatch =
+          purchaseId.isNotEmpty && (details.purchaseID ?? '') == purchaseId;
+      final productMatch = details.productID == purchase.productId;
+      if (idMatch || (productMatch && purchaseId.isEmpty)) {
+        _pendingStoreCompletions.remove(entry.key);
+        return details;
+      }
+    }
+    return null;
   }
 
   @override
@@ -188,16 +213,14 @@ class IapRepositoryImpl implements IapRepository {
           final purchaseModel = PurchaseModel.fromPurchaseDetails(purchase);
           _purchaseUpdatesController.add(purchaseModel.toEntity());
 
-          if (purchase.pendingCompletePurchase &&
-              (purchase.status == iap.PurchaseStatus.purchased ||
-                  purchase.status == iap.PurchaseStatus.restored)) {
+          if (purchase.status == iap.PurchaseStatus.purchased ||
+              purchase.status == iap.PurchaseStatus.restored) {
             DebugLogger.info('🧾 Achat store en attente de validation backend: ${purchase.productID}');
             _rememberPendingCompletion(purchase);
           } else if (purchase.status == iap.PurchaseStatus.error) {
             DebugLogger.error('❌ Erreur d\'achat: ${purchase.error?.message}');
           } else if (purchase.status == iap.PurchaseStatus.restored) {
-            DebugLogger.success('🔄 Abonnement deja effectue !');
-            DebugLogger.success('🔄 Achat restauré: ${purchase.productID}');
+            DebugLogger.info('🔄 Transaction store rejouée (restored): ${purchase.productID}');
           }
         }
       },
@@ -332,10 +355,22 @@ class IapRepositoryImpl implements IapRepository {
       final purchaseParam = iap.PurchaseParam(productDetails: productDetails);
       
       DebugLogger.info('💳 Lancement du flux d\'achat...');
-      final bool success = await _inAppPurchase.buyConsumable(
-        purchaseParam: purchaseParam,
-        autoConsume: false,
-      );
+      // Products are Consumable in the stores (same SKU can be bought again).
+      // Apple verifyReceipt only includes a consumable while the transaction is
+      // unfinished. The iOS plugin forbids buyConsumable(autoConsume: false), so
+      // we start the buy with buyNonConsumable (no auto-finish), then
+      // completePurchase after verifyPurchase. Android delays consume the same way.
+      final bool success;
+      if (Platform.isIOS) {
+        success = await _inAppPurchase.buyNonConsumable(
+          purchaseParam: purchaseParam,
+        );
+      } else {
+        success = await _inAppPurchase.buyConsumable(
+          purchaseParam: purchaseParam,
+          autoConsume: false,
+        );
+      }
 
       if (!success) {
         DebugLogger.error('❌ Impossible d\'initier l\'achat');
@@ -413,36 +448,66 @@ class IapRepositoryImpl implements IapRepository {
     String? currencyCode,
     String? patientId,
   }) async {
+    final receiptData = await _verificationDataForBackend(verificationData);
+    final signedTransaction = verificationData.startsWith('eyJ') ? verificationData : null;
     return await _remoteDataSource.verifyPurchase(
       purchaseId: purchaseId,
       productId: productId,
-      verificationData: verificationData,
+      verificationData: receiptData,
       amount: amount,
       currencyCode: currencyCode,
       patientId: patientId,
+      signedTransactionInfo: signedTransaction,
     );
+  }
+
+  /// Apple `verifyReceipt` expects the PKCS#7 app receipt (base64), not the
+  /// StoreKit 2 JWS (`serverVerificationData` starts with `eyJ` → status 21002).
+  Future<String> _verificationDataForBackend(String verificationData) async {
+    if (!Platform.isIOS) {
+      return verificationData;
+    }
+
+    try {
+      DebugLogger.info('Refresh du reçu App Store avant /iap/verify...');
+      await SKRequestMaker().startRefreshReceiptRequest();
+      final receipt = await SKReceiptManager.retrieveReceiptData();
+
+      if (receipt.isNotEmpty && !receipt.startsWith('eyJ')) {
+        DebugLogger.info(
+          'Reçu App Store PKCS#7 pour /iap/verify (${receipt.length} caractères)',
+        );
+        return receipt;
+      }
+    } catch (e) {
+      DebugLogger.warning('Impossible de lire le reçu App Store: $e');
+    }
+
+    DebugLogger.warning(
+      'Reçu App Store indisponible, envoi des données store telles quelles',
+    );
+    return verificationData;
   }
 
   @override
   Future<Either<Failure, Unit>> completePurchase(PurchaseEntity purchase) async {
     try {
-      final key = _completionKey(
-        productId: purchase.productId,
-        purchaseId: purchase.purchaseId,
-        verificationData: purchase.verificationData,
-      );
-      final storePurchase = _pendingStoreCompletions.remove(key);
+      final storePurchase = _takePendingStorePurchase(purchase);
 
-      if (storePurchase == null) {
-        DebugLogger.info('Aucune completion store en attente pour: ${purchase.productId}');
+      if (storePurchase != null) {
+        DebugLogger.info('✅ Finalisation store après activation backend: ${purchase.productId}');
+        await _inAppPurchase.completePurchase(storePurchase);
         return const Right(unit);
       }
 
-      if (storePurchase.pendingCompletePurchase) {
-        DebugLogger.info('✅ Finalisation store après activation backend: ${purchase.productId}');
-        await _inAppPurchase.completePurchase(storePurchase);
+      // Retry validation: PurchaseDetails may have left memory. SK2 can finish by transaction id.
+      if (Platform.isIOS && purchase.purchaseId.trim().isNotEmpty) {
+        DebugLogger.info('✅ Finalisation SK2 par transactionId: ${purchase.purchaseId}');
+        await SK2Transaction.finish(int.parse(purchase.purchaseId));
+        return const Right(unit);
       }
 
+      DebugLogger.info('Aucune completion store en attente pour: ${purchase.productId}');
       return const Right(unit);
     } catch (e) {
       DebugLogger.error('❌ Impossible de finaliser l\'achat store: $e');

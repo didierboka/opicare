@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/features/iap/domain/entities/purchase_entity.dart';
@@ -87,31 +88,24 @@ class IapBloc extends Bloc<IapEvent, IapState> {
 
     if (purchase.status == PurchaseStatus.restored) {
       final currentState = state;
+      final inFlightPurchase = currentState is IapPurchasing || currentState is IapPendingPayment;
 
-      // UX iOS: un "restored" peut arriver lors d'une tentative d'achat si l'abonnement existe déjà.
-      // Dans ce cas on affiche l'état "abonnement actif" plutôt qu'un snack de restauration.
-      if (currentState is IapPurchasing) {
-        final subResult = await getActiveSubscriptionUseCase.execute();
-        subResult.fold(
-          (_) => emit(const IapPurchaseFailed(
-            message: 'Votre abonnement a été retrouvé mais il est expiré. Veuillez renouveler pour continuer.',
-          )),
-          (sub) {
-            if (sub != null && sub.isActive) {
-              emit(IapActiveSubscription(subscription: sub, fromRestoreOrFirstPurchase: true));
-            } else {
-              emit(const IapPurchaseFailed(
-                message: 'Votre abonnement a été retrouvé mais il est expiré. Veuillez renouveler pour continuer.',
-              ));
-            }
-          },
-        );
+      if (inFlightPurchase) {
+        final currentProductId = currentState is IapPurchasing
+            ? currentState.productId
+            : (currentState as IapPendingPayment).productId;
+        final isCurrentPurchase = purchase.productId.isEmpty || purchase.productId == currentProductId;
+        if (isCurrentPurchase) {
+          await _verifyStorePurchase(purchase, emit, fallbackProductId: currentProductId);
+          return;
+        }
+        await completePurchaseUseCase.execute(purchase);
         return;
       }
 
-      _restoredPurchases.add(purchase);
-      final restoredList = List<PurchaseEntity>.from(_restoredPurchases);
       if (currentState is IapRestoring) {
+        _restoredPurchases.add(purchase);
+        final restoredList = List<PurchaseEntity>.from(_restoredPurchases);
         final subResult = await getActiveSubscriptionUseCase.execute();
         subResult.fold(
           (_) => emit(IapRestoreSuccess(purchases: restoredList, subscriptionExpired: true)),
@@ -123,14 +117,12 @@ class IapBloc extends Bloc<IapEvent, IapState> {
             }
           },
         );
-      } else if (currentState is! IapActiveSubscription || !currentState.fromRestoreOrFirstPurchase) {
-        final subResult = await getActiveSubscriptionUseCase.execute();
-        final expired = subResult.fold((_) => true, (sub) => sub == null || !sub.isActive);
-        emit(IapRestoreSuccess(
-          purchases: restoredList,
-          subscriptionExpired: expired,
-        ));
+        return;
       }
+
+      // Consumable: an unsolicited restored event is an unfinished StoreKit transaction.
+      // Finish it so the next buy can show a payment sheet. Do not verify without a known beneficiary.
+      await completePurchaseUseCase.execute(purchase);
       return;
     }
 
@@ -146,26 +138,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
 
     switch (purchase.status) {
       case PurchaseStatus.purchased:
-        _stopPurchaseWatchdog();
-        final resolvedProductId = purchase.productId.isNotEmpty ? purchase.productId : currentProductId;
-        if (resolvedProductId.isEmpty) {
-          emit(const IapPurchaseFailed(
-            message: 'Le paiement a été reçu mais le produit est introuvable. Veuillez réessayer.',
-          ));
-          return;
-        }
-        // Loggue le retour du store au format attendu (platform, idpat, productId, etc.).
-        await IapCompletionLogger.logPurchaseCompletion(purchase);
-        // Ne pas afficher l'écran de félicitations tout de suite : on appelle d'abord l'API de validation.
-        add(VerifyPurchase(
-          purchaseId: purchase.purchaseId,
-          productId: resolvedProductId,
-          verificationData: purchase.verificationData ?? '',
-          amount: _pendingAmount,
-          currencyCode: _pendingCurrencyCode,
-          patientId: _pendingPatientId,
-          purchase: purchase,
-        ));
+        await _verifyStorePurchase(purchase, emit, fallbackProductId: currentProductId);
         break;
       case PurchaseStatus.cancelled:
         _stopPurchaseWatchdog();
@@ -186,6 +159,31 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     }
   }
 
+  Future<void> _verifyStorePurchase(
+    PurchaseEntity purchase,
+    Emitter<IapState> emit, {
+    required String fallbackProductId,
+  }) async {
+    _stopPurchaseWatchdog();
+    final resolvedProductId = purchase.productId.isNotEmpty ? purchase.productId : fallbackProductId;
+    if (resolvedProductId.isEmpty) {
+      emit(const IapPurchaseFailed(
+        message: 'Le paiement a été reçu mais le produit est introuvable. Veuillez réessayer.',
+      ));
+      return;
+    }
+    await IapCompletionLogger.logPurchaseCompletion(purchase);
+    add(VerifyPurchase(
+      purchaseId: purchase.purchaseId,
+      productId: resolvedProductId,
+      verificationData: purchase.verificationData ?? '',
+      amount: _pendingAmount,
+      currencyCode: _pendingCurrencyCode,
+      patientId: _pendingPatientId,
+      purchase: purchase,
+    ));
+  }
+
   Future<void> _onLoadProducts(LoadProducts event, Emitter<IapState> emit) async {
     emit(const IapLoading());
 
@@ -200,10 +198,16 @@ class IapBloc extends Bloc<IapEvent, IapState> {
   }
 
   Future<void> _onPurchaseProduct(PurchaseProduct event, Emitter<IapState> emit) async {
-    if (event.patientId.trim().isEmpty) { // Unable to purchase without patient ID
-      emit(const IapPurchaseFailed(message: 'Session invalide. Veuillez vous reconnecter puis réessayer.'));
+    if (event.patientId.trim().isEmpty) {
+      emit(const IapPurchaseFailed(
+        message: 'Compte bénéficiaire introuvable. Impossible de lancer l\'achat.',
+      ));
       return;
     }
+
+    debugPrint(
+      'IAP PurchaseProduct patientId=${event.patientId} productId=${event.productId}',
+    );
 
     emit(IapPurchasing(productId: event.productId));
 
