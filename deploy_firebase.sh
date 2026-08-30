@@ -3,10 +3,12 @@
 
 # Configuration
 PROJECT_ID="opicare-2025"
-IOS_APP_ID="1:822401793104:ios:eba36db1ef2d0f9015a555"
+IOS_APP_ID="1:259776475722:ios:2ab27e3e406c3a692bacb3"
 ANDROID_APP_ID="1:259776475722:android:bf29660ecb8ce82f2bacb3"
-TESTER_GROUPS="testers-android"
-# TESTER_GROUPS="didierboka.developer@gmail.com"
+TESTER_GROUPS_IOS="testers-ios"
+TESTER_GROUPS_ANDROID="testers-android"
+# TESTER_GROUPS_IOS="didierboka.developer@gmail.com"
+# TESTER_GROUPS_ANDROID="didierboka.developer@gmail.com"
 RELEASE_NOTES_FILE="release_notes.txt"
 DEFAULT_RELEASE_NOTES="Build automatique - $(date '+%Y-%m-%d %H:%M')"
 
@@ -130,37 +132,74 @@ verify_ipa() {
     return 0
 }
 
+# Diagnostic des erreurs d'export IPA (PLA / profils Ad Hoc)
+diagnose_ios_ipa_failure() {
+    local log_file="$1"
+
+    print_error "Build iOS AD-HOC échoué"
+
+    if [ -f "$log_file" ] && grep -q "PLA Update available" "$log_file"; then
+        print_error "Apple bloque l'export: Paid License Agreement (PLA) à accepter."
+        echo "  1. https://developer.apple.com/account"
+        echo "  2. https://appstoreconnect.apple.com/agreements"
+        echo "  Accepter le Paid Applications Agreement, puis attendre ~5 min."
+    fi
+
+    if [ -f "$log_file" ] && grep -q "No profiles for" "$log_file"; then
+        print_error "Aucun profil Ad Hoc pour org.opisms.apps.opicare."
+        echo "  Les profils Development et App Store ne suffisent pas pour Firebase App Distribution."
+        echo "  Après acceptation du PLA :"
+        echo "    Xcode > Settings > Accounts > [OPISMS] > Download Manual Profiles"
+        echo "  Ou créer un profil Ad Hoc :"
+        echo "    https://developer.apple.com/account/resources/profiles/list"
+        echo "    Type: Ad Hoc, App ID: org.opisms.apps.opicare, team R82XPCP83Z"
+        echo "    Inclure les UDIDs des iPhone testeurs."
+    fi
+
+    if [ ! -f "$log_file" ] || ! grep -qE "PLA Update available|No profiles for" "$log_file"; then
+        print_error "Vérifiez :"
+        print_error "1. Accord PLA Apple accepté"
+        print_error "2. Certificat Apple Distribution: OPISMS SARL (R82XPCP83Z)"
+        print_error "3. Profil Ad Hoc avec les UDIDs des testeurs"
+    fi
+}
+
 # Fonction de build iOS
 build_ios() {
     print_step "Build iOS (IPA) avec profil AD-HOC..."
 
-    # Build obligatoirement avec ad-hoc pour Firebase App Distribution
-    if fvm flutter build ipa --release --export-method ad-hoc; then
-        if verify_ipa; then
-            IPA_SIZE=$(du -h build/ios/ipa/opicare.ipa | cut -f1)
-            print_success "Build iOS réussi avec AD-HOC (Taille: $IPA_SIZE)"
-
-            # Vérifier que c'est bien un build ad-hoc
-            print_step "Vérification du type de build..."
-            if unzip -p build/ios/ipa/opicare.ipa Payload/opicare.app/embedded.mobileprovision 2>/dev/null | strings | grep -q "get-task-allow.*false"; then
-                print_success "Profil AD-HOC confirmé"
-            else
-                print_warning "Le profil pourrait ne pas être AD-HOC"
-            fi
-
-            return 0
-        else
-            print_error "IPA généré mais vérification échouée"
-            return 1
-        fi
-    else
-        print_error "Build iOS AD-HOC échoué"
-        print_error "Vérifiez :"
-        print_error "1. Profil de provisionnement AD-HOC configuré"
-        print_error "2. Certificat de distribution iOS valide"
-        print_error "3. UDIDs des appareils testeurs ajoutés au profil"
+    local export_plist="ios/ExportOptions-adhoc.plist"
+    if [ ! -f "$export_plist" ]; then
+        print_error "Fichier manquant: $export_plist"
         return 1
     fi
+
+    local log_file
+    log_file=$(mktemp)
+    local build_ok=0
+    set -o pipefail
+    fvm flutter build ipa --release --export-options-plist="$export_plist" 2>&1 | tee "$log_file"
+    build_ok=$?
+    set +o pipefail
+
+    if [ "$build_ok" -ne 0 ] || ! verify_ipa; then
+        diagnose_ios_ipa_failure "$log_file"
+        rm -f "$log_file"
+        return 1
+    fi
+    rm -f "$log_file"
+
+    IPA_SIZE=$(du -h build/ios/ipa/opicare.ipa | cut -f1)
+    print_success "Build iOS réussi avec AD-HOC (Taille: $IPA_SIZE)"
+
+    print_step "Vérification du type de build..."
+    if unzip -p build/ios/ipa/opicare.ipa Payload/Runner.app/embedded.mobileprovision 2>/dev/null | strings | grep -q "get-task-allow"; then
+        print_warning "Le profil pourrait ne pas être AD-HOC"
+    else
+        print_success "Profil AD-HOC confirmé"
+    fi
+
+    return 0
 }
 
 
@@ -191,7 +230,7 @@ deploy_ios() {
         # Utiliser le fichier de release notes
         if firebase appdistribution:distribute build/ios/ipa/opicare.ipa \
             --app "$IOS_APP_ID" \
-            --groups "$TESTER_GROUPS" \
+            --groups "$TESTER_GROUPS_IOS" \
             --release-notes-file "$RELEASE_NOTES_FILE" \
             --project "$PROJECT_ID"; then
             print_success "Déploiement iOS réussi (avec release notes du fichier)"
@@ -204,7 +243,7 @@ deploy_ios() {
         # Utiliser les release notes par défaut
         if firebase appdistribution:distribute build/ios/ipa/opicare.ipa \
             --app "$IOS_APP_ID" \
-            --groups "$TESTER_GROUPS" \
+            --groups "$TESTER_GROUPS_IOS" \
             --release-notes "$DEFAULT_RELEASE_NOTES" \
             --project "$PROJECT_ID"; then
             print_success "Déploiement iOS réussi (avec release notes par défaut)"
@@ -224,7 +263,7 @@ deploy_android() {
         # Utiliser le fichier de release notes
         if firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
             --app "$ANDROID_APP_ID" \
-            --groups "$TESTER_GROUPS" \
+            --groups "$TESTER_GROUPS_ANDROID" \
             --release-notes-file "$RELEASE_NOTES_FILE" \
             --project "$PROJECT_ID"; then
             print_success "Déploiement Android réussi (avec release notes du fichier)"
@@ -237,7 +276,7 @@ deploy_android() {
         # Utiliser les release notes par défaut
         if firebase appdistribution:distribute build/app/outputs/flutter-apk/app-release.apk \
             --app "$ANDROID_APP_ID" \
-            --groups "$TESTER_GROUPS" \
+            --groups "$TESTER_GROUPS_ANDROID" \
             --release-notes "$DEFAULT_RELEASE_NOTES" \
             --project "$PROJECT_ID"; then
             print_success "Déploiement Android réussi (avec release notes par défaut)"
