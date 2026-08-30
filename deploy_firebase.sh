@@ -3,7 +3,7 @@
 
 # Configuration
 PROJECT_ID="opicare-2025"
-IOS_APP_ID="1:259776475722:ios:2ab27e3e406c3a692bacb3"
+IOS_APP_ID="1:259776475722:ios:09d049b2791765bb2bacb3"
 ANDROID_APP_ID="1:259776475722:android:bf29660ecb8ce82f2bacb3"
 TESTER_GROUPS_IOS="testers-ios"
 TESTER_GROUPS_ANDROID="testers-android"
@@ -74,6 +74,24 @@ check_prerequisites() {
     if ! firebase projects:list &> /dev/null; then
         print_error "Non authentifié sur Firebase"
         echo "Exécutez: firebase login"
+        exit 1
+    fi
+
+    local firebase_user
+    firebase_user=$(firebase login:list 2>/dev/null | grep -Eo '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' | head -1)
+    if [ -n "$firebase_user" ]; then
+        print_step "Compte Firebase: $firebase_user"
+    fi
+
+    if ! firebase projects:list 2>/dev/null | grep -q "$PROJECT_ID"; then
+        print_error "Le compte Firebase n'a pas accès au projet $PROJECT_ID"
+        echo "  Compte actuel: ${firebase_user:-inconnu}"
+        echo "  Le projet opicare-2025 (n° 259776475722) n'apparaît pas dans firebase projects:list."
+        echo "  1. firebase logout"
+        echo "  2. firebase login   # compte avec rôle Firebase App Distribution Admin sur opicare-2025"
+        echo "  3. Relancer: bash deploy_firebase.sh ios --upload-only"
+        echo "  Alternative: dans Firebase Console > Utilisateurs et autorisations,"
+        echo "  ajouter ${firebase_user:-ce compte} avec le rôle Firebase App Distribution Admin."
         exit 1
     fi
 
@@ -236,7 +254,7 @@ deploy_ios() {
             print_success "Déploiement iOS réussi (avec release notes du fichier)"
             return 0
         else
-            print_error "Échec du déploiement iOS"
+            diagnose_firebase_distribute_failure
             return 1
         fi
     else
@@ -249,10 +267,17 @@ deploy_ios() {
             print_success "Déploiement iOS réussi (avec release notes par défaut)"
             return 0
         else
-            print_error "Échec du déploiement iOS"
+            diagnose_firebase_distribute_failure
             return 1
         fi
     fi
+}
+
+diagnose_firebase_distribute_failure() {
+    print_error "Échec du déploiement iOS"
+    echo "  HTTP 403 = le compte Firebase n'a pas le droit d'uploader sur $PROJECT_ID."
+    echo "  firebase logout && firebase login"
+    echo "  Puis: bash deploy_firebase.sh ios --upload-only"
 }
 
 # Fonction de déploiement Android
@@ -295,12 +320,17 @@ main() {
 
     # Vérification des arguments
     PLATFORM="$1"
+    local skip_build=false
+    if [ "$2" = "--upload-only" ] || [ "$2" = "--skip-build" ]; then
+        skip_build=true
+    fi
     if [ -z "$PLATFORM" ]; then
-        echo "Usage: $0 [ios|android|both]"
+        echo "Usage: $0 [ios|android|both] [--upload-only]"
         echo "Exemples:"
-        echo "  $0 ios      - Déploie seulement iOS"
-        echo "  $0 android  - Déploie seulement Android"
-        echo "  $0 both     - Déploie iOS et Android"
+        echo "  $0 ios                 - Build + déploiement iOS"
+        echo "  $0 ios --upload-only   - Upload de l'IPA déjà généré"
+        echo "  $0 android              - Build + déploiement Android"
+        echo "  $0 both                 - Déploie iOS et Android"
         exit 1
     fi
 
@@ -311,7 +341,23 @@ main() {
     firebase use "$PROJECT_ID"
 
     # Préparation
-    prepare_build
+    if [ "$skip_build" = true ]; then
+        print_warning "Build ignoré (--upload-only)"
+        if [ "$PLATFORM" = "ios" ] || [ "$PLATFORM" = "both" ]; then
+            if ! verify_ipa; then
+                print_error "IPA manquant. Relancez sans --upload-only."
+                exit 1
+            fi
+        fi
+        if [ "$PLATFORM" = "android" ] || [ "$PLATFORM" = "both" ]; then
+            if [ ! -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+                print_error "APK manquant. Relancez sans --upload-only."
+                exit 1
+            fi
+        fi
+    else
+        prepare_build
+    fi
 
     # Variables de suivi
     IOS_SUCCESS=false
@@ -320,27 +366,25 @@ main() {
     # Déploiement selon la plateforme choisie
     case $PLATFORM in
         "ios")
-            if build_ios && deploy_ios; then
+            if { [ "$skip_build" = true ] || build_ios; } && deploy_ios; then
                 IOS_SUCCESS=true
             fi
             ;;
         "android")
-            if build_android && deploy_android; then
+            if { [ "$skip_build" = true ] || build_android; } && deploy_android; then
                 ANDROID_SUCCESS=true
             fi
             ;;
         "both")
             print_step "Déploiement des deux plateformes..."
 
-            # Build iOS
-            if build_ios; then
+            if { [ "$skip_build" = true ] || build_ios; }; then
                 if deploy_ios; then
                     IOS_SUCCESS=true
                 fi
             fi
 
-            # Build Android
-            if build_android; then
+            if { [ "$skip_build" = true ] || build_android; }; then
                 if deploy_android; then
                     ANDROID_SUCCESS=true
                 fi

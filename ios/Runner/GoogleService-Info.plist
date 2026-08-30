@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>org.opisms.opicare</string>
+	<string>org.opisms.apps.opicare</string>
 	<key>PROJECT_ID</key>
 	<string>opicare-2025</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:259776475722:ios:2ab27e3e406c3a692bacb3</string>
+	<string>1:259776475722:ios:09d049b2791765bb2bacb3</string>
 </dict>
 </plist>
