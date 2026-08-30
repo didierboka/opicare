@@ -2,6 +2,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:image_picker_android/image_picker_android.dart';
+import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:opicare/core/di.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/router/app_router.dart';
@@ -43,8 +45,17 @@ import 'core/helpers/local_storage_service.dart';
 // }
 
 
+void _enableAndroidPhotoPicker() {
+  final ImagePickerPlatform imagePickerImplementation =
+      ImagePickerPlatform.instance;
+  if (imagePickerImplementation is ImagePickerAndroid) {
+    imagePickerImplementation.useAndroidPhotoPicker = true;
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  _enableAndroidPhotoPicker();
 
   try {
     await Firebase.initializeApp();

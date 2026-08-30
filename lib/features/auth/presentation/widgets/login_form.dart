@@ -33,8 +33,12 @@ class _LoginFormState extends State<LoginForm> {
   //  final emailOrPhoneController = TextEditingController(text: "etchenoel@gmail.com");
   //  final passwordController = TextEditingController(text: "9258");
 
-  final emailOrPhoneController = TextEditingController(text: "39233220");
-  final passwordController = TextEditingController(text: "1527");
+  //  final emailOrPhoneController = TextEditingController(text: "39233220");
+  //  final passwordController = TextEditingController(text: "1527");
+
+  final emailOrPhoneController = TextEditingController();
+  final passwordController = TextEditingController();
+
   bool rememberMe = false;
 
 
