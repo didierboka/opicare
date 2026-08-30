@@ -1,7 +1,7 @@
 class ApiUrl {
-  static const String prod = "https://opisms.net/opisms-ws/api/v1/user";
+  static const String prod = "https://opisms.com/opisms-ws/api/v1/user";
   /// Base API v1 sans /user (ex. pour /iap/verify)
-  static const String prodApiV1 = "https://opisms.net/opisms-ws/api/v1/";
+  static const String prodApiV1 = "https://opisms.com/opisms-ws/api/v1/";
   //  static const String prod = "http://192.168.100.38:8888/opisms-ws/api/v1/user";
   static const String prodAgent = "https://opisms.net/opisms-aws";
   //  static const String prodAgent = "http://192.168.100.38:8888/opisms-aws";
