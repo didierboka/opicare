@@ -20,11 +20,15 @@ abstract class IapEvent extends Equatable {
 /// Charge les produits disponibles
 class LoadProducts extends IapEvent {
   final List<String> productIds;
+  final bool ignoreLocalSubscription;
 
-  const LoadProducts({required this.productIds});
+  const LoadProducts({
+    required this.productIds,
+    this.ignoreLocalSubscription = false,
+  });
 
   @override
-  List<Object?> get props => [productIds];
+  List<Object?> get props => [productIds, ignoreLocalSubscription];
 }
 
 /// Effectue un achat
@@ -33,16 +37,19 @@ class PurchaseProduct extends IapEvent {
   final double amount;
   final String currencyCode;
   final String patientId;
+  final bool isFamilyPurchase;
 
   const PurchaseProduct({
     required this.productId,
     required this.amount,
     required this.currencyCode,
     required this.patientId,
+    this.isFamilyPurchase = false,
   });
 
   @override
-  List<Object?> get props => [productId, amount, currencyCode, patientId];
+  List<Object?> get props =>
+      [productId, amount, currencyCode, patientId, isFamilyPurchase];
 }
 
 /// Restaure les achats précédents

@@ -38,6 +38,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
   double? _pendingAmount;
   String? _pendingCurrencyCode;
   String? _pendingPatientId;
+  bool _pendingIsFamilyPurchase = false;
   Timer? _purchaseWatchdog;
   static const Duration _purchaseTimeout = Duration(seconds: 90);
 
@@ -187,6 +188,18 @@ class IapBloc extends Bloc<IapEvent, IapState> {
   Future<void> _onLoadProducts(LoadProducts event, Emitter<IapState> emit) async {
     emit(const IapLoading());
 
+    if (!event.ignoreLocalSubscription) {
+      final subResult = await getActiveSubscriptionUseCase.execute();
+      final active = subResult.fold((_) => null, (sub) => sub);
+      if (active != null && active.isActive) {
+        emit(IapActiveSubscription(
+          subscription: active,
+          fromRestoreOrFirstPurchase: false,
+        ));
+        return;
+      }
+    }
+
     final result = await getProductsUseCase.execute(
       productIds: event.productIds,
     );
@@ -216,6 +229,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     _pendingAmount = event.amount;
     _pendingCurrencyCode = event.currencyCode;
     _pendingPatientId = event.patientId;
+    _pendingIsFamilyPurchase = event.isFamilyPurchase;
 
     final result = await purchaseProductUseCase.execute(
       productId: event.productId,
@@ -224,7 +238,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     result.fold(
       (failure) {
         _stopPurchaseWatchdog();
-        emit(IapError(failure: failure));
+        emit(IapPurchaseFailed(message: failure.message));
       },
       (_) {
         // Ne pas émettre IapPurchaseSuccess ici : le résultat réel (purchased / cancelled / error)
@@ -239,15 +253,26 @@ class IapBloc extends Bloc<IapEvent, IapState> {
 
     final result = await restorePurchasesUseCase.execute();
 
-    result.fold(
-      (failure) => emit(IapError(failure: failure)),
-      (purchases) {
-        // Les achats restaurés réels arrivent via le stream → PurchaseRestored.
-        // Si le store ne renvoie rien (liste vide), on émet quand même pour sortir de IapRestoring
-        // et afficher "Aucun achat à restaurer" (géré dans l'UI).
-        emit(IapRestoreSuccess(purchases: purchases, subscriptionExpired: false));
-      },
-    );
+    Failure? fail;
+    result.fold((f) => fail = f, (_) {});
+    if (fail != null) {
+      emit(IapError(failure: fail!));
+      return;
+    }
+
+    // Passes consommables : Apple/Google restore est souvent vide.
+    // L'abonnement réel est côté Opicare (dateExpiration du compte connecté).
+    final subResult = await getActiveSubscriptionUseCase.execute();
+    final active = subResult.fold((_) => null, (sub) => sub);
+    if (active != null && active.isActive) {
+      emit(IapActiveSubscription(
+        subscription: active,
+        fromRestoreOrFirstPurchase: true,
+      ));
+      return;
+    }
+
+    emit(const IapRestoreSuccess(purchases: [], subscriptionExpired: true));
   }
 
   Future<void> _onVerifyPurchase(
@@ -322,17 +347,22 @@ class IapBloc extends Bloc<IapEvent, IapState> {
       return;
     }
 
-    final subResult = await getActiveSubscriptionUseCase.execute();
-    final daysRemaining = subResult.fold(
-      (_) => 0,
-      (sub) => sub?.daysRemaining ?? 0,
-    );
+    final daysRemaining = _pendingIsFamilyPurchase
+        ? 365
+        : (await getActiveSubscriptionUseCase.execute()).fold(
+            (_) => 0,
+            (sub) => sub?.daysRemaining ?? 0,
+          );
     _stopPurchaseWatchdog();
     emit(IapPurchaseSuccess(purchase: event.purchase!, daysRemaining: daysRemaining));
   }
 
   void _onResetIapState(ResetIapState event, Emitter<IapState> emit,) {
     _stopPurchaseWatchdog();
+    _pendingAmount = null;
+    _pendingCurrencyCode = null;
+    _pendingPatientId = null;
+    _pendingIsFamilyPurchase = false;
     emit(const IapInitial());
   }
 

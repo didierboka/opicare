@@ -468,19 +468,28 @@ class IapRepositoryImpl implements IapRepository {
       return verificationData;
     }
 
-    try {
-      DebugLogger.info('Refresh du reçu App Store avant /iap/verify...');
-      await SKRequestMaker().startRefreshReceiptRequest();
-      final receipt = await SKReceiptManager.retrieveReceiptData();
-
-      if (receipt.isNotEmpty && !receipt.startsWith('eyJ')) {
+    for (var attempt = 1; attempt <= 2; attempt++) {
+      try {
         DebugLogger.info(
-          'Reçu App Store PKCS#7 pour /iap/verify (${receipt.length} caractères)',
+          'Refresh du reçu App Store avant /iap/verify (essai $attempt/2)...',
         );
-        return receipt;
+        await SKRequestMaker().startRefreshReceiptRequest();
+        final receipt = await SKReceiptManager.retrieveReceiptData();
+
+        if (receipt != null &&
+            receipt.isNotEmpty &&
+            !receipt.startsWith('eyJ')) {
+          DebugLogger.info(
+            'Reçu App Store PKCS#7 pour /iap/verify (${receipt.length} caractères)',
+          );
+          return receipt;
+        }
+      } catch (e) {
+        DebugLogger.warning('Impossible de lire le reçu App Store: $e');
       }
-    } catch (e) {
-      DebugLogger.warning('Impossible de lire le reçu App Store: $e');
+      if (attempt < 2) {
+        await Future<void>.delayed(const Duration(milliseconds: 800));
+      }
     }
 
     DebugLogger.warning(

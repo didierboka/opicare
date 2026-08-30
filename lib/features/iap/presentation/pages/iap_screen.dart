@@ -7,6 +7,7 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
+import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/iap/domain/entities/iap_pass_product.dart';
 import 'package:opicare/features/iap/domain/entities/iap_purchase_context.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
@@ -69,7 +70,16 @@ class IapScreen extends StatelessWidget {
       builder: (context, state) {
         final showCloseButton = state is IapActiveSubscription && !state.fromRestoreOrFirstPurchase;
 
-        return Scaffold(
+        return PopScope(
+          canPop: !(isFamilyRenewal && state is IapPurchaseSuccess),
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) return;
+            context.read<IapBloc>().add(const ResetIapState());
+            context.go(
+              '${FamilleScreen.path}?refresh=${DateTime.now().millisecondsSinceEpoch}',
+            );
+          },
+          child: Scaffold(
           appBar: AppBar(
             title: Text(appBarTitle, overflow: TextOverflow.ellipsis),
             backgroundColor: Colours.background,
@@ -131,7 +141,9 @@ class IapScreen extends StatelessWidget {
                 return _PurchaseFailedContent(
                   message:
                       'Membre introuvable. Revenez à Ma famille et réessayez.',
-                  onSeePlans: () => context.go('/famille'),
+                  onSeePlans: () => context.go(
+                    '${FamilleScreen.path}?refresh=${DateTime.now().millisecondsSinceEpoch}',
+                  ),
                 );
               }
 
@@ -145,7 +157,7 @@ class IapScreen extends StatelessWidget {
                   onRestore: isFamilyRenewal
                       ? null
                       : () => context.read<IapBloc>().add(const RestorePurchases()),
-                  onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
+                  onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds, ignoreLocalSubscription: isFamilyRenewal)),
                 );
               }
               if (state is IapVerifying) {
@@ -155,13 +167,19 @@ class IapScreen extends StatelessWidget {
               if (state is IapPurchaseSuccess) {
                 return _PurchaseSuccessContent(
                   daysRemaining: state.daysRemaining,
+                  isFamilyRenewal: isFamilyRenewal,
                   message: isFamilyRenewal
                       ? 'Le pass de $displayBeneficiaryLabel est activé. La liste Famille va se recharger avec ses droits à jour.'
                       : 'Votre abonnement est actif.\nProfitez pleinement de toutes les fonctionnalités Opicare.',
                   actionLabel: isFamilyRenewal ? 'Retour à la famille' : 'Se reconnecter',
-                  onReconnect: () => isFamilyRenewal
-                      ? context.go('/famille')
-                      : context.go(LoginPage.path),
+                  onReconnect: () {
+                    context.read<IapBloc>().add(const ResetIapState());
+                    if (isFamilyRenewal) {
+                      context.go('${FamilleScreen.path}?refresh=${DateTime.now().millisecondsSinceEpoch}');
+                    } else {
+                      context.go(LoginPage.path);
+                    }
+                  },
                 );
               }
 
@@ -182,7 +200,7 @@ class IapScreen extends StatelessWidget {
                         );
                   },
                   onSeePlans: () => context.read<IapBloc>().add(
-                        LoadProducts(productIds: productIds),
+                        LoadProducts(productIds: productIds, ignoreLocalSubscription: isFamilyRenewal),
                       ),
                 );
               }
@@ -191,7 +209,7 @@ class IapScreen extends StatelessWidget {
                 return _PurchaseFailedContent(
                   message: state.message,
                   onSeePlans: () {
-                    context.read<IapBloc>().add(LoadProducts(productIds: productIds));
+                    context.read<IapBloc>().add(LoadProducts(productIds: productIds, ignoreLocalSubscription: isFamilyRenewal));
                   },
                 );
               }
@@ -199,7 +217,7 @@ class IapScreen extends StatelessWidget {
               if (isFamilyRenewal &&
                   (state is IapActiveSubscription || state is IapRestoreSuccess)) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  context.read<IapBloc>().add(LoadProducts(productIds: productIds));
+                  context.read<IapBloc>().add(LoadProducts(productIds: productIds, ignoreLocalSubscription: isFamilyRenewal));
                 });
                 return Padding(
                   padding: const EdgeInsets.all(16),
@@ -230,7 +248,7 @@ class IapScreen extends StatelessWidget {
                 return _RestoreResultContent(
                   subscriptionExpired: state.subscriptionExpired,
                   purchaseCount: state.purchases.length,
-                  onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds)),
+                  onSeePlans: () => context.read<IapBloc>().add(LoadProducts(productIds: productIds, ignoreLocalSubscription: isFamilyRenewal)),
                   onGoToDashboard: () => context.go(HomeScreen.path),
                 );
               }
@@ -294,7 +312,7 @@ class IapScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () {
-                          context.read<IapBloc>().add(LoadProducts(productIds: productIds));
+                          context.read<IapBloc>().add(LoadProducts(productIds: productIds, ignoreLocalSubscription: isFamilyRenewal));
                         },
                         child: const Text('Réessayer'),
                       ),
@@ -306,7 +324,7 @@ class IapScreen extends StatelessWidget {
               // État initial - charger les produits
               if (state is IapInitial) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  context.read<IapBloc>().add(LoadProducts(productIds: productIds));
+                  context.read<IapBloc>().add(LoadProducts(productIds: productIds, ignoreLocalSubscription: isFamilyRenewal));
                 });
               }
 
@@ -325,6 +343,7 @@ class IapScreen extends StatelessWidget {
               );
             },
           ),
+        ),
         );
       },
     );
@@ -380,6 +399,7 @@ class IapScreen extends StatelessWidget {
             amount: amount,
             currencyCode: currencyCode,
             patientId: beneficiaryPatId,
+            isFamilyPurchase: isFamilyRenewal,
           ),
         );
   }
@@ -715,6 +735,7 @@ class _LegalLinksFooter extends StatelessWidget {
 /// Affiche les jours restants et un bouton pour se reconnecter.
 class _PurchaseSuccessContent extends StatelessWidget {
   final int daysRemaining;
+  final bool isFamilyRenewal;
   final String message;
   final String actionLabel;
   final VoidCallback onReconnect;
@@ -724,6 +745,7 @@ class _PurchaseSuccessContent extends StatelessWidget {
     required this.message,
     required this.actionLabel,
     required this.onReconnect,
+    this.isFamilyRenewal = false,
   });
 
   @override
@@ -780,11 +802,13 @@ class _PurchaseSuccessContent extends StatelessWidget {
                   const SizedBox(width: 12),
                   Flexible(
                     child: Text(
-                      daysRemaining == 0
-                          ? 'Renouvelez votre abonnement'
-                          : daysRemaining == 1
-                              ? '1 jour restant'
-                              : '$daysRemaining jours restants',
+                      isFamilyRenewal
+                          ? 'Pass annuel activé (365 jours)'
+                          : daysRemaining == 0
+                              ? 'Renouvelez votre abonnement'
+                              : daysRemaining == 1
+                                  ? '1 jour restant'
+                                  : '$daysRemaining jours restants',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             color: Colours.primaryText,

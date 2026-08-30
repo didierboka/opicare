@@ -15,6 +15,8 @@ class FamilleScreen extends StatelessWidget {
   static const path = '/famille';
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  FamilleScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Récupère l'ID utilisateur depuis AuthBloc

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/di.dart';
@@ -206,7 +207,9 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: FamilleScreen.path,
-      builder: (context, state) => FamilleScreen(),
+      builder: (context, state) => FamilleScreen(
+        key: ValueKey(state.uri.queryParameters['refresh'] ?? 'famille'),
+      ),
     ),
     GoRoute(
       path: MonProfilScreen.path,

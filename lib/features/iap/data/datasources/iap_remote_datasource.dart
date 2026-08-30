@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
@@ -76,6 +77,25 @@ class IapRemoteDataSourceImpl implements IapRemoteDataSource {
       };
       if (signedTransactionInfo != null && signedTransactionInfo.isNotEmpty) {
         requestData['signed_transaction_info'] = signedTransactionInfo;
+        final claims = _decodeJwsPayload(signedTransactionInfo);
+        if (claims != null) {
+          final environment = claims['environment']?.toString();
+          final originalTransactionId = claims['originalTransactionId']?.toString();
+          final jwsTransactionId = claims['transactionId']?.toString();
+          final jwsProductId = claims['productId']?.toString();
+          if (environment != null && environment.isNotEmpty) {
+            requestData['apple_environment'] = environment;
+          }
+          if (originalTransactionId != null && originalTransactionId.isNotEmpty) {
+            requestData['original_transaction_id'] = originalTransactionId;
+          }
+          if (jwsTransactionId != null && jwsTransactionId.isNotEmpty) {
+            requestData['transaction_id'] = jwsTransactionId;
+          }
+          DebugLogger.info(
+            'Apple JWS claims env=$environment product=$jwsProductId tx=$jwsTransactionId original=$originalTransactionId',
+          );
+        }
       }
 
       // Montant attendu côté backend.
@@ -116,5 +136,27 @@ class IapRemoteDataSourceImpl implements IapRemoteDataSource {
       DebugLogger.error('Erreur lors de la vérification de l\'achat: $e');
       return const Left(ServerFailure('Impossible de vérifier l\'achat. Réessayez plus tard.'));
     }
+  }
+
+  Map<String, dynamic>? _decodeJwsPayload(String jws) {
+    try {
+      final parts = jws.split('.');
+      if (parts.length < 2) {
+        return null;
+      }
+      var payload = parts[1].replaceAll('-', '+').replaceAll('_', '/');
+      final remainder = payload.length % 4;
+      if (remainder > 0) {
+        payload += '=' * (4 - remainder);
+      }
+      final decoded = utf8.decode(base64Decode(payload));
+      final json = jsonDecode(decoded);
+      if (json is Map<String, dynamic>) {
+        return json;
+      }
+    } catch (e) {
+      DebugLogger.warning('Impossible de décoder le JWS StoreKit: $e');
+    }
+    return null;
   }
 }
