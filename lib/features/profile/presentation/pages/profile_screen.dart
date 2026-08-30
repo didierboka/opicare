@@ -142,16 +142,7 @@ class MonProfilScreen extends StatelessWidget {
 
   Future<void> _pickFromGallery(BuildContext context) async {
     try {
-      // Vérifier la permission d'accès à la galerie
-      final status = await Permission.photos.status;
-      if (status.isDenied) {
-        final result = await Permission.photos.request();
-        if (result.isDenied) {
-          _showErrorSnackBar('Permission d\'accès à la galerie refusée');
-          return;
-        }
-      }
-      
+      // System photo picker: no READ_MEDIA_IMAGES / gallery permission.
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
         imageQuality: 80,
