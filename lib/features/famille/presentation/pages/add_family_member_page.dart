@@ -1,12 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:opicare/core/di.dart';
 import 'package:opicare/core/enums/app_enums.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
-import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
@@ -14,7 +10,6 @@ import 'package:opicare/core/widgets/form_widgets/custom_input_field.dart';
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
-import 'package:opicare/features/famille/domain/usecases/add_family_member_usecase.dart';
 import 'package:opicare/features/famille/presentation/bloc/add_family_member_lookup_cubit.dart';
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/user/data/models/user_model.dart';
@@ -29,7 +24,6 @@ class AddFamilyMemberPage extends StatefulWidget {
 }
 
 class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
-
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _loginController = TextEditingController();
@@ -37,7 +31,6 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
 
   @override
   void dispose() {
-    showLoader(context, false);
     _loginController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -47,7 +40,11 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
   Widget build(BuildContext context) {
     return BlocListener<AddFamilyMemberLookupCubit, AddFamilyMemberLookupState>(
       listener: (context, state) {
-        showLoader(context, state is AddFamilyMemberLookupLoading);
+        showLoader(
+          context,
+          state is AddFamilyMemberLookupLoading ||
+              state is AddFamilyMemberSubmitLoading,
+        );
 
         if (state is AddFamilyMemberLookupSuccess) {
           _showMemberFoundDialog(context, state.user);
@@ -55,6 +52,8 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
           _showUnknownUserDialog(context, state.message);
         } else if (state is AddFamilyMemberLookupFailure) {
           _showErrorDialog(context, state.message);
+        } else if (state is AddFamilyMemberSubmitFailure) {
+          showSnackbar(context, message: state.message, type: MessageType.error);
         }
       },
       child: Scaffold(
@@ -113,15 +112,28 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
                     },
                   ),
                   const SizedBox(height: 32),
-                  CustomButton(
-                    text: 'Rechercher',
-                    onPressed: () {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        context.read<AddFamilyMemberLookupCubit>().searchMember(
-                              login: _loginController.text,
-                              password: _passwordController.text,
-                            );
-                      }
+                  BlocBuilder<AddFamilyMemberLookupCubit, AddFamilyMemberLookupState>(
+                    builder: (context, state) {
+                      final busy = state is AddFamilyMemberLookupLoading ||
+                          state is AddFamilyMemberSubmitLoading;
+                      return CustomButton(
+                        text: 'Rechercher',
+                        onPressed: () {
+                          if (busy) return;
+                          if (_formKey.currentState?.validate() ?? false) {
+                            final authState = context.read<AuthBloc>().state;
+                            if (authState is! AuthAuthenticated) return;
+                            final owner = authState.user;
+                            context.read<AddFamilyMemberLookupCubit>().searchMember(
+                                  login: _loginController.text,
+                                  password: _passwordController.text,
+                                  ownerPatId: owner.patID,
+                                  ownerPhone: owner.phone,
+                                  ownerEmail: owner.email,
+                                );
+                          }
+                        },
+                      );
                     },
                   ),
                 ],
@@ -139,91 +151,67 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
       barrierDismissible: false,
       barrierColor: Colors.black.withOpacity(0.45),
       builder: (foundDialogContext) {
-        return _LookupResultDialog(
-          accent: Colours.successGreen,
-          icon: Icons.verified_user_rounded,
-          title: 'Compte trouvé',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _DialogInfoRow(label: 'Nom', value: '${user.name} ${user.surname}'.trim()),
-              _DialogInfoRow(label: 'Email', value: user.email.isEmpty ? '—' : user.email),
-              _DialogInfoRow(label: 'Téléphone', value: user.phone.isEmpty ? '—' : user.phone),
-            ],
+        return BlocProvider.value(
+          value: pageContext.read<AddFamilyMemberLookupCubit>(),
+          child: BlocListener<AddFamilyMemberLookupCubit, AddFamilyMemberLookupState>(
+            listenWhen: (previous, current) =>
+                current is AddFamilyMemberSubmitSuccess,
+            listener: (context, state) {
+              final message = (state as AddFamilyMemberSubmitSuccess).message;
+              if (foundDialogContext.mounted) {
+                Navigator.of(foundDialogContext).pop();
+              }
+              if (pageContext.mounted) {
+                _showAjoutFamilleApiResultDialog(pageContext, message);
+              }
+            },
+            child: BlocBuilder<AddFamilyMemberLookupCubit, AddFamilyMemberLookupState>(
+              builder: (context, state) {
+                final submitting = state is AddFamilyMemberSubmitLoading;
+                return _LookupResultDialog(
+                  accent: Colours.successGreen,
+                  icon: Icons.verified_user_rounded,
+                  title: 'Compte trouvé',
+                  actionEnabled: !submitting,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _DialogInfoRow(
+                        label: 'Nom',
+                        value: '${user.name} ${user.surname}'.trim(),
+                      ),
+                      _DialogInfoRow(
+                        label: 'Email',
+                        value: user.email.isEmpty ? '—' : user.email,
+                      ),
+                      _DialogInfoRow(
+                        label: 'Téléphone',
+                        value: user.phone.isEmpty ? '—' : user.phone,
+                      ),
+                    ],
+                  ),
+                  actionLabel: 'Ajouter',
+                  onDismiss: submitting
+                      ? null
+                      : () {
+                          Navigator.of(foundDialogContext).pop();
+                          pageContext.read<AddFamilyMemberLookupCubit>().reset();
+                        },
+                  onAction: () {
+                    if (submitting) return;
+                    final authState = pageContext.read<AuthBloc>().state;
+                    if (authState is! AuthAuthenticated) return;
+                    pageContext.read<AddFamilyMemberLookupCubit>().addFoundMember(
+                          ownerPatId: authState.user.patID,
+                        );
+                  },
+                );
+              },
+            ),
           ),
-          actionLabel: 'Ajouter',
-          onDismiss: () {
-            Navigator.of(foundDialogContext).pop();
-            pageContext.read<AddFamilyMemberLookupCubit>().reset();
-          },
-          onAction: () => _submitAjoutFamille(
-                pageContext: pageContext,
-                foundDialogContext: foundDialogContext,
-              ),
         );
       },
     );
-  }
-
-  Future<void> _submitAjoutFamille({
-    required BuildContext pageContext,
-    required BuildContext foundDialogContext,
-  }) async {
-    final authState = pageContext.read<AuthBloc>().state;
-    if (authState is! AuthAuthenticated) return;
-
-    final ownerPatId = authState.user.patID.trim();
-    final login = _loginController.text.trim();
-    final password = _passwordController.text;
-
-    if (ownerPatId.isEmpty) {
-      showSnackbar(pageContext, message: 'Session invalide.', type: MessageType.error);
-      return;
-    }
-    if (login.isEmpty || password.isEmpty) {
-      showSnackbar(pageContext, message: 'Login ou mot de passe manquant.', type: MessageType.error);
-      return;
-    }
-
-    showLoader(pageContext, true);
-    try {
-      final useCase = Di.get<AddFamilyMemberUseCase>();
-      final res = await useCase(
-        memberLogin: login,
-        memberPassword: password,
-        ownerPatId: ownerPatId,
-      ).timeout(
-        ApiService.defaultOperationTimeout,
-        onTimeout: () => throw TimeoutException('ajoutfamille'),
-      );
-
-      showLoader(pageContext, false);
-      if (!pageContext.mounted) return;
-
-      if (foundDialogContext.mounted) {
-        Navigator.of(foundDialogContext).pop();
-      }
-
-      final msg = (res.data?.message ?? res.message)?.trim();
-      _showAjoutFamilleApiResultDialog(
-        pageContext,
-        (msg != null && msg.isNotEmpty) ? msg : '—',
-      );
-    } on TimeoutException {
-      showLoader(pageContext, false);
-      if (pageContext.mounted) {
-        showSnackbar(
-          pageContext,
-          message: 'Le serveur met trop de temps à répondre.',
-          type: MessageType.error,
-        );
-      }
-    } catch (e) {
-      showLoader(pageContext, false);
-      if (pageContext.mounted) {
-        showSnackbar(pageContext, message: e.toString(), type: MessageType.error);
-      }
-    }
   }
 
   void _showAjoutFamilleApiResultDialog(BuildContext pageContext, String message) {
@@ -326,7 +314,7 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
             Navigator.of(dialogContext).pop();
             context.read<AddFamilyMemberLookupCubit>().reset();
           },
-          onAction: () async {
+          onAction: () {
             Navigator.of(dialogContext).pop();
             context.read<AddFamilyMemberLookupCubit>().reset();
           },
@@ -354,7 +342,7 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
             Navigator.of(dialogContext).pop();
             context.read<AddFamilyMemberLookupCubit>().reset();
           },
-          onAction: () async {
+          onAction: () {
             Navigator.of(dialogContext).pop();
             context.read<AddFamilyMemberLookupCubit>().reset();
           },
@@ -373,6 +361,7 @@ class _LookupResultDialog extends StatelessWidget {
     required this.actionLabel,
     required this.onDismiss,
     required this.onAction,
+    this.actionEnabled = true,
   });
 
   final Color accent;
@@ -380,8 +369,9 @@ class _LookupResultDialog extends StatelessWidget {
   final String title;
   final Widget child;
   final String actionLabel;
-  final VoidCallback onDismiss;
-  final Future<void> Function() onAction;
+  final VoidCallback? onDismiss;
+  final VoidCallback onAction;
+  final bool actionEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -461,14 +451,14 @@ class _LookupResultDialog extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colours.primaryBlue,
                           foregroundColor: Colours.background,
+                          disabledBackgroundColor:
+                              Colours.primaryBlue.withOpacity(0.45),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        onPressed: () async {
-                          await onAction();
-                        },
+                        onPressed: actionEnabled ? onAction : null,
                         child: Text(actionLabel, style: TextStyles.buttonText),
                       ),
                     ),

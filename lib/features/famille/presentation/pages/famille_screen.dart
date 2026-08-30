@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:opicare/core/di.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
@@ -8,7 +9,7 @@ import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
-import 'package:opicare/features/famille/data/repositories/family_repository.dart';
+import 'package:opicare/features/famille/domain/repositories/family_repository.dart';
 import 'package:opicare/features/famille/presentation/bloc/famille_bloc.dart';
 import 'package:opicare/features/famille/presentation/pages/add_family_member_page.dart';
 import 'package:opicare/features/famille/presentation/widgets/family_card.dart';
@@ -26,7 +27,7 @@ class FamilleScreen extends StatelessWidget {
 
     return BlocProvider(
       create: (context) => FamilleBloc(
-        repository: FamilyRepositoryImpl(),
+        repository: Di.get<FamilyRepository>(),
       )..add(LoadFamilyMembers(userId)),
       child: BackButtonBlockerWidget(
         message: 'Utilisez le menu pour naviguer',
