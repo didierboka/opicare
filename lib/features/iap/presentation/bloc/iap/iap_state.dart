@@ -96,6 +96,31 @@ class IapPurchaseFailed extends IapState {
   List<Object?> get props => [message];
 }
 
+class IapPurchaseActivationPending extends IapState {
+  final PurchaseEntity purchase;
+  final String message;
+  final double? amount;
+  final String? currencyCode;
+  final String? patientId;
+
+  const IapPurchaseActivationPending({
+    required this.purchase,
+    required this.message,
+    this.amount,
+    this.currencyCode,
+    this.patientId,
+  });
+
+  @override
+  List<Object?> get props => [
+        purchase,
+        message,
+        amount,
+        currencyCode,
+        patientId,
+      ];
+}
+
 /// Restauration en cours
 class IapRestoring extends IapState {
   const IapRestoring();

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opicare/core/error/failures.dart';
 import 'package:opicare/features/iap/domain/entities/purchase_entity.dart';
+import 'package:opicare/features/iap/domain/usecases/complete_purchase_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/get_active_subscription_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/get_products_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/purchase_product_usecase.dart';
@@ -24,6 +25,7 @@ import 'package:opicare/features/iap/presentation/bloc/iap/iap_state.dart';
 class IapBloc extends Bloc<IapEvent, IapState> {
   final GetProductsUseCase getProductsUseCase;
   final GetActiveSubscriptionUseCase getActiveSubscriptionUseCase;
+  final CompletePurchaseUseCase completePurchaseUseCase;
   final PurchaseProductUseCase purchaseProductUseCase;
   final RestorePurchasesUseCase restorePurchasesUseCase;
   final VerifyPurchaseUseCase verifyPurchaseUseCase;
@@ -56,6 +58,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
   IapBloc({
     required this.getProductsUseCase,
     required this.getActiveSubscriptionUseCase,
+    required this.completePurchaseUseCase,
     required this.purchaseProductUseCase,
     required this.restorePurchasesUseCase,
     required this.verifyPurchaseUseCase,
@@ -152,7 +155,7 @@ class IapBloc extends Bloc<IapEvent, IapState> {
           return;
         }
         // Loggue le retour du store au format attendu (platform, idpat, productId, etc.).
-        IapCompletionLogger.logPurchaseCompletion(purchase);
+        await IapCompletionLogger.logPurchaseCompletion(purchase);
         // Ne pas afficher l'écran de félicitations tout de suite : on appelle d'abord l'API de validation.
         add(VerifyPurchase(
           purchaseId: purchase.purchaseId,
@@ -185,20 +188,6 @@ class IapBloc extends Bloc<IapEvent, IapState> {
 
   Future<void> _onLoadProducts(LoadProducts event, Emitter<IapState> emit) async {
     emit(const IapLoading());
-
-    final subResult = await getActiveSubscriptionUseCase.execute();
-
-    subResult.fold(
-      (failure) => null,
-      (sub) {
-        if (sub != null && sub.isActive) {
-          emit(IapActiveSubscription(subscription: sub));
-          return;
-        }
-      },
-    );
-
-    if (state is IapActiveSubscription) return;
 
     final result = await getProductsUseCase.execute(
       productIds: event.productIds,
@@ -281,7 +270,13 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     if (fail != null) {
       _stopPurchaseWatchdog();
       if (event.purchase != null) {
-        emit(IapPurchaseFailed(message: fail!.message));
+        emit(IapPurchaseActivationPending(
+          purchase: event.purchase!,
+          message: '${fail!.message} Votre paiement peut avoir été reçu. Réessayez la validation.',
+          amount: event.amount,
+          currencyCode: event.currencyCode,
+          patientId: event.patientId,
+        ));
       } else {
         emit(IapError(failure: fail!));
       }
@@ -290,8 +285,12 @@ class IapBloc extends Bloc<IapEvent, IapState> {
     if (isValid != true) {
       _stopPurchaseWatchdog();
       if (event.purchase != null) {
-        emit(const IapPurchaseFailed(
-          message: 'La validation du paiement a échoué. Réessayez ou contactez le support.',
+        emit(IapPurchaseActivationPending(
+          purchase: event.purchase!,
+          message: 'La validation du paiement a échoué. Votre paiement peut avoir été reçu. Réessayez la validation.',
+          amount: event.amount,
+          currencyCode: event.currencyCode,
+          patientId: event.patientId,
         ));
       } else {
         emit(const IapError(failure: ServerFailure('Impossible de vérifier l\'achat. Réessayez plus tard.')));
@@ -303,6 +302,22 @@ class IapBloc extends Bloc<IapEvent, IapState> {
       emit(const IapVerificationSuccess());
       return;
     }
+
+    final completeResult = await completePurchaseUseCase.execute(event.purchase!);
+    Failure? completionFailure;
+    completeResult.fold((failure) => completionFailure = failure, (_) => null);
+    if (completionFailure != null) {
+      _stopPurchaseWatchdog();
+      emit(IapPurchaseActivationPending(
+        purchase: event.purchase!,
+        message: completionFailure!.message,
+        amount: event.amount,
+        currencyCode: event.currencyCode,
+        patientId: event.patientId,
+      ));
+      return;
+    }
+
     final subResult = await getActiveSubscriptionUseCase.execute();
     final daysRemaining = subResult.fold(
       (_) => 0,

@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/features/famille/data/models/family_member.dart';
+import 'package:opicare/features/iap/domain/entities/iap_purchase_context.dart';
+import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 
 import '../../../../core/helpers/subscription_helper.dart';
 import '../../../carnet_sante/presentation/pages/carnet_sante_screen.dart';
@@ -31,13 +33,50 @@ class FamilyMemberCard extends StatelessWidget {
 
   const FamilyMemberCard({super.key, required this.member});
 
+  IapPurchaseContext get _purchaseContext => IapPurchaseContext(
+        beneficiaryPatId: member.id,
+        beneficiaryLabel: '${member.name} ${member.surname}'.trim(),
+        isFamilyBeneficiary: true,
+      );
+
+  void _openRenewal(BuildContext context) {
+    context.push(IapScreen.path, extra: _purchaseContext);
+  }
+
+  Future<void> _showExpiredMemberDialog(BuildContext context) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Abonnement expiré'),
+          content: Text(
+            'L\'abonnement de ${member.name} ${member.surname} a expiré. Voulez-vous le renouveler maintenant ?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                _openRenewal(context);
+              },
+              child: const Text('Renouveler'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
         focusColor: Colours.errorRed,
         leading: CircleAvatar(
-          backgroundColor: Colours.primaryBlue.withOpacity(0.5),
+          backgroundColor: Colours.primaryBlue.withValues(alpha: 0.5),
           child: Text(member.name[0]),
         ),
         title: Text('${member.name} ${member.surname}'),
@@ -50,17 +89,21 @@ class FamilyMemberCard extends StatelessWidget {
             Text('Expiaration: ${member.expirationDate}'),
           ],
         ),
-        trailing: SubscriptionHelper.isSubscriptionExpired(
-                _userModelFromFamilyMember(member))
-            ? IconButton(
-                icon: Icon(Icons.warning, color: Colors.red),
-                onPressed: () => SubscriptionHelper.showSubscriptionExpiredDialog(context),
-              )
-            : null,
+        trailing: IconButton(
+          icon: Icon(
+            Icons.payment,
+            color: SubscriptionHelper.isSubscriptionExpired(
+                    _userModelFromFamilyMember(member))
+                ? Colors.red
+                : Colours.primaryBlue,
+          ),
+          tooltip: 'Renouveler',
+          onPressed: () => _openRenewal(context),
+        ),
         onTap: () {
           final user = _userModelFromFamilyMember(member);
           if (SubscriptionHelper.isSubscriptionExpired(user)) {
-            SubscriptionHelper.showSubscriptionExpiredDialog(context);
+            _showExpiredMemberDialog(context);
             return;
           }
           if (!SubscriptionHelper.canAccessCarnet(user)) {

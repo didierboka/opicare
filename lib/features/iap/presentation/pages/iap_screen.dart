@@ -7,6 +7,8 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
+import 'package:opicare/features/iap/domain/entities/iap_pass_product.dart';
+import 'package:opicare/features/iap/domain/entities/iap_purchase_context.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_event.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_state.dart';
@@ -27,19 +29,27 @@ class IapScreen extends StatelessWidget {
 
   // Liste des IDs de produits à charger (à configurer selon vos produits)
   final List<String> productIds;
+  final IapPurchaseContext? purchaseContext;
 
   const IapScreen({
     super.key,
-    this.productIds = const [
-      'opicare_abnmt_standard_yearly',
-      'opicare_abnmt_premium_yearly',
-      'opicare_abnmt_business_yearly',
-      'opicare_abnmt_serenity_yearly',
-    ],
+    this.productIds = IapPassProduct.ids,
+    this.purchaseContext,
   });
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.read<AuthBloc>().state;
+    final authUser = authState is AuthAuthenticated ? authState.user : null;
+    final beneficiaryPatId = purchaseContext?.beneficiaryPatId ?? authUser?.patID ?? '';
+    final beneficiaryLabel = purchaseContext?.beneficiaryLabel ??
+        [authUser?.name, authUser?.surname]
+            .where((value) => (value ?? '').trim().isNotEmpty)
+            .join(' ')
+            .trim();
+    final displayBeneficiaryLabel = beneficiaryLabel.isEmpty ? 'votre compte' : beneficiaryLabel;
+    final isFamilyRenewal = purchaseContext?.isFamilyBeneficiary ?? false;
+
     return BlocBuilder<IapBloc, IapState>(
       buildWhen: (previous, current) => true,
       builder: (context, state) {
@@ -98,7 +108,7 @@ class IapScreen extends StatelessWidget {
                 );
               }
             },
-            buildWhen: (previous, current) => current is IapInitial || current is IapLoading || current is IapPurchasing || current is IapPendingPayment || current is IapVerifying || current is IapProductsLoaded || current is IapError || current is IapPurchaseSuccess || current is IapPurchaseFailed || current is IapActiveSubscription || current is IapRestoreSuccess,
+            buildWhen: (previous, current) => current is IapInitial || current is IapLoading || current is IapPurchasing || current is IapPendingPayment || current is IapVerifying || current is IapProductsLoaded || current is IapError || current is IapPurchaseSuccess || current is IapPurchaseActivationPending || current is IapPurchaseFailed || current is IapActiveSubscription || current is IapRestoreSuccess,
             builder: (context, state) {
               if (state is IapPurchasing) {
                 return const _PurchasingContent();
@@ -116,7 +126,35 @@ class IapScreen extends StatelessWidget {
               if (state is IapPurchaseSuccess) {
                 return _PurchaseSuccessContent(
                   daysRemaining: state.daysRemaining,
-                  onReconnect: () => context.go(LoginPage.path),
+                  message: isFamilyRenewal
+                      ? 'Le pass de $displayBeneficiaryLabel est activé. La liste Famille va se recharger avec ses droits à jour.'
+                      : 'Votre abonnement est actif.\nProfitez pleinement de toutes les fonctionnalités Opicare.',
+                  actionLabel: isFamilyRenewal ? 'Retour à la famille' : 'Se reconnecter',
+                  onReconnect: () => isFamilyRenewal
+                      ? context.go('/famille')
+                      : context.go(LoginPage.path),
+                );
+              }
+
+              if (state is IapPurchaseActivationPending) {
+                return _PurchaseActivationPendingContent(
+                  message: state.message,
+                  onRetry: () {
+                    context.read<IapBloc>().add(
+                          VerifyPurchase(
+                            purchaseId: state.purchase.purchaseId,
+                            productId: state.purchase.productId,
+                            verificationData: state.purchase.verificationData ?? '',
+                            amount: state.amount,
+                            currencyCode: state.currencyCode,
+                            patientId: state.patientId,
+                            purchase: state.purchase,
+                          ),
+                        );
+                  },
+                  onSeePlans: () => context.read<IapBloc>().add(
+                        LoadProducts(productIds: productIds),
+                      ),
                 );
               }
 
@@ -158,6 +196,11 @@ class IapScreen extends StatelessWidget {
                 return ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
+                    _BeneficiaryBanner(
+                      beneficiaryLabel: displayBeneficiaryLabel,
+                      isFamilyRenewal: isFamilyRenewal,
+                    ),
+                    const SizedBox(height: 16),
                     ...List.generate(
                       state.products.length,
                       (index) {
@@ -172,7 +215,7 @@ class IapScreen extends StatelessWidget {
                                       productId: product.id,
                                       amount: product.price,
                                       currencyCode: product.currencyCode,
-                                      patientId: context.read<AuthBloc>().state is AuthAuthenticated ? (context.read<AuthBloc>().state as AuthAuthenticated).user.patID : '',
+                                      patientId: beneficiaryPatId,
                                     ),
                                   );
                             },
@@ -249,6 +292,132 @@ class _PurchasingContent extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _BeneficiaryBanner extends StatelessWidget {
+  final String beneficiaryLabel;
+  final bool isFamilyRenewal;
+
+  const _BeneficiaryBanner({
+    required this.beneficiaryLabel,
+    required this.isFamilyRenewal,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final prefix = isFamilyRenewal
+        ? 'Pass pour le membre sélectionné'
+        : 'Pass pour votre abonnement';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colours.primaryBlue.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colours.primaryBlue.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.verified_user_outlined, color: Colours.primaryBlue),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  prefix,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: Colours.primaryText,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  beneficiaryLabel,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colours.secondaryText,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PurchaseActivationPendingContent extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  final VoidCallback onSeePlans;
+
+  const _PurchaseActivationPendingContent({
+    required this.message,
+    required this.onRetry,
+    required this.onSeePlans,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(flex: 2),
+            Icon(
+              Icons.sync_problem_rounded,
+              size: 80,
+              color: Colours.errorRed,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Activation à finaliser',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colours.primaryText,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colours.secondaryText,
+                    height: 1.4,
+                  ),
+              textAlign: TextAlign.center,
+            ),
+            const Spacer(flex: 2),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton(
+                onPressed: onRetry,
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colours.primaryBlue,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text('Réessayer la validation'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextButton(
+              onPressed: onSeePlans,
+              child: const Text('Voir les forfaits'),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -414,10 +583,14 @@ class _LegalLinksFooter extends StatelessWidget {
 /// Affiche les jours restants et un bouton pour se reconnecter.
 class _PurchaseSuccessContent extends StatelessWidget {
   final int daysRemaining;
+  final String message;
+  final String actionLabel;
   final VoidCallback onReconnect;
 
   const _PurchaseSuccessContent({
     required this.daysRemaining,
+    required this.message,
+    required this.actionLabel,
     required this.onReconnect,
   });
 
@@ -453,7 +626,7 @@ class _PurchaseSuccessContent extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              'Votre abonnement est actif.\nProfitez pleinement de toutes les fonctionnalités Opicare.',
+              message,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Colours.secondaryText,
                     height: 1.4,
@@ -502,7 +675,7 @@ class _PurchaseSuccessContent extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Se reconnecter'),
+                child: Text(actionLabel),
               ),
             ),
             const SizedBox(height: 24),

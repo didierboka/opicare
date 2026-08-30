@@ -36,6 +36,7 @@ import 'package:opicare/features/vaccins_conseils/presentation/bloc/vaccin_conse
 import 'package:opicare/features/vaccins_conseils/domain/usecases/get_vaccin_conseil_usecase.dart';
 import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
 import 'package:opicare/features/destinations/destinations.dart';
+import 'package:opicare/features/iap/domain/entities/iap_purchase_context.dart';
 import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
 
@@ -322,7 +323,11 @@ final appRouter = GoRouter(
       path: IapScreen.path,
       builder: (context, state) => BlocProvider(
         create: (context) => Di.get<IapBloc>(),
-        child: const IapScreen(),
+        child: IapScreen(
+          purchaseContext: state.extra is IapPurchaseContext
+              ? state.extra as IapPurchaseContext
+              : null,
+        ),
       ),
     ),
   ],

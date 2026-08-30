@@ -40,6 +40,9 @@ abstract class IapRepository {
     String? patientId,
   });
 
+  /// Finalise l'achat auprès du store après activation backend confirmée
+  Future<Either<Failure, Unit>> completePurchase(PurchaseEntity purchase);
+
   /// Écoute les mises à jour des achats
   Stream<PurchaseEntity> get purchaseUpdates;
 }

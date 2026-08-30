@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/utils/currency_converter.dart';
+import 'package:opicare/features/iap/domain/entities/iap_pass_product.dart';
 import 'package:opicare/features/iap/domain/entities/product_entity.dart';
 
 /// * Jan, 2025
@@ -23,6 +24,9 @@ class ProductCard extends StatelessWidget {
   });
 
   String _planLabelFromProductId(String productId) {
+    final passFormula = IapPassProduct.formulaFromProductId(productId);
+    if (passFormula != null) return passFormula;
+
     switch (productId) {
       case 'opicare_abnmt_standard_yearly':
         return 'STANDARD';
@@ -39,10 +43,12 @@ class ProductCard extends StatelessWidget {
 
   List<String> _benefitsFromProductId(String productId) {
     switch (productId) {
+      case IapPassProduct.standard:
       case 'opicare_abnmt_standard_yearly':
         return const [
           '1 an',
         ];
+      case IapPassProduct.premium:
       case 'opicare_abnmt_premium_yearly':
         return const [
           '1 an',
@@ -50,6 +56,7 @@ class ProductCard extends StatelessWidget {
           '2 SMS de rappel',
           'Info santé',
         ];
+      case IapPassProduct.business:
       case 'opicare_abnmt_business_yearly':
         return const [
           '1 an',
@@ -58,6 +65,7 @@ class ProductCard extends StatelessWidget {
           'Info santé',
           'Appel vocal',
         ];
+      case IapPassProduct.serenity:
       case 'opicare_abnmt_serenity_yearly':
         return const [
           '1 an',

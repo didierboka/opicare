@@ -3,11 +3,11 @@ description: "A new Flutter project."
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 
-version: 1.0.5+18
+version: 1.0.6+19
 
 
 environment:
-  sdk: ^3.6.1
+  sdk: ^3.10.0
 
 
 dependencies:
@@ -50,10 +50,14 @@ dependencies:
   image: ^4.5.4
   syncfusion_flutter_pdfviewer: ^29.1.38
   flutter_inappwebview: ^6.1.5
-  in_app_purchase: ^3.2.3
+  in_app_purchase: 3.3.0
   package_info_plus: ^8.1.2
   #webview_flutter: ^4.7.0
 
+
+# Pin 0.5.0: Billing 8.0.0 without pulling 0.5.3 (requires Flutter 3.44).
+dependency_overrides:
+  in_app_purchase_android: 0.5.0
 
 dev_dependencies:
   flutter_test:

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/constants/api_url.dart';
@@ -61,7 +60,6 @@ import 'package:opicare/features/vaccin_info/presentation/bloc/vaccin_info_bloc.
 
 // Vaccins Conseils
 import 'package:opicare/features/vaccins_conseils/data/datasources/vaccins_conseils_remote_data_source.dart';
-import 'package:opicare/features/vaccins_conseils/data/models/vaccin_conseil_model.dart';
 import 'package:opicare/features/vaccins_conseils/data/repositories/vaccin_conseil_repository_impl.dart';
 import 'package:opicare/features/vaccins_conseils/data/repositories/vaccins_conseils_repository_impl.dart';
 import 'package:opicare/features/vaccins_conseils/domain/repositories/vaccin_conseil_repository.dart';
@@ -97,6 +95,7 @@ import 'package:opicare/features/iap/data/datasources/iap_local_datasource.dart'
 import 'package:opicare/features/iap/data/datasources/iap_remote_datasource.dart';
 import 'package:opicare/features/iap/data/repositories/iap_repository_impl.dart';
 import 'package:opicare/features/iap/domain/repositories/iap_repository.dart';
+import 'package:opicare/features/iap/domain/usecases/complete_purchase_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/get_active_subscription_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/get_products_usecase.dart';
 import 'package:opicare/features/iap/domain/usecases/purchase_product_usecase.dart';
@@ -587,6 +586,10 @@ class Di {
       () => PurchaseProductUseCase(_getIt<IapRepository>()),
     );
 
+    _getIt.registerLazySingleton<CompletePurchaseUseCase>(
+      () => CompletePurchaseUseCase(_getIt<IapRepository>()),
+    );
+
     _getIt.registerLazySingleton<RestorePurchasesUseCase>(
       () => RestorePurchasesUseCase(_getIt<IapRepository>()),
     );
@@ -608,6 +611,7 @@ class Di {
       () => IapBloc(
         getProductsUseCase: _getIt<GetProductsUseCase>(),
         getActiveSubscriptionUseCase: _getIt<GetActiveSubscriptionUseCase>(),
+        completePurchaseUseCase: _getIt<CompletePurchaseUseCase>(),
         purchaseProductUseCase: _getIt<PurchaseProductUseCase>(),
         restorePurchasesUseCase: _getIt<RestorePurchasesUseCase>(),
         verifyPurchaseUseCase: _getIt<VerifyPurchaseUseCase>(),

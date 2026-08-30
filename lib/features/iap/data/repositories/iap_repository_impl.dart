@@ -63,6 +63,7 @@ class IapRepositoryImpl implements IapRepository {
   final StreamController<PurchaseEntity> _purchaseUpdatesController = StreamController<PurchaseEntity>.broadcast();
 
   StreamSubscription<List<iap.PurchaseDetails>>? _purchaseSubscription;
+  final Map<String, iap.PurchaseDetails> _pendingStoreCompletions = {};
 
   /// Stream initialisé uniquement quand nécessaire (évite l'erreur 509 au démarrage).
   bool _purchaseStreamInitialized = false;
@@ -75,7 +76,7 @@ class IapRepositoryImpl implements IapRepository {
     iap.InAppPurchase? inAppPurchase,
   })  : _inAppPurchase = inAppPurchase ?? iap.InAppPurchase.instance,
         _remoteDataSource = remoteDataSource,
-        _localStorageService = localStorageService {}
+        _localStorageService = localStorageService;
 
   /// S'abonne au stream des achats seulement si le store est disponible et pas encore initialisé.
   Future<void> _ensurePurchaseStreamInitialized() async {
@@ -122,6 +123,35 @@ class IapRepositoryImpl implements IapRepository {
     return !now.isAfter(expiryDateOnly);
   }
 
+  String _completionKey({
+    required String productId,
+    String? purchaseId,
+    String? verificationData,
+  }) {
+    final purchasePart = purchaseId?.trim();
+    if (purchasePart != null && purchasePart.isNotEmpty) {
+      return '$productId|purchase:$purchasePart';
+    }
+
+    final verificationPart = verificationData?.trim();
+    if (verificationPart != null && verificationPart.isNotEmpty) {
+      return '$productId|token:$verificationPart';
+    }
+
+    return '$productId|unknown';
+  }
+
+  void _rememberPendingCompletion(iap.PurchaseDetails purchase) {
+    if (!purchase.pendingCompletePurchase) return;
+
+    final key = _completionKey(
+      productId: purchase.productID,
+      purchaseId: purchase.purchaseID,
+      verificationData: purchase.verificationData.serverVerificationData,
+    );
+    _pendingStoreCompletions[key] = purchase;
+  }
+
   @override
   Future<Either<Failure, ActiveSubscriptionEntity?>> getActiveSubscription() async {
     try {
@@ -158,13 +188,11 @@ class IapRepositoryImpl implements IapRepository {
           final purchaseModel = PurchaseModel.fromPurchaseDetails(purchase);
           _purchaseUpdatesController.add(purchaseModel.toEntity());
 
-          // Finaliser l'achat seulement quand le store le demande
-          // et uniquement après un statut terminal (purchased/restored).
           if (purchase.pendingCompletePurchase &&
               (purchase.status == iap.PurchaseStatus.purchased ||
                   purchase.status == iap.PurchaseStatus.restored)) {
-            DebugLogger.info('✅ Finalisation de l\'achat pour: ${purchase.productID}');
-            _inAppPurchase.completePurchase(purchase);
+            DebugLogger.info('🧾 Achat store en attente de validation backend: ${purchase.productID}');
+            _rememberPendingCompletion(purchase);
           } else if (purchase.status == iap.PurchaseStatus.error) {
             DebugLogger.error('❌ Erreur d\'achat: ${purchase.error?.message}');
           } else if (purchase.status == iap.PurchaseStatus.restored) {
@@ -304,8 +332,9 @@ class IapRepositoryImpl implements IapRepository {
       final purchaseParam = iap.PurchaseParam(productDetails: productDetails);
       
       DebugLogger.info('💳 Lancement du flux d\'achat...');
-      final bool success = await _inAppPurchase.buyNonConsumable(
+      final bool success = await _inAppPurchase.buyConsumable(
         purchaseParam: purchaseParam,
+        autoConsume: false,
       );
 
       if (!success) {
@@ -392,6 +421,33 @@ class IapRepositoryImpl implements IapRepository {
       currencyCode: currencyCode,
       patientId: patientId,
     );
+  }
+
+  @override
+  Future<Either<Failure, Unit>> completePurchase(PurchaseEntity purchase) async {
+    try {
+      final key = _completionKey(
+        productId: purchase.productId,
+        purchaseId: purchase.purchaseId,
+        verificationData: purchase.verificationData,
+      );
+      final storePurchase = _pendingStoreCompletions.remove(key);
+
+      if (storePurchase == null) {
+        DebugLogger.info('Aucune completion store en attente pour: ${purchase.productId}');
+        return const Right(unit);
+      }
+
+      if (storePurchase.pendingCompletePurchase) {
+        DebugLogger.info('✅ Finalisation store après activation backend: ${purchase.productId}');
+        await _inAppPurchase.completePurchase(storePurchase);
+      }
+
+      return const Right(unit);
+    } catch (e) {
+      DebugLogger.error('❌ Impossible de finaliser l\'achat store: $e');
+      return const Left(PaymentFailure('Paiement validé, mais finalisation store incomplète. Réessayez si besoin.'));
+    }
   }
 
 
