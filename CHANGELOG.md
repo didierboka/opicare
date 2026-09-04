@@ -7,6 +7,9 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- **family**: durcir le flux d'ajout de membre ([678a403](https://github.com/didierboka/opicare/commit/678a403))
+- **family**: ajout de membre de famille ([b02418e](https://github.com/didierboka/opicare/commit/b02418e))
+- **iap**: pass famille Apple et idpat verrouille ([8738b0d](https://github.com/didierboka/opicare/commit/8738b0d))
 - **iap**: finalisation & validation inapp purchase ([8cbc559](https://github.com/didierboka/opicare/commit/8cbc559))
 - **iap**: affichage des abonnements OK ([48bc93c](https://github.com/didierboka/opicare/commit/48bc93c))
 - ajout de plusieurs features... ([245a281](https://github.com/didierboka/opicare/commit/245a281))
@@ -37,6 +40,14 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- **git**: Merge branch 'develop' of github.com:didierboka/opicare into develop ([dd142e9](https://github.com/didierboka/opicare/commit/dd142e9))
+- **project**: revision gitignore et fichiers de configs du projet ([168d5c3](https://github.com/didierboka/opicare/commit/168d5c3))
+- **url**: changement .net en .com ([7c20184](https://github.com/didierboka/opicare/commit/7c20184))
+- **core**: migration google billing 8 & activation souscription membre en cours... ([b75187e](https://github.com/didierboka/opicare/commit/b75187e))
+- update project skills ([5e3096f](https://github.com/didierboka/opicare/commit/5e3096f))
+- **trivial**: test openspec action ([f2ed09c](https://github.com/didierboka/opicare/commit/f2ed09c))
+- **family**: rajout de 'STANDARD' pour affichage des membres ([88c62d6](https://github.com/didierboka/opicare/commit/88c62d6))
+- update changelog [skip ci] ([4acb598](https://github.com/didierboka/opicare/commit/4acb598))
 - deploiement version 1.0.4 code 16 aux stores ([3648754](https://github.com/didierboka/opicare/commit/3648754))
 - deploiement version 1.0.3 code 15 aux stores ([28da8fc](https://github.com/didierboka/opicare/commit/28da8fc))
 - **ui**: interchangement des logos partners ([a0f033d](https://github.com/didierboka/opicare/commit/a0f033d))
@@ -93,6 +104,13 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - add GitHub Actions for changelog automation ([f855a1a](https://github.com/didierboka/opicare/commit/f855a1a))
 
 ### Fixed
+- **android**: activer le sélecteur photo système (1.0.8+22) ([273606e](https://github.com/didierboka/opicare/commit/273606e))
+- **android**: retirer READ_MEDIA_* au profit du sélecteur photo ([c6ff284](https://github.com/didierboka/opicare/commit/c6ff284))
+- **deploy**: correction du deploement sur firebase ([dcea2dc](https://github.com/didierboka/opicare/commit/dcea2dc))
+- **deploy**: export IPA Ad Hoc pour Firebase App Distribution ([392c07d](https://github.com/didierboka/opicare/commit/392c07d))
+- **iap**: succes famille, abo payeur et cancel SK2 ([5521243](https://github.com/didierboka/opicare/commit/5521243))
+- **sms**: bloquer sms quand abonnement user expire ([b186a1f](https://github.com/didierboka/opicare/commit/b186a1f))
+- **drawer-logout**: permettre la deconnexion peu importe la souscription ([2185ab2](https://github.com/didierboka/opicare/commit/2185ab2))
 - **ui**: reactivation controle carnet/abonnement dans famille ([7946517](https://github.com/didierboka/opicare/commit/7946517))
 - **ui**: revision liste de famille avec formule PREMIUM ([7e6f364](https://github.com/didierboka/opicare/commit/7e6f364))
 - correction du flow abonnement google/apple ([b52dfb3](https://github.com/didierboka/opicare/commit/b52dfb3))
