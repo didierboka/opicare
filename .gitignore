@@ -60,8 +60,15 @@ temp.json
 !/README.md
 !/RELEASE_NOTES.md
 !/CHANGELOG.md
+!/AGENTS.md
+!openspec/**/*.md
+!openspec/**/*.yaml
+!openspec/**/*.yml
 devtools_options.yaml
 .cursor
 .cursor/rules/presentation.mdc
 acces.txt
+node_modules
 openspec
+package-lock.json
+acces.txt
