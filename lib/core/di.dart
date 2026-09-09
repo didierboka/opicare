@@ -86,8 +86,14 @@ import 'package:opicare/features/jours_vaccins/data/repositories/vaccin_centre_r
 import 'package:opicare/features/jours_vaccins/domain/repositories/vaccin_centre_repository.dart';
 import 'package:opicare/features/jours_vaccins/domain/usecases/get_vaccins_by_centre_usecase.dart';
 import 'package:opicare/features/jours_vaccins/presentation/bloc/jours_vaccin_bloc.dart';
+import 'package:opicare/features/carnet_sante/data/path_provider_carnet_share_file_store.dart';
+import 'package:opicare/features/carnet_sante/data/share_plus_port.dart';
+import 'package:opicare/features/carnet_sante/domain/ports/carnet_share_file_store.dart';
+import 'package:opicare/features/carnet_sante/domain/ports/share_port.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
+import 'package:opicare/features/carnet_sante/domain/usecases/share_visit_carnet_usecase.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart';
+import 'package:opicare/features/carnet_sante/presentation/bloc/share_visit_carnet_cubit.dart';
 
 import '../features/vaccins_conseils/data/datasources/vaccin_conseil_remote_datasource.dart';
 import '../features/vaccins_conseils/data/models/cible_vaccin_model.dart';
@@ -551,6 +557,22 @@ class Di {
     // Submit Vaccine Use Cases
     _getIt.registerLazySingleton<SubmitVaccineUseCase>(
       () => SubmitVaccineUseCase(_getIt<CarnetRepository>()),
+    );
+
+    _getIt.registerLazySingleton<SharePort>(() => SharePlusPort());
+    _getIt.registerLazySingleton<CarnetShareFileStore>(
+      () => PathProviderCarnetShareFileStore(),
+    );
+    _getIt.registerLazySingleton<ShareVisitCarnetUseCase>(
+      () => ShareVisitCarnetUseCase(
+        fileStore: _getIt<CarnetShareFileStore>(),
+        sharePort: _getIt<SharePort>(),
+      ),
+    );
+    _getIt.registerFactory<ShareVisitCarnetCubit>(
+      () => ShareVisitCarnetCubit(
+        shareVisitCarnetUseCase: _getIt<ShareVisitCarnetUseCase>(),
+      ),
     );
 
     // region IAP (In-App Purchases)

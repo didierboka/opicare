@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -15,7 +14,7 @@ import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/form_widgets/custom_button.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:opicare/features/carnet_sante/presentation/bloc/share_visit_carnet_cubit.dart';
 
 import '../../../../core/constants/api_url.dart';
 import '../../domain/entities/vaccine_submission_entity.dart';
@@ -46,15 +45,28 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CarnetBloc, CarnetState>(
-      listener: (context, state) {
-        if (state is UpdateVaccinePhotoSuccess) {
-          _showSuccessSnackBar(state.message);
-          Navigator.pop(context);
-        } else if (state is UpdateVaccinePhotoFailure) {
-          _showErrorSnackBar(state.message);
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<CarnetBloc, CarnetState>(
+          listener: (context, state) {
+            if (state is UpdateVaccinePhotoSuccess) {
+              _showSuccessSnackBar(state.message);
+              Navigator.pop(context);
+            } else if (state is UpdateVaccinePhotoFailure) {
+              _showErrorSnackBar(state.message);
+            }
+          },
+        ),
+        BlocListener<ShareVisitCarnetCubit, ShareVisitCarnetState>(
+          listener: (context, state) {
+            if (state is ShareVisitCarnetNoPhoto) {
+              _showErrorSnackBar(state.message);
+            } else if (state is ShareVisitCarnetFailure) {
+              _showErrorSnackBar(state.message);
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         appBar: CustomAppBar(
           title: 'Détails du vaccin',
@@ -176,16 +188,20 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
                     textColor: Colours.primaryText,
                   ),
                 ),
-                const SizedBox(width: 12),
-                //  Expanded(
-                //    child: CustomButton(
-                //      text: '🖨️ Imprimer/Partager',
-                //      onPressed: _shareWithFlutterShare,
-                //      backgroundColor: Colors.grey[200],
-                //      textColor: Colours.primaryText,
-                //    ),
-                //  ),
               ],
+            ),
+            const SizedBox(height: 12),
+            BlocBuilder<ShareVisitCarnetCubit, ShareVisitCarnetState>(
+              builder: (context, shareState) {
+                final isSharing = shareState is ShareVisitCarnetLoading;
+                return CustomButton(
+                  key: const Key('share_visit_carnet_button'),
+                  text: isSharing ? 'Partage en cours...' : 'Imprimer/Partager',
+                  onPressed: isSharing ? () {} : _shareVisitCarnet,
+                  backgroundColor: Colors.grey[200],
+                  textColor: Colours.primaryText,
+                );
+              },
             ),
           ],
         ),
@@ -316,6 +332,15 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
         ));
   }
 
+  void _shareVisitCarnet() {
+    context.read<ShareVisitCarnetCubit>().share(
+          visitId: widget.vaccine.id,
+          photoSource: _selectedImagePath,
+          vaccineName: widget.vaccine.name,
+          administrationDate: formatDateFromString(widget.vaccine.presenceDate),
+        );
+  }
+
   Future<void> _takePhoto() async {
     try {
       final XFile? image = await _picker.pickImage(
@@ -444,6 +469,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
         imgCarnet: base64Image,
       );
 
+      if (!mounted) return;
       context.read<CarnetBloc>().add(UpdateVaccinePhoto(visiteUpdate: visiteToPhotoEntity));
     } catch (e) {
       _showErrorSnackBar('Erreur lors de la mise à jour: $e');
