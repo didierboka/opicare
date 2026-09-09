@@ -1,0 +1,24 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Flutter (SDK ^3.10), Clean Architecture feature-first, flutter_bloc, GetIt, Dartz Either, go_router.
+  Language: French UI copy; conventional commits (feat/fix/chore) often in French.
+  Domain: Opicare e-carnet de vaccination. A "visite" is a recorded vaccination visit (Vaccine model: IDCAL, NOMVAC, PRESENCE, IMGCARNET, etc.).
+  Photo of the visit carnet lives on Vaccine.photoPath: either a remote/base64 IMGCARNET string or a local file path after camera/gallery pick.
+  Share UI stub already exists (commented) on VaccineDetailsScreen as "Imprimer/Partager".
+  We use conventional commits. Do not expand scope to CinetPay, forgot-password, or family member add.
+
+rules:
+  proposal:
+    - Keep proposals under 500 words
+    - Always include a "Non-goals" section
+    - Write in French to match the product team
+  specs:
+    - Use SHALL/MUST and Given/When/Then-style WHEN/THEN scenarios
+    - Describe user-visible behavior, not Flutter class names
+  design:
+    - Respect Clean Architecture and the existing carnet_sante feature layout
+    - Prefer share_plus / OS share sheet over a custom printer UI
+  tasks:
+    - Each task must include how to verify completion
+    - Do not implement code in the spec change itself
