@@ -40,6 +40,8 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- **openspec**: spec du partage du carnet d'une visite (#1) ([06b1356](https://github.com/didierboka/opicare/commit/06b1356))
+- update changelog [skip ci] ([b4b53b4](https://github.com/didierboka/opicare/commit/b4b53b4))
 - **git**: Merge branch 'develop' of github.com:didierboka/opicare into develop ([dd142e9](https://github.com/didierboka/opicare/commit/dd142e9))
 - **project**: revision gitignore et fichiers de configs du projet ([168d5c3](https://github.com/didierboka/opicare/commit/168d5c3))
 - **url**: changement .net en .com ([7c20184](https://github.com/didierboka/opicare/commit/7c20184))
