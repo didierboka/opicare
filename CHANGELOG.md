@@ -42,6 +42,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- update changelog [skip ci] ([a65d79f](https://github.com/didierboka/opicare/commit/a65d79f))
 - verrouiller share_plus dans pubspec.lock ([52d766b](https://github.com/didierboka/opicare/commit/52d766b))
 - update changelog [skip ci] ([71e4539](https://github.com/didierboka/opicare/commit/71e4539))
 - **openspec**: spec du partage du carnet d'une visite (#1) ([06b1356](https://github.com/didierboka/opicare/commit/06b1356))
