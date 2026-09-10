@@ -7,6 +7,8 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- verrouiller l'application en portrait uniquement ([a0b8289](https://github.com/didierboka/opicare/commit/a0b8289))
+- **carnet**: partager la photo du carnet d'une visite ([ceb2665](https://github.com/didierboka/opicare/commit/ceb2665))
 - **family**: durcir le flux d'ajout de membre ([678a403](https://github.com/didierboka/opicare/commit/678a403))
 - **family**: ajout de membre de famille ([b02418e](https://github.com/didierboka/opicare/commit/b02418e))
 - **iap**: pass famille Apple et idpat verrouille ([8738b0d](https://github.com/didierboka/opicare/commit/8738b0d))
@@ -40,7 +42,10 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- verrouiller share_plus dans pubspec.lock ([52d766b](https://github.com/didierboka/opicare/commit/52d766b))
+- update changelog [skip ci] ([71e4539](https://github.com/didierboka/opicare/commit/71e4539))
 - **openspec**: spec du partage du carnet d'une visite (#1) ([06b1356](https://github.com/didierboka/opicare/commit/06b1356))
+- **openspec**: spec du partage du carnet d'une visite ([f30a1e9](https://github.com/didierboka/opicare/commit/f30a1e9))
 - update changelog [skip ci] ([b4b53b4](https://github.com/didierboka/opicare/commit/b4b53b4))
 - **git**: Merge branch 'develop' of github.com:didierboka/opicare into develop ([dd142e9](https://github.com/didierboka/opicare/commit/dd142e9))
 - **project**: revision gitignore et fichiers de configs du projet ([168d5c3](https://github.com/didierboka/opicare/commit/168d5c3))
@@ -106,6 +111,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - add GitHub Actions for changelog automation ([f855a1a](https://github.com/didierboka/opicare/commit/f855a1a))
 
 ### Fixed
+- **network**: sonder l'API au lieu de Google pour la connectivité ([9b7e07e](https://github.com/didierboka/opicare/commit/9b7e07e))
 - **android**: activer le sélecteur photo système (1.0.8+22) ([273606e](https://github.com/didierboka/opicare/commit/273606e))
 - **android**: retirer READ_MEDIA_* au profit du sélecteur photo ([c6ff284](https://github.com/didierboka/opicare/commit/c6ff284))
 - **deploy**: correction du deploement sur firebase ([dcea2dc](https://github.com/didierboka/opicare/commit/dcea2dc))
