@@ -55,6 +55,7 @@ import '../../features/carnet_sante/presentation/pages/add_vaccine_screen.dart';
 import '../../features/carnet_sante/presentation/pages/vaccine_summary_screen.dart';
 import '../../features/carnet_sante/data/models/vaccine.dart';
 import '../../features/carnet_sante/presentation/bloc/carnet_bloc.dart';
+import '../../features/carnet_sante/presentation/bloc/share_visit_carnet_cubit.dart';
 import '../../features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
 import '../../features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart';
 import '../../features/change_password/domain/repositories/change_pwd_repository.dart';
@@ -160,12 +161,19 @@ final appRouter = GoRouter(
         if (vaccine == null) {
           return CarnetSanteScreen();
         }
-        return BlocProvider(
-          create: (context) => CarnetBloc(
-            repository: Di.get<CarnetRepository>(),
-            getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
-            submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
-          ),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (context) => CarnetBloc(
+                repository: Di.get<CarnetRepository>(),
+                getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
+                submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
+              ),
+            ),
+            BlocProvider(
+              create: (context) => Di.get<ShareVisitCarnetCubit>(),
+            ),
+          ],
           child: VaccineDetailsScreen(vaccine: vaccine),
         );
       },

@@ -25,17 +25,21 @@ class ApiService<T> {
 
   ApiService({this.baseUrl = ApiUrl.prod, this.baseUrlAgent = ApiUrl.prodAgent, this.baseUrlOrange = ApiUrl.prodOrange, required this.fromJson});
 
-  /// Vérifie la connectivité réseau en tentant une connexion vers un serveur fiable
+  /// Vérifie la connectivité en joignant l'hôte API (pas un site tiers).
+  /// Toute réponse HTTP (y compris 4xx) prouve que le réseau fonctionne.
   Future<bool> _checkConnectivity() async {
+    final client = http.Client();
     try {
-      final client = http.Client();
-      final response = await client.get(
-        Uri.parse('https://www.google.com'),
-      ).timeout(const Duration(seconds: 5));
-      client.close();
-      return response.statusCode == 200;
+      final api = Uri.parse(baseUrl);
+      final probe = Uri(scheme: api.scheme, host: api.host, path: '/');
+      final response = await client
+          .get(probe)
+          .timeout(const Duration(seconds: 10));
+      return response.statusCode > 0 && response.statusCode < 500;
     } catch (e) {
       return false;
+    } finally {
+      client.close();
     }
   }
 
