@@ -8,8 +8,13 @@ import 'package:opicare/features/carnet_sante/presentation/pages/reschedule_vacc
 
 class MissedVaccineCard extends StatelessWidget {
   final MissedVaccine missedVaccine;
+  final VoidCallback? onRescheduled;
 
-  const MissedVaccineCard({super.key, required this.missedVaccine});
+  const MissedVaccineCard({
+    super.key,
+    required this.missedVaccine,
+    this.onRescheduled,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +109,13 @@ class MissedVaccineCard extends StatelessWidget {
     );
   }
 
-  void _navigateToReschedule(BuildContext context) {
-    context.push(
+  Future<void> _navigateToReschedule(BuildContext context) async {
+    final result = await context.push(
       RescheduleVaccineScreen.path,
       extra: {'missedVaccine': missedVaccine},
     );
+    if (result == true) {
+      onRescheduled?.call();
+    }
   }
 }

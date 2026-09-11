@@ -56,38 +56,50 @@ class CarnetRepositoryImpl implements CarnetRepository {
 
   @override
   Future<CustomResponse<Map<String, dynamic>>> rescheduleVaccine({
-    required String vaccineId,
+    required String calendarId,
+    required String vaccineTypeId,
     required String patientId,
     required DateTime newDate,
     required String centreId,
     required String districtId,
-    required String regionId
+    required String regionId,
+    String? agentId,
   }) async {
+    // Existing calendar rows are updated via majrdv (calId = IDCAL).
+    // /vaccin/ajout creates a new visit and expects vacId = IDVAC, not IDCAL.
     final ApiService<Map<String, dynamic>> rescheduleApiService = ApiService(
       fromJson: (json) => json,
     );
 
+    final payload = <String, dynamic>{
+      "calId": calendarId,
+      "usrId": _orDefault(agentId, ApiUrl.agentId),
+      "ctrregion": _orDefault(regionId, ApiUrl.regionId),
+      "ctrdist": _orDefault(districtId, ApiUrl.districtId),
+      "ctrId": _orDefault(centreId, ApiUrl.centreId),
+      "dtPre": "",
+      "lot": "",
+      "imgCarnet": "",
+      "type": "0",
+      "patId": patientId,
+      "vacId": vaccineTypeId,
+      "dtRap":
+          "${newDate.year.toString().padLeft(4, '0')}-${newDate.month.toString().padLeft(2, '0')}-${newDate.day.toString().padLeft(2, '0')}",
+    };
+
     final response = await rescheduleApiService.post(
-      '/vaccin/ajout',
+      '/vaccin/majrdv',
       likeAgent: true,
       useFormData: false,
-      {
-        "usrId": "1",
-        "ctrregion": regionId,
-        "ctrdist": districtId,
-        "ctrId": centreId,
-        "dtPre": "0000-00-00",
-        "lot": "",
-        "imgCarnet": "",
-        "type": "0",
-        "typeAbnt": "1",
-        "patId": patientId,
-        "vacId": vaccineId,
-        "dtRap": newDate.toIso8601String().split('T')[0]
-      }
+      payload,
     );
 
     return response;
+  }
+
+  String _orDefault(String? value, String fallback) {
+    final text = value?.trim() ?? '';
+    return text.isEmpty ? fallback : text;
   }
 
 
