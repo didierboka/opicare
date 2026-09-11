@@ -32,22 +32,26 @@ class LoadUpcomingVaccines extends CarnetEvent {
 }
 
 class RescheduleVaccineRequested extends CarnetEvent {
-  final String vaccineId;
+  final String calendarId;
+  final String vaccineTypeId;
   final String patientId;
   final DateTime newDate;
   final String vaccineName;
   final String centreId;
   final String regionId;
   final String districtId;
+  final String? agentId;
 
   RescheduleVaccineRequested({
-    required this.vaccineId,
+    required this.calendarId,
+    required this.vaccineTypeId,
     required this.patientId,
     required this.newDate,
     required this.vaccineName,
     required this.centreId,
     required this.regionId,
     required this.districtId,
+    this.agentId,
   });
 }
 
@@ -215,12 +219,13 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     try {
       final vaccines = await repository.getVaccines(event.id);
       final currentState = state;
+      final loaded = vaccines.datas ?? const <Vaccine>[];
 
       if (currentState is CarnetLoaded) {
-        emit(currentState.copyWith(vaccines: vaccines.datas!));
+        emit(currentState.copyWith(vaccines: loaded));
       } else {
         emit(CarnetLoaded(
-          vaccines: vaccines.datas!,
+          vaccines: loaded,
           missedVaccines: [],
           upcomingVaccines: [],
         ));
@@ -241,13 +246,14 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     try {
       final missedVaccines = await repository.getMissedVaccines(event.id);
       final currentState = state;
+      final loaded = missedVaccines.datas ?? const <MissedVaccine>[];
 
       if (currentState is CarnetLoaded) {
-        emit(currentState.copyWith(missedVaccines: missedVaccines.datas!));
+        emit(currentState.copyWith(missedVaccines: loaded));
       } else {
         emit(CarnetLoaded(
           vaccines: [],
-          missedVaccines: missedVaccines.datas!,
+          missedVaccines: loaded,
           upcomingVaccines: [],
         ));
       }
@@ -267,14 +273,15 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
     try {
       final upcomingVaccines = await repository.getUpcomingVaccines(event.id);
       final currentState = state;
+      final loaded = upcomingVaccines.datas ?? const <UpcomingVaccine>[];
 
       if (currentState is CarnetLoaded) {
-        emit(currentState.copyWith(upcomingVaccines: upcomingVaccines.datas!));
+        emit(currentState.copyWith(upcomingVaccines: loaded));
       } else {
         emit(CarnetLoaded(
           vaccines: [],
           missedVaccines: [],
-          upcomingVaccines: upcomingVaccines.datas!,
+          upcomingVaccines: loaded,
         ));
       }
     } catch (e) {
@@ -290,12 +297,14 @@ class CarnetBloc extends Bloc<CarnetEvent, CarnetState> {
 
     try {
       final response = await repository.rescheduleVaccine(
-        vaccineId: event.vaccineId,
+        calendarId: event.calendarId,
+        vaccineTypeId: event.vaccineTypeId,
         patientId: event.patientId,
         newDate: event.newDate,
         centreId: event.centreId,
         regionId: event.regionId,
         districtId: event.districtId,
+        agentId: event.agentId,
       );
 
       if (response.status) {

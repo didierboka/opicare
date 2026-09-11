@@ -131,3 +131,11 @@ String formatDateFromString(String dateString) {
     return dateString; // Retourne la chaîne originale si le parsing échoue
   }
 }
+
+/// Compare [date] to today at calendar-day precision (ignores time of day).
+bool isCalendarDateBeforeToday(DateTime date) {
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final day = DateTime(date.year, date.month, date.day);
+  return day.isBefore(today);
+}

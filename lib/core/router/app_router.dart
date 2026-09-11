@@ -53,6 +53,7 @@ import '../../features/carnet_sante/presentation/pages/schedule_vaccine_screen.d
 import '../../features/carnet_sante/presentation/pages/vaccine_details_screen.dart';
 import '../../features/carnet_sante/presentation/pages/add_vaccine_screen.dart';
 import '../../features/carnet_sante/presentation/pages/vaccine_summary_screen.dart';
+import '../../features/carnet_sante/data/models/missed_vaccine.dart';
 import '../../features/carnet_sante/data/models/vaccine.dart';
 import '../../features/carnet_sante/presentation/bloc/carnet_bloc.dart';
 import '../../features/carnet_sante/presentation/bloc/share_visit_carnet_cubit.dart';
@@ -182,12 +183,10 @@ final appRouter = GoRouter(
     GoRoute(
       path: RescheduleVaccineScreen.path,
       builder: (context, state) {
-        // Récupérer les paramètres de la route
-        final extra = state.extra as Map<String, dynamic>?;
-        final missedVaccine = extra?['missedVaccine'];
+        final extra = state.extra;
+        final missedVaccine = extra is Map ? extra['missedVaccine'] : null;
 
-        if (missedVaccine == null) {
-          // Rediriger vers le carnet si pas de données
+        if (missedVaccine is! MissedVaccine) {
           return CarnetSanteScreen();
         }
 

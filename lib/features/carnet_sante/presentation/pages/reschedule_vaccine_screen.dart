@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:opicare/core/di.dart';
 import 'package:opicare/core/enums/app_enums.dart';
 import 'package:opicare/core/helpers/ui_helpers.dart';
@@ -71,7 +72,7 @@ class _RescheduleVaccineScreenState extends State<RescheduleVaccineScreen> {
               message: state.message,
               type: MessageType.success,
             );
-            Navigator.of(context).pop(true); // Retour avec succès
+            context.pop(true);
           }
 
           if (state is RescheduleVaccineFailure) {
@@ -123,7 +124,7 @@ class _RescheduleVaccineScreenState extends State<RescheduleVaccineScreen> {
                             const SizedBox(height: 12),
                             _buildInfoRow('Nom du vaccin', widget.missedVaccine.name),
                             _buildInfoRow('Date de rappel prévue', formatDateFromString(widget.missedVaccine.dueDate)),
-                            _buildInfoRow('Centre', formatDateFromString(widget.missedVaccine.centreLabel)),
+                            _buildInfoRow('Centre', widget.missedVaccine.centreLabel),
                             _buildInfoRow('Raison du retard', widget.missedVaccine.reason),
                           ],
                         ),
@@ -150,7 +151,7 @@ class _RescheduleVaccineScreenState extends State<RescheduleVaccineScreen> {
                         }
                         try {
                           final date = DateTime.parse(_dateController.text);
-                          if (date.isBefore(DateTime.now())) {
+                          if (isCalendarDateBeforeToday(date)) {
                             return 'La date ne peut pas être dans le passé';
                           }
                           selectedDate = date;
@@ -215,13 +216,15 @@ class _RescheduleVaccineScreenState extends State<RescheduleVaccineScreen> {
       if (selectedDate != null) {
         _carnetBloc.add(
           RescheduleVaccineRequested(
-            vaccineId: widget.missedVaccine.id,
+            calendarId: widget.missedVaccine.id,
+            vaccineTypeId: widget.missedVaccine.vaccineTypeId,
             patientId: widget.missedVaccine.patientId,
             newDate: selectedDate!,
             vaccineName: widget.missedVaccine.name,
             centreId: widget.missedVaccine.centreId,
             regionId: widget.missedVaccine.regionId,
             districtId: widget.missedVaccine.districtId,
+            agentId: widget.missedVaccine.agentId,
           ),
         );
       }

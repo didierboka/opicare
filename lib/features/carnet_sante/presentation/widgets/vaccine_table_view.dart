@@ -52,6 +52,10 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
 
 
   void _onTabChanged() {
+    if (_tabController.indexIsChanging) {
+      return;
+    }
+
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
 
     // Notifier le parent du changement d'onglet
@@ -79,6 +83,13 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
         }
         break;
     }
+  }
+
+  void _reloadAfterReschedule(BuildContext context) {
+    final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+    final id = widget.patId == '' ? user.patID : widget.patId;
+    context.read<CarnetBloc>().add(LoadMissedVaccines(id: id));
+    context.read<CarnetBloc>().add(LoadUpcomingVaccines(id: id));
   }
 
 
@@ -174,7 +185,10 @@ class _VaccineTabViewState extends State<VaccineTabView> with TickerProviderStat
             itemCount: state.missedVaccines.length,
             itemBuilder: (context, index) {
               final missedVaccine = state.missedVaccines[index];
-              return MissedVaccineCard(missedVaccine: missedVaccine);
+              return MissedVaccineCard(
+                missedVaccine: missedVaccine,
+                onRescheduled: () => _reloadAfterReschedule(context),
+              );
             },
           );
         }

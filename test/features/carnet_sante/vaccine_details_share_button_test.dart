@@ -43,12 +43,14 @@ class _StubCarnetRepository implements CarnetRepository {
 
   @override
   Future<CustomResponse<Map<String, dynamic>>> rescheduleVaccine({
-    required String vaccineId,
+    required String calendarId,
+    required String vaccineTypeId,
     required String patientId,
     required DateTime newDate,
     required String centreId,
     required String districtId,
     required String regionId,
+    String? agentId,
   }) {
     throw UnimplementedError();
   }
