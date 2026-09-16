@@ -15,6 +15,8 @@ import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/accueil/presentation/widgets/home_card.dart';
 import 'package:opicare/features/accueil/presentation/widgets/option_card.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:opicare/features/campaigns/presentation/cubit/campaigns_cubit.dart';
+import 'package:opicare/features/campaigns/presentation/widgets/campaigns_home_section.dart';
 import 'package:opicare/features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import 'package:opicare/features/famille/presentation/pages/famille_screen.dart';
 import 'package:opicare/features/hopitaux/presentation/pages/trouver_hopitaux_screen.dart';
@@ -53,10 +55,15 @@ class HomeScreen extends StatelessWidget {
 
       final user = state.user;
       final isSubscriptionExpired = SubscriptionHelper.isSubscriptionExpired(user);
+      final campaignLogin = user.phone.trim().isNotEmpty
+          ? user.phone.trim()
+          : user.email.trim();
 
-      return BackButtonBlockerWidget(
-        message: 'Utilisez le menu pour naviguer',
-        child: Scaffold(
+      return BlocProvider(
+        create: (_) => Di.get<CampaignsCubit>()..load(login: campaignLogin),
+        child: BackButtonBlockerWidget(
+          message: 'Utilisez le menu pour naviguer',
+          child: Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
             backgroundColor: Colours.background,
@@ -107,6 +114,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const CampaignsHomeListener(),
                   const SizedBox(height: 10),
                   // ✅ Slider horizontal
                   SizedBox(
@@ -133,6 +141,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  const CampaignOffersSection(),
                   // ✅ Grille sous le slider
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -268,6 +277,7 @@ class HomeScreen extends StatelessWidget {
             onCarnetAccessDenied: () => SubscriptionHelper.showCarnetAccessDeniedDialog(context),
             user: user,
           ),
+        ),
         ),
       );
     });
