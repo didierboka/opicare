@@ -34,6 +34,7 @@ class _CampaignsHomeListenerState extends State<CampaignsHomeListener> {
             return;
           }
           final cubit = context.read<CampaignsCubit>();
+          final hostContext = context;
           cubit.viewed(popup);
           showDialog<void>(
             context: context,
@@ -44,7 +45,9 @@ class _CampaignsHomeListenerState extends State<CampaignsHomeListener> {
                 onCta: () {
                   Navigator.of(dialogContext).pop();
                   cubit.clicked(popup);
-                  _launcher.open(context, popup.ctaUrl);
+                  if (hostContext.mounted) {
+                    _launcher.open(hostContext, popup.ctaUrl);
+                  }
                 },
                 onDismiss: () {
                   Navigator.of(dialogContext).pop();
@@ -53,12 +56,12 @@ class _CampaignsHomeListenerState extends State<CampaignsHomeListener> {
               );
             },
           ).then((_) {
-            if (popup.dismissible && mounted && _shownPopupId == popup.id) {
-              // Fermeture via barrier : traiter comme un dismiss.
-              final stillVisible = context.read<CampaignsCubit>().state.popup?.id == popup.id;
-              if (stillVisible) {
-                context.read<CampaignsCubit>().dismissed(popup);
-              }
+            if (!popup.dismissible || !mounted || _shownPopupId != popup.id) {
+              return;
+            }
+            // Fermeture via barrier : traiter comme un dismiss.
+            if (cubit.state.popup?.id == popup.id) {
+              cubit.dismissed(popup);
             }
           });
         });
