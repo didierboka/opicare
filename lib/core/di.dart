@@ -6,6 +6,15 @@ import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/constants/api_url.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
 import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
+import 'package:opicare/features/campaigns/data/datasources/campaigns_local_datasource.dart';
+import 'package:opicare/features/campaigns/data/datasources/campaigns_mock_datasource.dart';
+import 'package:opicare/features/campaigns/data/datasources/campaigns_remote_datasource.dart';
+import 'package:opicare/features/campaigns/data/models/campaign_model.dart';
+import 'package:opicare/features/campaigns/data/repositories/campaigns_repository_impl.dart';
+import 'package:opicare/features/campaigns/domain/repositories/campaigns_repository.dart';
+import 'package:opicare/features/campaigns/domain/usecases/acknowledge_campaign_usecase.dart';
+import 'package:opicare/features/campaigns/domain/usecases/get_active_campaigns_usecase.dart';
+import 'package:opicare/features/campaigns/presentation/cubit/campaigns_cubit.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
 import 'package:opicare/features/carnet_sante/data/repositories/carnet_repository.dart';
 import 'package:opicare/features/carnet_sante/domain/repositories/carnet_repository.dart';
@@ -282,6 +291,10 @@ class Di {
     _getIt.registerFactory<ApiService<dynamic>>(
       () => ApiService<dynamic>(fromJson: (json) => true),
     );
+
+    _getIt.registerLazySingleton<ApiService<CampaignModel>>(
+      () => ApiService<CampaignModel>(fromJson: CampaignModel.fromJson),
+    );
   }
 
   /// Initialise tous les repositories
@@ -397,6 +410,38 @@ class Di {
     // Santé Info Bloc
     _getIt.registerFactory<SanteInfoBloc>(
       () => SanteInfoBloc(getSanteInfo: _getIt<GetSanteInfo>()),
+    );
+
+    // Campagnes promo (popup + offres)
+    _getIt.registerLazySingleton<CampaignsRemoteDataSource>(
+      () => CampaignsRemoteDataSourceImpl(
+        apiService: _getIt<ApiService<CampaignModel>>(),
+      ),
+    );
+    _getIt.registerLazySingleton<CampaignsLocalDataSource>(
+      () => CampaignsLocalDataSourceImpl(),
+    );
+    _getIt.registerLazySingleton<CampaignsMockDataSource>(
+      () => const CampaignsMockDataSource(),
+    );
+    _getIt.registerLazySingleton<CampaignsRepository>(
+      () => CampaignsRepositoryImpl(
+        remoteDataSource: _getIt<CampaignsRemoteDataSource>(),
+        localDataSource: _getIt<CampaignsLocalDataSource>(),
+        mockDataSource: _getIt<CampaignsMockDataSource>(),
+      ),
+    );
+    _getIt.registerLazySingleton<GetActiveCampaignsUseCase>(
+      () => GetActiveCampaignsUseCase(_getIt<CampaignsRepository>()),
+    );
+    _getIt.registerLazySingleton<AcknowledgeCampaignUseCase>(
+      () => AcknowledgeCampaignUseCase(_getIt<CampaignsRepository>()),
+    );
+    _getIt.registerFactory<CampaignsCubit>(
+      () => CampaignsCubit(
+        getActiveCampaigns: _getIt<GetActiveCampaignsUseCase>(),
+        acknowledgeCampaign: _getIt<AcknowledgeCampaignUseCase>(),
+      ),
     );
 
     // Vaccin List Data Source
