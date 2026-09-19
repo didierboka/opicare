@@ -7,6 +7,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- **ui**: afficher la version de l'app dans le tiroir ([a221c2e](https://github.com/didierboka/opicare/commit/a221c2e))
 - verrouiller l'application en portrait uniquement ([a0b8289](https://github.com/didierboka/opicare/commit/a0b8289))
 - **carnet**: partager la photo du carnet d'une visite ([ceb2665](https://github.com/didierboka/opicare/commit/ceb2665))
 - **family**: durcir le flux d'ajout de membre ([678a403](https://github.com/didierboka/opicare/commit/678a403))
@@ -42,6 +43,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- update changelog [skip ci] ([a65d79f](https://github.com/didierboka/opicare/commit/a65d79f))
 - verrouiller share_plus dans pubspec.lock ([52d766b](https://github.com/didierboka/opicare/commit/52d766b))
 - update changelog [skip ci] ([71e4539](https://github.com/didierboka/opicare/commit/71e4539))
 - **openspec**: spec du partage du carnet d'une visite (#1) ([06b1356](https://github.com/didierboka/opicare/commit/06b1356))
@@ -111,6 +113,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - add GitHub Actions for changelog automation ([f855a1a](https://github.com/didierboka/opicare/commit/f855a1a))
 
 ### Fixed
+- **carnet**: pointer l'API user vers opisms.net ([fd6fe34](https://github.com/didierboka/opicare/commit/fd6fe34))
 - **network**: sonder l'API au lieu de Google pour la connectivité ([9b7e07e](https://github.com/didierboka/opicare/commit/9b7e07e))
 - **android**: activer le sélecteur photo système (1.0.8+22) ([273606e](https://github.com/didierboka/opicare/commit/273606e))
 - **android**: retirer READ_MEDIA_* au profit du sélecteur photo ([c6ff284](https://github.com/didierboka/opicare/commit/c6ff284))
