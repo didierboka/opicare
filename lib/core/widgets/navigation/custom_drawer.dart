@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:opicare/core/helpers/helpers.dart';
 import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
@@ -214,6 +215,14 @@ class CustomDrawer extends StatelessWidget {
                 ],
               ),
             ),
+            const Divider(height: 1, color: Colours.inputBorder),
+            Padding(
+              padding: EdgeInsets.only(
+                top: 8,
+                bottom: 8 + MediaQuery.paddingOf(context).bottom,
+              ),
+              child: const _DrawerAppVersion(),
+            ),
           ],
         ),
       );
@@ -254,6 +263,49 @@ class CustomDrawer extends StatelessWidget {
               style:
                   TextStyles.bodyRegular.copyWith(color: Colours.primaryText)),
         ],
+      ),
+    );
+  }
+}
+
+class _DrawerAppVersion extends StatefulWidget {
+  const _DrawerAppVersion();
+
+  @override
+  State<_DrawerAppVersion> createState() => _DrawerAppVersionState();
+}
+
+class _DrawerAppVersionState extends State<_DrawerAppVersion> {
+  String? _version;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    try {
+      final info = await PackageInfo.fromPlatform();
+      if (!mounted) return;
+      setState(() => _version = info.version);
+    } catch (_) {
+      // PackageInfo peut échouer (hot reload) : on n'affiche rien.
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_version == null) {
+      return const SizedBox(height: 16);
+    }
+
+    return Text(
+      'Version $_version',
+      textAlign: TextAlign.center,
+      style: TextStyles.bodyRegular.copyWith(
+        color: Colours.secondaryText,
+        fontSize: 11,
       ),
     );
   }
