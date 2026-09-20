@@ -648,7 +648,7 @@ class MonProfilScreen extends StatelessWidget {
       // Image distante (URL) - construire l'URL complète
       String fullUrl = imageSource.startsWith('http') 
         ? imageSource 
-        : "https://opisms.net/ecarnet/upload/photo/$imageSource";
+        : "https://opisms.com/ecarnet/upload/photo/$imageSource";
       
       return FlexibleImageWidget(
         imageSource: fullUrl,
@@ -657,7 +657,7 @@ class MonProfilScreen extends StatelessWidget {
     } else {
       // Image par défaut
       return FlexibleImageWidget(
-        imageSource: "https://opisms.net/ecarnet/upload/photo/default_profile.jpg",
+        imageSource: "https://opisms.com/ecarnet/upload/photo/default_profile.jpg",
         height: 200,
       );
     }

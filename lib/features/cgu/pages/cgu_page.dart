@@ -36,7 +36,7 @@ class _CguPageState extends State<CguPage> {
     //  _controller = WebViewController()
     //  ..setJavaScriptMode(JavaScriptMode.unrestricted)
     //  ..loadRequest(
-    //    Uri.parse('https://opisms.net/opicare/cgu_opicare.html'),
+    //    Uri.parse('https://opisms.com/opicare/cgu_opicare.html'),
     //  );
   }
 
@@ -54,7 +54,7 @@ class _CguPageState extends State<CguPage> {
                 Expanded(
                   child: InAppWebView(
                     initialUrlRequest: URLRequest(
-                      url: WebUri('https://opisms.net/opicare/cgu_opicare.html'),
+                      url: WebUri('https://opisms.com/opicare/cgu_opicare.html'),
                     ),
                     initialSettings: InAppWebViewSettings(
                       javaScriptEnabled: true,

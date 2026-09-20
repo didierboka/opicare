@@ -11,5 +11,5 @@ class AppLegalUrls {
       'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
 
   /// Lien vers la Politique de confidentialité de l'app.
-  static const String privacyPolicy = 'https://opisms.net/opicare/cgu_opicare.html';
+  static const String privacyPolicy = 'https://opisms.com/opicare/cgu_opicare.html';
 }

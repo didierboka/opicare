@@ -41,7 +41,7 @@ class _CinetPayCheckoutScreenState extends State<CinetPayCheckoutScreen> {
     configData = {
       "site_id": ApiUrl.cinetPaySiteId,
       "apikey": ApiUrl.cinetPayApiKey,
-      "notify_url": "https://opisms.net/opisms-ws/api/v1/user/cinetpay/callback",
+      "notify_url": "https://opisms.com/opisms-ws/api/v1/user/cinetpay/callback",
     };
 
     paymentData = {

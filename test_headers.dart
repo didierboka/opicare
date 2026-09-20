@@ -4,12 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:opicare/core/constants/api_url.dart';
 
 void main() async {
-  print('Test des nouveaux headers avec opisms.net...');
+  print('Test des nouveaux headers avec opisms.com...');
   
   try {
     final client = http.Client();
     final response = await client.post(
-      Uri.parse('https://opisms.net/opisms-aws/vaccin/majrdv'),
+      Uri.parse('https://opisms.com/opisms-aws/vaccin/majrdv'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

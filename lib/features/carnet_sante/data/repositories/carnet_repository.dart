@@ -152,7 +152,7 @@ class CarnetRepositoryImpl implements CarnetRepository {
     required VaccineSubmissionEntity vaccineUpdate,
   }) async {
     try {
-      final url = Uri.parse('https://opisms.net/opisms-aws/vaccin/majrdv');
+      final url = Uri.parse('https://opisms.com/opisms-aws/vaccin/majrdv');
       //  final url = Uri.parse('https://www.google.com');
 
       // Construction du body

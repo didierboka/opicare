@@ -1,12 +1,12 @@
 class ApiUrl {
-  static const String prod = "https://opisms.net/opisms-ws/api/v1/user";
+  static const String prod = "https://opisms.com/opisms-ws/api/v1/user";
   /// Base API v1 sans /user (ex. pour /iap/verify)
-  static const String prodApiV1 = "https://opisms.net/opisms-ws/api/v1/";
+  static const String prodApiV1 = "https://opisms.com/opisms-ws/api/v1/";
   //  static const String prod = "http://192.168.100.38:8888/opisms-ws/api/v1/user";
-  static const String prodAgent = "https://opisms.net/opisms-aws";
+  static const String prodAgent = "https://opisms.com/opisms-aws";
   //  static const String prodAgent = "http://192.168.100.38:8888/opisms-aws";
   //  static const String prodOrange = "https://e-sante.ci/api/orange/ussd";
-  static const String prodOrange = "https://opisms.net/api/orange/ussd";
+  static const String prodOrange = "https://opisms.com/api/orange/ussd";
 
   //  static const String cinetPayApiKey = "140147965056c4a8c4ea9a57.23977351";
   static const String cinetPayApiKey = "60554287756c36b71b7e652.62297849";
