@@ -10,11 +10,14 @@ import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final ApiService<UserModel> apiService;
   final LocalStorageService localStorage;
+  final ApiService<Map<String, dynamic>> updatePhotoApiService;
 
   AuthRepositoryImpl({
     required this.apiService,
     required this.localStorage,
-  });
+    ApiService<Map<String, dynamic>>? updatePhotoApiService,
+  }) : updatePhotoApiService = updatePhotoApiService ??
+            ApiService<Map<String, dynamic>>(fromJson: (json) => json);
 
   @override
   Future<CustomResponse<UserModel>> login({required String emailOrPhone, required String password}) async {
@@ -117,12 +120,30 @@ class AuthRepositoryImpl implements AuthRepository {
     required String base64Image,
   }) async {
     try {
-      final response = await apiService.post('/update_user', {
-        'id': userId,
-        'photo': base64Image,
-      }, write: true);
+      if (userId.isEmpty || base64Image.isEmpty) {
+        return CustomResponse<UserModel>(
+          status: false,
+          message: 'Données de photo invalides',
+        );
+      }
 
-      return response;
+      final response = await updatePhotoApiService.post(
+        '/update/photo',
+        {
+          'id': userId,
+          'photo': base64Image,
+        },
+        write: true,
+        useFormData: false,
+      );
+
+      final rawCode = response.response?['code'];
+      return CustomResponse<UserModel>(
+        status: response.status,
+        message: response.message,
+        code: rawCode is int ? rawCode : response.code,
+        response: response.response,
+      );
     } catch (e) {
       return CustomResponse<UserModel>(
         status: false,

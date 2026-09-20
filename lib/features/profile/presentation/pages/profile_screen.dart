@@ -18,6 +18,7 @@ import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/auth/presentation/pages/login_page.dart';
+import 'package:opicare/features/user/data/models/user_model.dart';
 import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 import '../../../../shared/widgets/image_b64_widget.dart';
 
@@ -283,9 +284,13 @@ class MonProfilScreen extends StatelessWidget {
       listener: (context, state) {
         log("DELETION -> ${state.toString()}");
 
-        if (state is DeleteAccountLoading) {
+        if (state is DeleteAccountLoading || state is UpdateProfilePhotoLoading) {
           showLoader(context, true);
-        } else {
+        } else if (state is DeleteAccountSuccess ||
+            state is DeleteAccountFailure ||
+            state is UpdateProfilePhotoSuccess ||
+            state is UpdateProfilePhotoFailure ||
+            state is AuthAuthenticated) {
           showLoader(context, false);
         }
 
@@ -312,36 +317,27 @@ class MonProfilScreen extends StatelessWidget {
           );
         }
 
-        // Gestion des états de mise à jour de la photo de profil
-        if (state is UpdateProfilePhotoLoading) {
-          showLoader(context, true);
+        if (state is UpdateProfilePhotoSuccess) {
+          showSnackbar(
+            context,
+            message: state.message,
+            type: MessageType.success,
+          );
         }
 
         if (state is UpdateProfilePhotoFailure) {
-          showLoader(context, false);
-          // Utiliser le GlobalKey pour afficher le message d'erreur
-          _messengerKey.currentState?.showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
+          showSnackbar(
+            context,
+            message: state.message,
+            type: MessageType.error,
           );
         }
       },
       builder: (context, state) {
-        // Vérification sécurisée de l'état
-        if (state is! AuthAuthenticated) {
-          // Rediriger ou afficher un écran de chargement
-          // return const Scaffold(
-          //   body: Center(
-          //     child: CircularProgressIndicator(),
-          //   ),
-          // );
-
-          return SizedBox();
+        final user = _userFromAuthState(state);
+        if (user == null) {
+          return const SizedBox();
         }
-
-        final user = state.user;
         final isSubscriptionExpired = SubscriptionHelper.isSubscriptionExpired(user);
 
         // Logs de diagnostic pour l'image
@@ -569,6 +565,14 @@ class MonProfilScreen extends StatelessWidget {
     );
   }
 
+
+  UserModel? _userFromAuthState(AuthState state) {
+    if (state is AuthAuthenticated) return state.user;
+    if (state is UpdateProfilePhotoLoading) return state.user;
+    if (state is UpdateProfilePhotoSuccess) return state.user;
+    if (state is UpdateProfilePhotoFailure) return state.user;
+    return null;
+  }
 
   Widget _infoRow(String label1, String value1, String label2, String value2, {Color? value2Color}) {
     return Padding(

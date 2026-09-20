@@ -20,11 +20,21 @@ class DeleteAccountSuccess extends AuthState {
   DeleteAccountSuccess(this.message);
 }
 
-class UpdateProfilePhotoLoading extends AuthState {}
+class UpdateProfilePhotoLoading extends AuthState {
+  final UserModel user;
+  UpdateProfilePhotoLoading(this.user);
+}
+
+class UpdateProfilePhotoSuccess extends AuthState {
+  final UserModel user;
+  final String message;
+  UpdateProfilePhotoSuccess(this.user, this.message);
+}
 
 class UpdateProfilePhotoFailure extends AuthState {
+  final UserModel user;
   final String message;
-  UpdateProfilePhotoFailure(this.message);
+  UpdateProfilePhotoFailure(this.message, {required this.user});
 }
 
 class DeleteAccountFailure extends AuthState {

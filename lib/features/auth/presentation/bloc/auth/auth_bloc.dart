@@ -119,45 +119,88 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     logger.i("UpdateProfilePhoto: Starting update process");
-    emit(UpdateProfilePhotoLoading());
-    
+
     try {
-      // Récupérer l'utilisateur actuel
       final currentUser = await localStorage.getSavedUser();
-      if (currentUser == null) {
+      if (currentUser == null || currentUser.patID.isEmpty) {
         logger.e("UpdateProfilePhoto: No current user found");
-        emit(UpdateProfilePhotoFailure('Utilisateur non connecté'));
+        emit(UpdateProfilePhotoFailure(
+          'Utilisateur non connecté',
+          user: currentUser ??
+              UserModel(
+                id: '',
+                patID: '',
+                name: '',
+                surname: '',
+                email: '',
+                phone: '',
+                sex: '',
+                birthdate: '',
+                carnetPhoto: '',
+                userPic: '',
+                dateAbon: '',
+                dateExpiration: '',
+                abonnementLabel: '',
+              ),
+        ));
         return;
       }
 
+      emit(UpdateProfilePhotoLoading(currentUser));
       logger.i("UpdateProfilePhoto: Current user found - ${currentUser.name}");
       logger.i("UpdateProfilePhoto: Image file path - ${event.imageFile.path}");
 
-      // Pour l'instant, on simule un succès sans appeler l'API
-      // On crée un utilisateur mis à jour avec la nouvelle photo
-      final updatedUser = UserModel(
-        id: currentUser.id,
-        patID: currentUser.patID,
-        name: currentUser.name,
-        surname: currentUser.surname,
-        email: currentUser.email,
-        phone: currentUser.phone,
-        sex: currentUser.sex,
-        birthdate: currentUser.birthdate,
-        carnetPhoto: currentUser.carnetPhoto,
-        userPic: event.imageFile.path, // Utiliser le chemin de l'image rognée
-        dateAbon: currentUser.dateAbon,
-        dateExpiration: currentUser.dateExpiration,
-        abonnementLabel: currentUser.abonnementLabel,
+      final response = await updateProfilePhotoUseCase.execute(
+        userId: currentUser.patID,
+        imageFile: event.imageFile,
       );
 
-      logger.i("UpdateProfilePhoto: Success - updating local user with cropped image");
+      if (!response.status) {
+        logger.e("UpdateProfilePhoto: Failed - ${response.message}");
+        emit(UpdateProfilePhotoFailure(
+          response.message ?? 'Une erreur est survenue',
+          user: currentUser,
+        ));
+        emit(AuthAuthenticated(currentUser));
+        return;
+      }
+
+      final updatedUser = currentUser.copyWith(userPic: event.imageFile.path);
       await localStorage.saveUser(updatedUser);
+      emit(UpdateProfilePhotoSuccess(
+        updatedUser,
+        response.message ?? 'Mise à jour effectuée',
+      ));
       emit(AuthAuthenticated(updatedUser));
-      
     } catch (e) {
       logger.e("UpdateProfilePhoto: Error - $e");
-      emit(UpdateProfilePhotoFailure('Erreur lors de la mise à jour de la photo: $e'));
+      final currentUser = await localStorage.getSavedUser();
+      if (currentUser != null) {
+        emit(UpdateProfilePhotoFailure(
+          'Erreur lors de la mise à jour de la photo: $e',
+          user: currentUser,
+        ));
+        emit(AuthAuthenticated(currentUser));
+      } else {
+        emit(UpdateProfilePhotoFailure(
+          'Erreur lors de la mise à jour de la photo: $e',
+          user: UserModel(
+            id: '',
+            patID: '',
+            name: '',
+            surname: '',
+            email: '',
+            phone: '',
+            sex: '',
+            birthdate: '',
+            carnetPhoto: '',
+            userPic: '',
+            dateAbon: '',
+            dateExpiration: '',
+            abonnementLabel: '',
+          ),
+        ));
+      }
     }
   }
 }
