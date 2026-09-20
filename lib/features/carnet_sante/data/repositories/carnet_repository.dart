@@ -71,6 +71,7 @@ class CarnetRepositoryImpl implements CarnetRepository {
       '/vaccin/ajout',
       likeAgent: true,
       useFormData: false,
+      write: true,
       {
         "usrId": "1",
         "ctrregion": regionId,
@@ -117,6 +118,7 @@ class CarnetRepositoryImpl implements CarnetRepository {
       '/vaccin/ajout',
       likeAgent: true,
       useFormData: false,
+      write: true,
       vaccineSubmissionModel.toJson(),
     );
 
@@ -169,7 +171,7 @@ class CarnetRepositoryImpl implements CarnetRepository {
         "patId": vaccineUpdate.patId,
         "vacId": vaccineUpdate.vacId,
         "dtRap": vaccineUpdate.dtRap,
-        "d": "PROD",
+        "d": ApiDb.write,
       };
 
       final response = await http.post(

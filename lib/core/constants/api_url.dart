@@ -31,3 +31,10 @@ class ApiUrl {
   };
 
 }
+
+/// Backend database selector sent as POST field `d`.
+class ApiDb {
+  static const String read = 'BACK';
+  static const String write = 'PROD';
+  static const String evaccin = 'EVACCIN';
+}

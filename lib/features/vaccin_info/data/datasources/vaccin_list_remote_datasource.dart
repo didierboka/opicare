@@ -19,9 +19,7 @@ class VaccinListRemoteDataSourceImpl implements VaccinListRemoteDataSource {
     try {
       final response = await apiService.post(
         '/listedescodesvaccins',
-        {
-          "d": "PROD"
-        },
+        {},
       );
 
       MyLogger.writeLog("VACCIN LIST RESPONSE -> ${response.response}");

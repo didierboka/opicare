@@ -48,7 +48,6 @@ class DispoVaccinRepositoryImpl implements DispoVaccinRepository{
       
       final body = {
         'id': idCentre,
-        'd': 'PROD'
       };
       
       logger.d("Body de la requête: $body");

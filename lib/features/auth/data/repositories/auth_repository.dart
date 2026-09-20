@@ -20,7 +20,6 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<CustomResponse<UserModel>> login({required String emailOrPhone, required String password}) async {
     try {
       final response = await apiService.post('/login', {
-        'd': 'PROD',
         'login': emailOrPhone,
         'password': password,
       });
@@ -44,7 +43,6 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await apiService.post(
         '/inscription',
         {
-          'd': 'PROD',
           'nom': nom,
           'prenoms': prenoms,
           'datenaissance': dateNaissance,
@@ -52,6 +50,7 @@ class AuthRepositoryImpl implements AuthRepository {
           'email': email,
           'sexe': genre,
         },
+        write: true,
       );
 
       final myRes = response.response;
@@ -87,7 +86,6 @@ class AuthRepositoryImpl implements AuthRepository {
       );
 
       final requestData = {
-        'd': 'PROD',
         'id': userId,
       };
       
@@ -96,6 +94,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await deleteApiService.post(
         '/ecarnetsupprimer',
         requestData,
+        write: true,
       );
 
       print("DeleteAccount: API Response - status: ${response.status}, message: ${response.message}");
@@ -119,10 +118,9 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     try {
       final response = await apiService.post('/update_user', {
-        'd': 'PROD',
         'id': userId,
         'photo': base64Image,
-      });
+      }, write: true);
 
       return response;
     } catch (e) {

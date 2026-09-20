@@ -36,6 +36,7 @@ class FamilyRepositoryImpl implements FamilyRepository {
           'id': ownerPatId,
         },
         useFormData: false,
+        write: true,
       );
 
       if (response.data != null) {

@@ -21,7 +21,6 @@ class VaccinCentreRepositoryImpl implements VaccinCentreRepository {
         '/jourvaccinationduncentre',
         {
           'id': centreId,
-          'd': 'PROD',
         },
       );
 

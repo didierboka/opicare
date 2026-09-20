@@ -121,6 +121,7 @@ class IapRemoteDataSourceImpl implements IapRemoteDataSource {
         verifyEndpoint,
         requestData,
         useFormData: false,
+        write: true,
       );
       
       // Vérifier le statut de la réponse

@@ -171,6 +171,7 @@ class ApiService<T> {
     bool likeAgent = false, 
     bool likeOrange = false, 
     String? overrideD,
+    bool write = false,
     Duration? timeout,
     int maxRetries = 3,
   }) async {
@@ -199,7 +200,7 @@ class ApiService<T> {
     if (overrideD != null) {
       data['d'] = overrideD;
     } else {
-      data['d'] = 'PROD';
+      data['d'] = write ? ApiDb.write : ApiDb.read;
     }
 
     DebugLogger.network('POST URL: ${url.toString()}');

@@ -23,7 +23,7 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
     final ApiService<TypeAboModel> apiService = ApiService(fromJson: (json) => TypeAboModel.fromJson(json));
     final response = await apiService.post(
       '/listetypeabonnement',
-      {'d': 'PROD'},
+      {},
     );
 
     //if (!response.status) throw Exception(response.message);
@@ -38,7 +38,7 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
     final ApiService<FormuleModel> apiService = ApiService(fromJson: (json) => FormuleModel.fromJson(json));
     final response = await apiService.post(
       '/listeformule',
-      {'d': 'PROD', 'id': typeAboId},
+      {'id': typeAboId},
     );
 
     final models = response.datas ?? [];
@@ -60,7 +60,6 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
     final response = await apiService.post(
       '/abonnement',
       {
-        'd': 'PROD',
         'id': id,
         'numtel': numtel,
         'email': email,
@@ -69,6 +68,7 @@ class SouscriptionRepositoryImpl implements SouscriptionRepository {
         "tarif": tarif,
         'duree': years.toString(),
       },
+      write: true,
     );
 
     final myRes = response.response;

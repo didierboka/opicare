@@ -18,6 +18,7 @@ class PasswordResetRepositoryImpl implements PasswordResetRepository {
         '/password/reset/v1',
         {'email': email.trim()},
         useFormData: false,
+        write: true,
       );
 
       if (response.data != null) {

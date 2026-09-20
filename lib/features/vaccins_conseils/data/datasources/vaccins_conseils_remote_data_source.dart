@@ -1,6 +1,7 @@
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/network/custom_response.dart';
 import 'package:opicare/core/helpers/debug_logger.dart';
+import 'package:opicare/core/constants/api_url.dart';
 import 'package:opicare/features/vaccins_conseils/data/models/cible_vaccin_model.dart';
 import 'package:opicare/features/vaccins_conseils/data/models/vaccin_conseil_model.dart';
 
@@ -17,11 +18,11 @@ class VaccinsConseilsRemoteDataSourceImpl implements VaccinsConseilsRemoteDataSo
   @override
   Future<List<CibleVaccinModel>> getCiblesVaccin() async {
     try {
-      DebugLogger.network('Sending request to cibleVaccin with data: {"d": "EVACCIN"}');
+      DebugLogger.network('Sending request to cibleVaccin with data: {"d": "${ApiDb.evaccin}"}');
       final response = await apiService.post(
         '/cibleVaccin',
-        {'d': 'EVACCIN'},
-        overrideD: 'EVACCIN',
+        {'d': ApiDb.evaccin},
+        overrideD: ApiDb.evaccin,
         useFormData: false,
       );
 
@@ -42,10 +43,10 @@ class VaccinsConseilsRemoteDataSourceImpl implements VaccinsConseilsRemoteDataSo
       final response = await apiService.post(
         '/vaccinsConseils',
         {
-          'd': 'EVACCIN',
+          'd': ApiDb.evaccin,
           'id': cibleId,
         },
-        overrideD: 'EVACCIN',
+        overrideD: ApiDb.evaccin,
         useFormData: false,
       );
 

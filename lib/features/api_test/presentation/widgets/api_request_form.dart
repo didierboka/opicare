@@ -27,7 +27,7 @@ class _ApiRequestFormState extends State<ApiRequestForm> {
     super.initState();
     // Endpoint par défaut pour tester
     _endpointController.text = '/vaccin/vaccinsInfos';
-    _dataController.text = '{"d": "PROD"}';
+    _dataController.text = '{"d": "BACK"}';
   }
 
   @override
