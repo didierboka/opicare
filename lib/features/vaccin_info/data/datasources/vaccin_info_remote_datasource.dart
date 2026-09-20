@@ -1,6 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:opicare/core/constants/api_url.dart';
 import 'package:opicare/features/vaccin_info/data/models/vaccin_detail_model.dart';
 
 abstract class VaccinInfoRemoteDataSource {
@@ -12,9 +12,8 @@ class VaccinInfoRemoteDataSourceImpl implements VaccinInfoRemoteDataSource {
   @override
   Future<VaccinDetailModel> getVaccinInfo(String vaccinId) async {
     try {
-      const String baseUrl = 'https://opisms.com/api/orange/ussd';
       const String endpoint = '/vaccin/vaccinsInfos';
-      const String url = '$baseUrl$endpoint';
+      final String url = '${ApiUrl.prodOrange}$endpoint';
       
       final Map<String, dynamic> requestData = {
         "transactionID": "12345",
