@@ -49,11 +49,26 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
       listeners: [
         BlocListener<CarnetBloc, CarnetState>(
           listener: (context, state) {
+            if (state is UpdateVaccinePhotoLoading) {
+              showLoader(context, true);
+              return;
+            }
+
+            showLoader(context, false);
+
+            if (state is UpdateVaccinePhotoFailure) {
+              _showErrorSnackBar(state.message);
+              return;
+            }
+
             if (state is UpdateVaccinePhotoSuccess) {
               _showSuccessSnackBar(state.message);
-              Navigator.pop(context);
-            } else if (state is UpdateVaccinePhotoFailure) {
-              _showErrorSnackBar(state.message);
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!context.mounted) return;
+                if (context.canPop()) {
+                  context.pop();
+                }
+              });
             }
           },
         ),
@@ -293,43 +308,29 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
   }
 
   Widget _buildUpdateButton() {
-    return BlocListener<CarnetBloc, CarnetState>(
-        listener: (context, state) {
-          //final isLoading = state is UpdateVaccinePhotoLoading;
-          if (state is UpdateVaccinePhotoLoading) showLoader(context, true);
-
-          if (state is UpdateVaccinePhotoFailure) {
-            context.pop();
-          }
-
-          if (state is UpdateVaccinePhotoSuccess) {
-            Navigator.of(context).pop();
-            context.pop();
-          }
-        },
-        child: Column(
+    return Column(
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    text: 'Retour',
-                    onPressed: () => _handleBackNavigation(),
-                    backgroundColor: Colors.grey[200],
-                    textColor: Colours.primaryText,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: CustomButton(
-                    text: 'Mise à jour',
-                    onPressed: _updateVaccine,
-                  ),
-                ),
-              ],
+            Expanded(
+              child: CustomButton(
+                text: 'Retour',
+                onPressed: () => _handleBackNavigation(),
+                backgroundColor: Colors.grey[200],
+                textColor: Colours.primaryText,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: CustomButton(
+                text: 'Mise à jour',
+                onPressed: _updateVaccine,
+              ),
             ),
           ],
-        ));
+        ),
+      ],
+    );
   }
 
   void _shareVisitCarnet() {
