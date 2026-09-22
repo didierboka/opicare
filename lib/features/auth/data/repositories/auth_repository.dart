@@ -27,6 +27,15 @@ class AuthRepositoryImpl implements AuthRepository {
         'password': password,
       });
 
+      final user = response.data;
+      if (user != null) {
+        final isAdmin = user.isAdmin ||
+            UserModel.readAdminFlag(response.response?['isAdmin']);
+        if (isAdmin != user.isAdmin) {
+          response.data = user.copyWith(isAdmin: isAdmin);
+        }
+      }
+
       return response;
     } catch (e) {
       return CustomResponse(status: false, message: e.toString());

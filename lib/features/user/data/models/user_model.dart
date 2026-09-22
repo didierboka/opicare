@@ -13,6 +13,7 @@ class UserModel {
   final String dateAbon;
   final String dateExpiration;
   final String abonnementLabel;
+  final bool isAdmin;
 
   UserModel({
     required this.id,
@@ -27,8 +28,19 @@ class UserModel {
     required this.birthdate,
     required this.dateAbon,
     required this.dateExpiration,
-    required this.abonnementLabel
+    required this.abonnementLabel,
+    this.isAdmin = false,
   });
+
+  /// Login renvoie `isAdmin` en booléen, parfois aussi en 1/0 ou en chaîne.
+  static bool readAdminFlag(dynamic value) {
+    if (value == true || value == 1) return true;
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      return normalized == 'true' || normalized == '1';
+    }
+    return false;
+  }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
@@ -46,6 +58,7 @@ class UserModel {
       dateExpiration: json['DATE_EXPIRATION']?? 'N/A',
       //  dateExpiration: "2024-10-12",
       abonnementLabel: json['LIBELLE'] ?? 'N/A',
+      isAdmin: readAdminFlag(json['isAdmin']),
     );
   }
 
@@ -63,7 +76,8 @@ class UserModel {
       'DATE_EXPIRATION': dateExpiration,
       'PHOTOPAT': userPic,
       'PHOTOCARNET': carnetPhoto,
-      'LIBELLE': abonnementLabel
+      'LIBELLE': abonnementLabel,
+      'isAdmin': isAdmin,
     };
   }
 
@@ -81,6 +95,7 @@ class UserModel {
     String? dateAbon,
     String? dateExpiration,
     String? abonnementLabel,
+    bool? isAdmin,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -96,6 +111,7 @@ class UserModel {
       dateAbon: dateAbon ?? this.dateAbon,
       dateExpiration: dateExpiration ?? this.dateExpiration,
       abonnementLabel: abonnementLabel ?? this.abonnementLabel,
+      isAdmin: isAdmin ?? this.isAdmin,
     );
   }
 }
