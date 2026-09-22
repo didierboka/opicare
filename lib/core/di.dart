@@ -4,6 +4,10 @@ import 'package:get_it/get_it.dart';
 import 'package:opicare/core/helpers/local_storage_service.dart';
 import 'package:opicare/core/network/api_service.dart';
 import 'package:opicare/core/constants/api_url.dart';
+import 'package:opicare/features/administration/data/datasources/patient_search_remote_data_source.dart';
+import 'package:opicare/features/administration/data/repositories/patient_search_repository_impl.dart';
+import 'package:opicare/features/administration/domain/repositories/patient_search_repository.dart';
+import 'package:opicare/features/administration/domain/usecases/search_patient_by_login_usecase.dart';
 import 'package:opicare/features/auth/data/repositories/auth_repository.dart';
 import 'package:opicare/features/auth/domain/repositories/auth_repository.dart';
 import 'package:opicare/features/carnet_sante/data/models/vaccine.dart';
@@ -645,6 +649,18 @@ class Di {
         listenPurchaseUpdatesUseCase: _getIt<ListenPurchaseUpdatesUseCase>(),
       ),
     );
+    _getIt.registerLazySingleton<PatientSearchRemoteDataSource>(
+      () => PatientSearchRemoteDataSource(),
+    );
+    _getIt.registerLazySingleton<PatientSearchRepository>(
+      () => PatientSearchRepositoryImpl(
+        remoteDataSource: _getIt<PatientSearchRemoteDataSource>(),
+      ),
+    );
+    _getIt.registerLazySingleton<SearchPatientByLoginUseCase>(
+      () => SearchPatientByLoginUseCase(_getIt<PatientSearchRepository>()),
+    );
+
     // endregion
   }
 

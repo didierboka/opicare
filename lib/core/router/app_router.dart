@@ -45,6 +45,8 @@ import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
 
 import '../../features/accueil/presentation/pages/home_screen.dart';
+import '../../features/administration/domain/usecases/search_patient_by_login_usecase.dart';
+import '../../features/administration/presentation/bloc/patient_search_cubit.dart';
 import '../../features/administration/presentation/pages/administration_screen.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/carnet_sante/domain/repositories/carnet_repository.dart';
@@ -127,7 +129,12 @@ final appRouter = GoRouter(
         }
         return null;
       },
-      builder: (context, state) => const AdministrationScreen(),
+      builder: (context, state) => BlocProvider(
+        create: (_) => PatientSearchCubit(
+          searchPatientByLoginUseCase: Di.get<SearchPatientByLoginUseCase>(),
+        ),
+        child: const AdministrationScreen(),
+      ),
     ),
     GoRoute(
       path: ScheduleVaccineScreen.path,
