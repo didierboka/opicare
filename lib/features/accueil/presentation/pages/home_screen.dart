@@ -12,6 +12,7 @@ import 'package:opicare/core/widgets/navigation/appbar_actions.dart';
 import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
+import 'package:opicare/features/administration/presentation/pages/administration_screen.dart';
 import 'package:opicare/features/accueil/presentation/widgets/home_card.dart';
 import 'package:opicare/features/accueil/presentation/widgets/option_card.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
@@ -257,7 +258,48 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20), // Espace supplémentaire en bas
+                  if (user.isAdmin) ...[
+                    const SizedBox(height: 13),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Material(
+                        color: Colours.homeCardSecondaryBlue,
+                        borderRadius: BorderRadius.circular(16),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => context.push(AdministrationScreen.path),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 18,
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.admin_panel_settings_outlined,
+                                  color: Colours.background,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Administration',
+                                    style: TextStyles.bodyBold.copyWith(
+                                      color: Colours.background,
+                                    ),
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.chevron_right,
+                                  color: Colours.background,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

@@ -7,6 +7,7 @@ import 'package:opicare/core/res/media.dart';
 import 'package:opicare/core/res/styles/colours.dart';
 import 'package:opicare/core/res/styles/text_style.dart';
 import 'package:opicare/features/accueil/presentation/pages/home_screen.dart';
+import 'package:opicare/features/administration/presentation/pages/administration_screen.dart';
 import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
 import 'package:opicare/features/cgu/pages/cgu_page.dart';
@@ -163,6 +164,15 @@ class CustomDrawer extends StatelessWidget {
                       onTap: () {
                         context.go(DisponibiliteVaccinScreen.path);
                       }),
+                  if (user.isAdmin)
+                    _buildDrawerItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      text: 'Administration',
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push(AdministrationScreen.path);
+                      },
+                    ),
                   SizedBox(
                     height: 20,
                   ),

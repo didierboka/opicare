@@ -45,6 +45,7 @@ import 'package:opicare/features/iap/presentation/pages/iap_screen.dart';
 import 'package:opicare/features/iap/presentation/bloc/iap/iap_bloc.dart';
 
 import '../../features/accueil/presentation/pages/home_screen.dart';
+import '../../features/administration/presentation/pages/administration_screen.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/carnet_sante/domain/repositories/carnet_repository.dart';
 import '../../features/carnet_sante/presentation/pages/carnet_sante_screen.dart';
@@ -116,6 +117,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: HomeScreen.path,
       builder: (context, state) => HomeScreen(),
+    ),
+    GoRoute(
+      path: AdministrationScreen.path,
+      redirect: (context, state) {
+        final auth = context.read<AuthBloc>().state;
+        if (auth is! AuthAuthenticated || !auth.user.isAdmin) {
+          return HomeScreen.path;
+        }
+        return null;
+      },
+      builder: (context, state) => const AdministrationScreen(),
     ),
     GoRoute(
       path: ScheduleVaccineScreen.path,
