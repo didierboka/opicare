@@ -92,11 +92,11 @@ class _VaccineSummaryScreenState extends State<VaccineSummaryScreen> {
             routePatId: _carnetPatId,
             authPatId: user.patID,
           );
-          final target = CarnetPatientScope.carnetPath(
+          CarnetPatientScope.openCarnetAfterSubmit(
+            context,
             patId: targetPatId,
             authPatId: user.patID,
           );
-          context.go(target);
         } else if (state is AddVaccineFailure) {
           _showErrorSnackBar(state.message);
           setState(() {

@@ -441,13 +441,14 @@ class _ScheduleVaccineScreenState extends State<ScheduleVaccineScreen> {
                         final user =
                             (context.read<AuthBloc>().state as AuthAuthenticated)
                                 .user;
-                        context.go(CarnetPatientScope.carnetPath(
+                        CarnetPatientScope.openCarnetAfterSubmit(
+                          context,
                           patId: CarnetPatientScope.resolveIds(
                             routePatId: _carnetPatId,
                             authPatId: user.patID,
                           ),
                           authPatId: user.patID,
-                        ));
+                        );
                       }
                     },
                     backgroundColor: Colors.grey[200],

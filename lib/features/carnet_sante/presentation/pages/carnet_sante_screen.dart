@@ -10,7 +10,6 @@ import 'package:opicare/core/widgets/navigation/back_button_blocker_widget.dart'
 import 'package:opicare/core/widgets/navigation/custom_appbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_bottom_navbar.dart';
 import 'package:opicare/core/widgets/navigation/custom_drawer.dart';
-import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/carnet_sante/presentation/bloc/carnet_bloc.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/get_visit_types_usecase.dart';
 import 'package:opicare/features/carnet_sante/domain/usecases/submit_vaccine_usecase.dart';
@@ -94,7 +93,36 @@ class _CarnetSanteScreenState extends State<CarnetSanteScreen> {
     log("CARNET DE SANTE => $_currentTabIndex");
     log("CARNET DE SANTE (widget.patId) => ${widget.patId}");
 
-    final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
+    final isOwnCarnet = widget.patId == '';
+
+    final scaffold = Scaffold(
+      key: _scaffoldKey,
+      appBar: CustomAppBar(
+        canBack: !isOwnCarnet,
+        title: isOwnCarnet ? 'Mon carnet de santé' : 'Carnet enfant',
+        scaffoldKey: _scaffoldKey,
+        hideNotif: !isOwnCarnet,
+      ),
+      drawer: const CustomDrawer(),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 10.0),
+          child: Column(
+            children: [
+              HealthCardHeader(
+                title: 'Vacciner, c\'est prévenir',
+                highlightText: 'Gratuit',
+                subtitle: 'de 0 et 15 mois',
+                imageAsset: 'assets/images/vaccination-sans-bg.png',
+              ),
+              Expanded(child: VaccineTabView(onTabChanged: _onTabChanged, patId: widget.patId)),
+            ],
+          ),
+        ),
+      ),
+      floatingActionButton: _buildFloatingActionButton(context),
+      bottomNavigationBar: isOwnCarnet ? CustomBottomNavBar() : null,
+    );
 
     return BlocProvider(
       create: (context) => CarnetBloc(
@@ -102,41 +130,12 @@ class _CarnetSanteScreenState extends State<CarnetSanteScreen> {
         getVisitTypesUseCase: Di.get<GetVisitTypesUseCase>(),
         submitVaccineUseCase: Di.get<SubmitVaccineUseCase>(),
       ),
-      child: BackButtonBlockerWidget(
-        message: 'Utilisez le menu pour naviguer',
-        child: Scaffold(
-          key: _scaffoldKey,
-          appBar: CustomAppBar(
-            canBack: widget.patId == '' ? false : true,
-            title: widget.patId == '' ? 'Mon carnet de santé' : 'Carnet enfant',
-            scaffoldKey: _scaffoldKey,
-            hideNotif: widget.patId == '' ? false : true,
-          ),
-          drawer: const CustomDrawer(),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 10.0),
-              child: Column(
-                children: [
-                  HealthCardHeader(
-                    title: 'Vacciner, c\'est prévenir',
-                    highlightText: 'Gratuit',
-                    subtitle: 'de 0 et 15 mois',
-                    imageAsset: 'assets/images/vaccination-sans-bg.png',
-                  ),
-                  //const TabBarHeader(),
-                  Expanded(child: VaccineTabView(onTabChanged: _onTabChanged, patId: widget.patId)),
-                ],
-              ),
-            ),
-          ),
-          floatingActionButton: _buildFloatingActionButton(context),
-
-          bottomNavigationBar: widget.patId == ''
-              ? CustomBottomNavBar()
-              : null,
-        ),
-      ),
+      child: isOwnCarnet
+          ? BackButtonBlockerWidget(
+              message: 'Utilisez le menu pour naviguer',
+              child: scaffold,
+            )
+          : scaffold,
     );
   }
 }
