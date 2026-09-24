@@ -206,7 +206,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            BlocBuilder<ShareVisitCarnetCubit, ShareVisitCarnetState>(
+            /*BlocBuilder<ShareVisitCarnetCubit, ShareVisitCarnetState>(
               builder: (context, shareState) {
                 final isSharing = shareState is ShareVisitCarnetLoading;
                 return CustomButton(
@@ -217,7 +217,7 @@ class _VaccineDetailsScreenState extends State<VaccineDetailsScreen> {
                   textColor: Colours.primaryText,
                 );
               },
-            ),
+            ),*/
           ],
         ),
       ),

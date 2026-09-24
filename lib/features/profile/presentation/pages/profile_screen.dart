@@ -32,7 +32,6 @@ class MonProfilScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final Logger logger = Logger();
   final ImagePicker _picker = ImagePicker();
-  final GlobalKey<ScaffoldMessengerState> _messengerKey = GlobalKey<ScaffoldMessengerState>();
 
 
   void _showSubscriptionExpiredDialog(BuildContext context) {
@@ -265,6 +264,17 @@ class MonProfilScreen extends StatelessWidget {
     );
   }
 
+  void _showPhotoUpdateSnackbar(
+    BuildContext context,
+    String message,
+    MessageType type,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!context.mounted) return;
+      showSnackbar(context, message: message, type: type);
+    });
+  }
+
   void _showErrorSnackBar(String message) {
     final context = _scaffoldKey.currentContext;
     if (context != null) {
@@ -318,19 +328,11 @@ class MonProfilScreen extends StatelessWidget {
         }
 
         if (state is UpdateProfilePhotoSuccess) {
-          showSnackbar(
-            context,
-            message: state.message,
-            type: MessageType.success,
-          );
+          _showPhotoUpdateSnackbar(context, state.message, MessageType.success);
         }
 
         if (state is UpdateProfilePhotoFailure) {
-          showSnackbar(
-            context,
-            message: state.message,
-            type: MessageType.error,
-          );
+          _showPhotoUpdateSnackbar(context, state.message, MessageType.error);
         }
       },
       builder: (context, state) {
@@ -350,9 +352,7 @@ class MonProfilScreen extends StatelessWidget {
         log("user.formule: ${user.abonnementLabel}");
         log("========================");
 
-        return ScaffoldMessenger(
-          key: _messengerKey,
-          child: Scaffold(
+        return Scaffold(
             key: _scaffoldKey,
             appBar: CustomAppBar(
               title: 'Mon profil', 
@@ -559,7 +559,6 @@ class MonProfilScreen extends StatelessWidget {
               onCarnetAccessDenied: () => _showCarnetAccessDeniedDialog(context),
               user: user,
             ),
-          ),
         );
       },
     );

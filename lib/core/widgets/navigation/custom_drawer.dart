@@ -225,7 +225,9 @@ class CustomDrawer extends StatelessWidget {
                 ],
               ),
             ),
+
             const Divider(height: 1, color: Colours.inputBorder),
+
             Padding(
               padding: EdgeInsets.only(
                 top: 8,
@@ -300,7 +302,6 @@ class _DrawerAppVersionState extends State<_DrawerAppVersion> {
       if (!mounted) return;
       setState(() => _version = info.version);
     } catch (_) {
-      // PackageInfo peut échouer (hot reload) : on n'affiche rien.
     }
   }
 
