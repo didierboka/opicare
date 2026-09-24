@@ -53,7 +53,10 @@ class _CarnetSanteScreenState extends State<CarnetSanteScreen> {
       case 0: // Effectués
         return FloatingActionButton(
           onPressed: () {
-            context.push(AddVaccineScreen.path);
+            context.push(
+              AddVaccineScreen.path,
+              extra: {'patId': widget.patId},
+            );
           },
           backgroundColor: Colours.primaryBlue,
           child: const Icon(
@@ -67,7 +70,10 @@ class _CarnetSanteScreenState extends State<CarnetSanteScreen> {
       case 2: // Prochains
         return FloatingActionButton(
           onPressed: () {
-            context.push(ScheduleVaccineScreen.path);
+            context.push(
+              ScheduleVaccineScreen.path,
+              extra: {'patId': widget.patId},
+            );
           },
           backgroundColor: Colours.primaryBlue,
           child: const Icon(

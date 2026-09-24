@@ -25,6 +25,7 @@ import 'package:opicare/features/carnet_sante/presentation/bloc/type_visite_even
 import 'package:opicare/features/carnet_sante/presentation/bloc/type_visite_state.dart';
 
 import '../../../../core/widgets/navigation/back_button_blocker_widget.dart';
+import '../utils/carnet_patient_scope.dart';
 import 'vaccine_summary_screen.dart';
 
 class AddVaccineScreen extends StatefulWidget {
@@ -47,6 +48,16 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
   final ImagePicker _picker = ImagePicker();
   NomVaccinModel? _selectedNomVaccin;
   TypeVisiteModel? _selectedTypeVisite;
+  String _carnetPatId = '';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final extra = GoRouterState.of(context).extra;
+    if (extra is Map && extra['patId'] != null) {
+      _carnetPatId = extra['patId'].toString();
+    }
+  }
 
   @override
   void dispose() {
@@ -73,7 +84,15 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
         listener: (context, state) {
           if (state is AddVaccineSuccess) {
             _showSuccessSnackBar(state.message);
-            context.go('/carnet_sante');
+            final user =
+                (context.read<AuthBloc>().state as AuthAuthenticated).user;
+            context.go(CarnetPatientScope.carnetPath(
+              patId: CarnetPatientScope.resolveIds(
+                routePatId: _carnetPatId,
+                authPatId: user.patID,
+              ),
+              authPatId: user.patID,
+            ));
           } else if (state is AddVaccineFailure) {
             _showErrorSnackBar(state.message);
           }
@@ -609,8 +628,16 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
                       try {
                         context.pop();
                       } catch (e) {
-                        // Si pop échoue, naviguer directement vers le carnet
-                        context.go('/carnet_sante');
+                        final user =
+                            (context.read<AuthBloc>().state as AuthAuthenticated)
+                                .user;
+                        context.go(CarnetPatientScope.carnetPath(
+                          patId: CarnetPatientScope.resolveIds(
+                            routePatId: _carnetPatId,
+                            authPatId: user.patID,
+                          ),
+                          authPatId: user.patID,
+                        ));
                       }
                     },
                     backgroundColor: Colors.grey[200],
@@ -707,14 +734,16 @@ class _AddVaccineScreenState extends State<AddVaccineScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // Naviguer vers la page de récapitulatif avec toutes les données
-      context.push(VaccineSummaryScreen.path, extra: {
+      final extra = {
         'selectedVaccin': _selectedNomVaccin,
         'selectedTypeVisite': _selectedTypeVisite,
         'administrationDate': _administrationDateController.text,
         'lotNumber': _lotNumberController.text.trim(),
         'comment': _commentController.text.trim(),
         'photoPath': _selectedImagePath,
-      });
+        'patId': _carnetPatId,
+      };
+      context.push(VaccineSummaryScreen.path, extra: extra);
     }
   }
 

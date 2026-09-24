@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:opicare/core/constants/api_url.dart';
+import 'package:opicare/core/helpers/debug_logger.dart';
 
 import '../../../../core/helpers/helpers.dart';
 import '../../../../core/res/styles/colours.dart';
@@ -18,6 +19,7 @@ import '../../data/models/type_visite_model.dart';
 import '../../data/repositories/type_visite_repository.dart';
 import '../../domain/entities/vaccine_submission_entity.dart';
 import '../bloc/carnet_bloc.dart';
+import '../utils/carnet_patient_scope.dart';
 import '../bloc/type_visite_bloc.dart';
 import '../bloc/type_visite_event.dart';
 import '../bloc/type_visite_state.dart';
@@ -42,6 +44,16 @@ class _ScheduleVaccineScreenState extends State<ScheduleVaccineScreen> {
 
   NomVaccinModel? _selectedNomVaccin;
   TypeVisiteModel? _selectedTypeVisite;
+  String _carnetPatId = '';
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final extra = GoRouterState.of(context).extra;
+    if (extra is Map && extra['patId'] != null) {
+      _carnetPatId = extra['patId'].toString();
+    }
+  }
 
   final _administrationDateController = TextEditingController();
   final _nameController = TextEditingController();
@@ -426,8 +438,16 @@ class _ScheduleVaccineScreenState extends State<ScheduleVaccineScreen> {
                       try {
                         context.pop();
                       } catch (e) {
-                        // Si pop échoue, naviguer directement vers le carnet
-                        context.go('/carnet_sante');
+                        final user =
+                            (context.read<AuthBloc>().state as AuthAuthenticated)
+                                .user;
+                        context.go(CarnetPatientScope.carnetPath(
+                          patId: CarnetPatientScope.resolveIds(
+                            routePatId: _carnetPatId,
+                            authPatId: user.patID,
+                          ),
+                          authPatId: user.patID,
+                        ));
                       }
                     },
                     backgroundColor: Colors.grey[200],
@@ -469,7 +489,10 @@ class _ScheduleVaccineScreenState extends State<ScheduleVaccineScreen> {
         dtPre: "",
         lot: "",
         imgCarnet: "",
-        patId: user.patID,
+        patId: CarnetPatientScope.resolveIds(
+          routePatId: _carnetPatId,
+          authPatId: user.patID,
+        ),
         type: "0",
         vacId: "${_selectedNomVaccin?.idVac}",
         dtRap: formattedDate,

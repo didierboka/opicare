@@ -12,6 +12,7 @@ import 'package:opicare/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:opicare/features/hopitaux/data/models/nom_vaccin_model.dart';
 import 'package:opicare/features/carnet_sante/data/models/type_visite_model.dart';
 import 'package:opicare/features/carnet_sante/domain/entities/vaccine_submission_entity.dart';
+import 'package:opicare/features/carnet_sante/presentation/utils/carnet_patient_scope.dart';
 
 class VaccineSummaryScreen extends StatefulWidget {
   static const path = '/vaccine_summary';
@@ -30,6 +31,7 @@ class _VaccineSummaryScreenState extends State<VaccineSummaryScreen> {
   late String lotNumber;
   late String comment;
   String? photoPath;
+  String _carnetPatId = '';
 
   @override
   void initState() {
@@ -44,6 +46,7 @@ class _VaccineSummaryScreenState extends State<VaccineSummaryScreen> {
         lotNumber = extra['lotNumber'] as String;
         comment = extra['comment'] as String;
         photoPath = extra['photoPath'] as String?;
+        _carnetPatId = extra['patId']?.toString() ?? '';
         
         // Forcer le rebuild après initialisation
         setState(() {});
@@ -83,7 +86,17 @@ class _VaccineSummaryScreenState extends State<VaccineSummaryScreen> {
       listener: (context, state) {
         if (state is AddVaccineSuccess) {
           _showSuccessSnackBar(state.message);
-          context.go('/carnet_sante');
+          final user =
+              (context.read<AuthBloc>().state as AuthAuthenticated).user;
+          final targetPatId = CarnetPatientScope.resolveIds(
+            routePatId: _carnetPatId,
+            authPatId: user.patID,
+          );
+          final target = CarnetPatientScope.carnetPath(
+            patId: targetPatId,
+            authPatId: user.patID,
+          );
+          context.go(target);
         } else if (state is AddVaccineFailure) {
           _showErrorSnackBar(state.message);
           setState(() {
@@ -325,7 +338,10 @@ class _VaccineSummaryScreenState extends State<VaccineSummaryScreen> {
         lot: lotNumber,
         imgCarnet: imageBase64,
         typeAbnt: "1",
-        patId: user.patID,
+        patId: CarnetPatientScope.resolveIds(
+          routePatId: _carnetPatId,
+          authPatId: user.patID,
+        ),
         vacId: selectedVaccin.idVac,
         dtRap: "",
       );
