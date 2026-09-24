@@ -7,6 +7,10 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- **admin**: rechercher un patient par login dans Administration ([be41b4b](https://github.com/didierboka/opicare/commit/be41b4b))
+- **admin**: afficher le menu Administration pour un compte admin ([40f8f19](https://github.com/didierboka/opicare/commit/40f8f19))
+- **auth**: conserver le flag isAdmin renvoyé au login ([94e51b6](https://github.com/didierboka/opicare/commit/94e51b6))
+- **profile**: envoyer la photo de profil vers /update/photo ([280caa8](https://github.com/didierboka/opicare/commit/280caa8))
 - **ui**: afficher la version de l'app dans le tiroir ([a221c2e](https://github.com/didierboka/opicare/commit/a221c2e))
 - verrouiller l'application en portrait uniquement ([a0b8289](https://github.com/didierboka/opicare/commit/a0b8289))
 - **carnet**: partager la photo du carnet d'une visite ([ceb2665](https://github.com/didierboka/opicare/commit/ceb2665))
@@ -43,6 +47,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- update changelog [skip ci] ([f64045e](https://github.com/didierboka/opicare/commit/f64045e))
 - update changelog [skip ci] ([a65d79f](https://github.com/didierboka/opicare/commit/a65d79f))
 - verrouiller share_plus dans pubspec.lock ([52d766b](https://github.com/didierboka/opicare/commit/52d766b))
 - update changelog [skip ci] ([71e4539](https://github.com/didierboka/opicare/commit/71e4539))
@@ -113,6 +118,12 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - add GitHub Actions for changelog automation ([f855a1a](https://github.com/didierboka/opicare/commit/f855a1a))
 
 ### Fixed
+- **profile**: afficher le snackbar après mise à jour de la photo ([5740589](https://github.com/didierboka/opicare/commit/5740589))
+- **admin**: journaliser la requête et la réponse de recherche patient ([835798b](https://github.com/didierboka/opicare/commit/835798b))
+- **network**: lire BACK et écrire PROD via le champ d ([0b0a26a](https://github.com/didierboka/opicare/commit/0b0a26a))
+- **carnet**: éviter le crash GoRouter après mise à jour d'un vaccin ([f37e4a0](https://github.com/didierboka/opicare/commit/f37e4a0))
+- **network**: garder l'API Orange USSD sur opisms.net ([fcfeff1](https://github.com/didierboka/opicare/commit/fcfeff1))
+- **network**: pointer toutes les API Opicare vers opisms.com ([9e96104](https://github.com/didierboka/opicare/commit/9e96104))
 - **carnet**: pointer l'API user vers opisms.net ([fd6fe34](https://github.com/didierboka/opicare/commit/fd6fe34))
 - **network**: sonder l'API au lieu de Google pour la connectivité ([9b7e07e](https://github.com/didierboka/opicare/commit/9b7e07e))
 - **android**: activer le sélecteur photo système (1.0.8+22) ([273606e](https://github.com/didierboka/opicare/commit/273606e))
