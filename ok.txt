@@ -65,3 +65,5 @@ Maintenant ajoutons le membre retrouve :
         comme les existants (code & msg)
 
 - On affichera un dialog pour le retour avec le message (de msg) et un bouton de retour "OK" qui retournera sur la liste de famille
+
+
