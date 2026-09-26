@@ -7,6 +7,8 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- **forms**: afficher et masquer le mot de passe via une icône œil (#4) ([b9fcd4c](https://github.com/didierboka/opicare/commit/b9fcd4c))
+- **forms**: afficher et masquer le mot de passe via une icône œil ([546cd7e](https://github.com/didierboka/opicare/commit/546cd7e))
 - **admin**: rechercher un patient par login dans Administration ([be41b4b](https://github.com/didierboka/opicare/commit/be41b4b))
 - **admin**: afficher le menu Administration pour un compte admin ([40f8f19](https://github.com/didierboka/opicare/commit/40f8f19))
 - **auth**: conserver le flag isAdmin renvoyé au login ([94e51b6](https://github.com/didierboka/opicare/commit/94e51b6))
@@ -47,6 +49,8 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- **forms**: vérifier le masquage via EditableText ([369dd87](https://github.com/didierboka/opicare/commit/369dd87))
+- update changelog [skip ci] ([0b90040](https://github.com/didierboka/opicare/commit/0b90040))
 - update changelog [skip ci] ([f64045e](https://github.com/didierboka/opicare/commit/f64045e))
 - update changelog [skip ci] ([a65d79f](https://github.com/didierboka/opicare/commit/a65d79f))
 - verrouiller share_plus dans pubspec.lock ([52d766b](https://github.com/didierboka/opicare/commit/52d766b))
