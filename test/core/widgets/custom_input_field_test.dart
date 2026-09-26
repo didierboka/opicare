@@ -28,9 +28,9 @@ void main() {
       ),
     );
 
-    final fieldFinder = find.byType(TextFormField);
-    expect(fieldFinder, findsOneWidget);
-    expect(tester.widget<TextFormField>(fieldFinder).obscureText, isTrue);
+    expect(find.byType(TextFormField), findsOneWidget);
+    expect(tester.widget<EditableText>(find.byType(EditableText)).obscureText,
+        isTrue);
     expect(find.byIcon(Icons.visibility), findsOneWidget);
     expect(find.byIcon(Icons.visibility_off), findsNothing);
     expect(find.byTooltip('Afficher le mot de passe'), findsOneWidget);
@@ -38,7 +38,8 @@ void main() {
     await tester.tap(find.byIcon(Icons.visibility));
     await tester.pump();
 
-    expect(tester.widget<TextFormField>(fieldFinder).obscureText, isFalse);
+    expect(tester.widget<EditableText>(find.byType(EditableText)).obscureText,
+        isFalse);
     expect(find.byIcon(Icons.visibility_off), findsOneWidget);
     expect(find.byIcon(Icons.visibility), findsNothing);
     expect(find.byTooltip('Masquer le mot de passe'), findsOneWidget);
@@ -46,7 +47,8 @@ void main() {
     await tester.tap(find.byIcon(Icons.visibility_off));
     await tester.pump();
 
-    expect(tester.widget<TextFormField>(fieldFinder).obscureText, isTrue);
+    expect(tester.widget<EditableText>(find.byType(EditableText)).obscureText,
+        isTrue);
     expect(find.byIcon(Icons.visibility), findsOneWidget);
     expect(find.byIcon(Icons.visibility_off), findsNothing);
   });
@@ -66,7 +68,7 @@ void main() {
       ),
     );
 
-    expect(tester.widget<TextFormField>(find.byType(TextFormField)).obscureText,
+    expect(tester.widget<EditableText>(find.byType(EditableText)).obscureText,
         isFalse);
     expect(find.byIcon(Icons.visibility), findsNothing);
     expect(find.byIcon(Icons.visibility_off), findsNothing);
