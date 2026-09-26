@@ -49,6 +49,9 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- **git**: merge from remote ([1222eff](https://github.com/didierboka/opicare/commit/1222eff))
+- **git**: merge from remote ([a9d0fd7](https://github.com/didierboka/opicare/commit/a9d0fd7))
+- update changelog [skip ci] ([aaef738](https://github.com/didierboka/opicare/commit/aaef738))
 - **forms**: vérifier le masquage via EditableText ([369dd87](https://github.com/didierboka/opicare/commit/369dd87))
 - update changelog [skip ci] ([0b90040](https://github.com/didierboka/opicare/commit/0b90040))
 - update changelog [skip ci] ([f64045e](https://github.com/didierboka/opicare/commit/f64045e))
@@ -122,6 +125,8 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - add GitHub Actions for changelog automation ([f855a1a](https://github.com/didierboka/opicare/commit/f855a1a))
 
 ### Fixed
+- **carnet**: conserver le retour vers Famille après ajout d'une visite ([43a95fa](https://github.com/didierboka/opicare/commit/43a95fa))
+- **carnet**: associer vaccin et visite au membre famille ouvert ([311465d](https://github.com/didierboka/opicare/commit/311465d))
 - **profile**: afficher le snackbar après mise à jour de la photo ([5740589](https://github.com/didierboka/opicare/commit/5740589))
 - **admin**: journaliser la requête et la réponse de recherche patient ([835798b](https://github.com/didierboka/opicare/commit/835798b))
 - **network**: lire BACK et écrire PROD via le champ d ([0b0a26a](https://github.com/didierboka/opicare/commit/0b0a26a))
