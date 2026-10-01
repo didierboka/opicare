@@ -50,6 +50,8 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- passer la version à 1.1.2+26 ([2474724](https://github.com/didierboka/opicare/commit/2474724))
+- update changelog [skip ci] ([d7dc72a](https://github.com/didierboka/opicare/commit/d7dc72a))
 - update changelog [skip ci] ([f0aedf5](https://github.com/didierboka/opicare/commit/f0aedf5))
 - **git**: merge from remote ([1222eff](https://github.com/didierboka/opicare/commit/1222eff))
 - **git**: merge from remote ([a9d0fd7](https://github.com/didierboka/opicare/commit/a9d0fd7))
