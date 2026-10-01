@@ -7,6 +7,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 
 ## [Unreleased]
 ### Added
+- **famille**: autoriser PREMIUM à consulter le carnet d'un rattaché ([f3ba450](https://github.com/didierboka/opicare/commit/f3ba450))
 - **forms**: afficher et masquer le mot de passe via une icône œil (#4) ([b9fcd4c](https://github.com/didierboka/opicare/commit/b9fcd4c))
 - **forms**: afficher et masquer le mot de passe via une icône œil ([546cd7e](https://github.com/didierboka/opicare/commit/546cd7e))
 - **admin**: rechercher un patient par login dans Administration ([be41b4b](https://github.com/didierboka/opicare/commit/be41b4b))
@@ -49,6 +50,7 @@ et ce projet suit la spécification [Semantic Versioning](https://semver.org/spe
 - **changelog**: setup automated changelog generation ([6433586](https://github.com/didierboka/opicare/commit/6433586))
 
 ### Changed
+- update changelog [skip ci] ([f0aedf5](https://github.com/didierboka/opicare/commit/f0aedf5))
 - **git**: merge from remote ([1222eff](https://github.com/didierboka/opicare/commit/1222eff))
 - **git**: merge from remote ([a9d0fd7](https://github.com/didierboka/opicare/commit/a9d0fd7))
 - update changelog [skip ci] ([aaef738](https://github.com/didierboka/opicare/commit/aaef738))
