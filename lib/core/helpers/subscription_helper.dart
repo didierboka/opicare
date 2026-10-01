@@ -27,16 +27,22 @@ class SubscriptionHelper {
     }
   }
 
-  /// Vérifie si l'utilisateur peut accéder au carnet de santé
+  /// Carnet du compte connecté : BUSINESS ou SERENITY.
   static bool canAccessCarnet(UserModel user) {
     final allowedFormulas = ['BUSINESS', 'SERENITY'];
-    return allowedFormulas.contains(user.abonnementLabel.toUpperCase());
+    return allowedFormulas.contains(user.abonnementLabel.trim().toUpperCase());
+  }
+
+  /// Carnet d’un membre famille : PREMIUM, BUSINESS ou SERENITY.
+  static bool canAccessFamilyMemberCarnet(UserModel user) {
+    final allowedFormulas = ['PREMIUM', 'BUSINESS', 'SERENITY'];
+    return allowedFormulas.contains(user.abonnementLabel.trim().toUpperCase());
   }
 
   /// Vérifie si l'utilisateur peut accéder à
   static bool canAccessFamily(UserModel user) {
     final allowedFormulas = ['BUSINESS', 'SERENITY'];
-    return allowedFormulas.contains(user.abonnementLabel.toUpperCase());
+    return allowedFormulas.contains(user.abonnementLabel.trim().toUpperCase());
   }
 
   /// Vérifie si une option spécifique doit être grisée
@@ -107,6 +113,37 @@ class SubscriptionHelper {
     );
   }
 
+
+  static void showFamilyMemberCarnetAccessDeniedDialog(
+    BuildContext context, {
+    Object? iapExtra,
+  }) {
+    final rootContext = context;
+    showDialog(
+      context: rootContext,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Accès refusé'),
+          content: const Text(
+            'La formule d\'abonnement de ce membre ne permet pas de consulter son carnet de santé. Une formule PREMIUM, BUSINESS ou SERENITY est requise.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                rootContext.push(IapScreen.path, extra: iapExtra);
+              },
+              child: const Text('Souscrire'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   static showCarnetAccessDeniedDialog(BuildContext context) {
     final rootContext = context;

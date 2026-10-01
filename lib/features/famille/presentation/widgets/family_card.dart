@@ -106,8 +106,11 @@ class FamilyMemberCard extends StatelessWidget {
             _showExpiredMemberDialog(context);
             return;
           }
-          if (!SubscriptionHelper.canAccessCarnet(user)) {
-            SubscriptionHelper.showCarnetAccessDeniedDialog(context);
+          if (!SubscriptionHelper.canAccessFamilyMemberCarnet(user)) {
+            SubscriptionHelper.showFamilyMemberCarnetAccessDeniedDialog(
+              context,
+              iapExtra: _purchaseContext,
+            );
             return;
           }
           context.push('${CarnetSanteScreen.path}/${member.id}');
